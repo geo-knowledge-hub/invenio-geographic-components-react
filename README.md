@@ -1,1 +1,1 @@
-# geo-metadata-previewer-component
+# Geospatial Metadata Previewer
