@@ -4,8 +4,5 @@
 // Geospatial Metadata Viewer is free software; you can redistribute it and/or modify it
 // under the terms of the MIT License; see LICENSE file for more details.
 
-import React from "react";
-import ReactDOM from "react-dom";
-import App from "./demos/App";
-
-ReactDOM.render(<App />, document.getElementById("root"));
+import BaseMap from "./components/BaseMap";
+export { BaseMap };
