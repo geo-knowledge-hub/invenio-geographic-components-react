@@ -9,11 +9,17 @@
   ],
   "scripts": {
     "start": "react-scripts start",
-    "build-examples": "react-scripts build",
     "test": "react-scripts test --env=jsdom",
     "eject": "react-scripts eject",
     "watch": "NODE_ENV=development rollup --watch -c",
-    "build": "rimraf dist && NODE_ENV=production rollup -c --failAfterWarnings"
+    "build": "rimraf dist && NODE_ENV=production rollup -c --failAfterWarnings",
+    "edit-linked-package": "json -I -f ./dist/package.json -e 'this.module=\"esm/index.js\", this.main=\"cjs/index.js\"' ",
+    "prelink-dist": "cp package.json ./dist && npm run edit-linked-package",
+    "link-dist": "cd dist && npm link",
+    "postlink-dist": "cd dist && rm -rf node_modules",
+    "unlink-dist": "cd dist && npm unlink && rm package*",
+    "lint": "eslint src/**/*.js",
+    "format": "prettier --config ./.prettierrc --ignore-path ./.prettierignore --write \"src/**/*.js\""
   },
   "devDependencies": {
     "babel-cli": "^6.26.0",
@@ -27,7 +33,8 @@
     "rollup": "^2.10.0",
     "rollup-plugin-local-resolve": "^1.0.0",
     "rollup-plugin-peer-deps-external": "^2.2.0",
-    "rollup-plugin-postcss": "^3.1.0"
+    "rollup-plugin-postcss": "^3.1.0",
+    "prettier": "^2.0.0"
   },
   "author": {
     "name": "GEO Secretariat",
