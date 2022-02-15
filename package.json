@@ -34,7 +34,13 @@
     "rollup-plugin-local-resolve": "^1.0.0",
     "rollup-plugin-peer-deps-external": "^2.2.0",
     "rollup-plugin-postcss": "^3.1.0",
-    "prettier": "^2.0.0"
+    "prettier": "^2.0.0",
+    "react-scripts": "^5.0.0",
+    "leaflet": "^1.7.1",
+    "react-leaflet": "^3.1.0",
+    "react": "^17.0.2",
+    "react-dom": "^17.0.2",
+    "postcss": "^8.4.6"
   },
   "author": {
     "name": "GEO Secretariat",
@@ -55,8 +61,7 @@
     "leaflet": "^1.7.1",
     "react-leaflet": "^3.1.0",
     "react": "^17.0.2",
-    "react-dom": "^17.0.2",
-    "react-scripts": "^5.0.0"
+    "react-dom": "^17.0.2"
   },
   "browserslist": {
     "production": [
