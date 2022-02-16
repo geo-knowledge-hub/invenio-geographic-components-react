@@ -1,1 +1,13 @@
-{ "presets": [["react-app", { "absoluteRuntime": false }]] }
+{
+    "presets": [
+        [
+            "react-app",
+            {
+                "absoluteRuntime": false
+            }
+        ]
+    ],
+    "plugins": [
+        "@babel/plugin-proposal-nullish-coalescing-operator"
+    ]
+}

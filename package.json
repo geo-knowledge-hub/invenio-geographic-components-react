@@ -37,7 +37,8 @@
     "prettier": "^2.0.0",
     "react-scripts": "^5.0.0",
     "leaflet": "^1.7.1",
-    "react-leaflet": "^3.1.0",
+    "react-leaflet": "3.1.0",
+    "@react-leaflet/core": "1.0.2",
     "react": "^17.0.2",
     "react-dom": "^17.0.2",
     "postcss": "^8.4.6"
@@ -58,23 +59,18 @@
     "extends": "react-app"
   },
   "peerDependencies": {
-    "leaflet": "^1.7.1",
-    "react-leaflet": "^3.1.0",
     "react": "^17.0.2",
-    "react-dom": "^17.0.2"
+    "react-dom": "^17.0.2",
+    "lodash": "^4.17.0",
+    "leaflet": "^1.7.1",
+    "react-leaflet": "3.1.0",
+    "@react-leaflet/core": "1.0.2"
   },
-  "browserslist": {
-    "production": [
-      ">0.2%",
-      "not dead",
-      "not op_mini all"
-    ],
-    "development": [
-      "last 1 chrome version",
-      "last 1 firefox version",
-      "last 1 safari version"
-    ]
-  },
+  "browserslist": [
+    ">0.2%",
+    "not dead",
+    "not op_mini all"
+  ],
   "engines": {
     "node": ">=14.0.0"
   }
