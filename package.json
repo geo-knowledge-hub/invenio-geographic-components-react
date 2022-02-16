@@ -48,10 +48,10 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/geo-knowledge-hub/geo-metadata-previewer-react.git"
+    "url": "https://github.com/geo-knowledge-hub/react-geospatial-metadata-previewer.git"
   },
   "bugs": {
-    "url": "https://github.com/geo-knowledge-hub/geo-metadata-previewer-react/issues"
+    "url": "https://github.com/geo-knowledge-hub/react-geospatial-metadata-previewer/issues"
   },
   "license": "MIT",
   "eslintConfig": {
