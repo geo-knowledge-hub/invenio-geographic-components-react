@@ -4,5 +4,5 @@
 // Geospatial Metadata Viewer is free software; you can redistribute it and/or modify it
 // under the terms of the MIT License; see LICENSE file for more details.
 
-import BaseMap from "./components/BaseMap";
-export { BaseMap };
+import InteractiveMap from "./components/InteractiveMap";
+export { InteractiveMap };
