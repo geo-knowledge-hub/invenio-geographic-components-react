@@ -8,7 +8,6 @@ import React, { Component } from "react";
 import { MapContainer, TileLayer, GeoJSON } from "react-leaflet";
 
 export default class BaseMap extends Component {
-
     render () {
         const { centerMap, zoomMap, geoJsonData } = this.props;
 
