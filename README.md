@@ -1,3 +1,3 @@
-# React-Geospatial-Metadata-Previewer
+# GEO Metadata Previewer
 
 Geospatial Metadata Previewer support for the InvenioRDM.

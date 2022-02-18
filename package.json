@@ -1,5 +1,5 @@
 {
-  "name": "react-geospatial-metadata-previewer",
+  "name": "geo-metadata-previewer-react",
   "version": "0.1.0",
   "main": "dist/cjs/index.js",
   "browser": "dist/cjs/index.js",
@@ -49,10 +49,10 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/geo-knowledge-hub/react-geospatial-metadata-previewer.git"
+    "url": "https://github.com/geo-knowledge-hub/geo-metadata-previewer-react.git"
   },
   "bugs": {
-    "url": "https://github.com/geo-knowledge-hub/react-geospatial-metadata-previewer/issues"
+    "url": "https://github.com/geo-knowledge-hub/geo-metadata-previewer-react/issues"
   },
   "license": "MIT",
   "eslintConfig": {
