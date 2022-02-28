@@ -7,7 +7,6 @@
 import React, { Component } from "react";
 
 import { InteractiveMap } from "../lib";
-import "leaflet/dist/leaflet.css";
 
 import "./App.css";
 

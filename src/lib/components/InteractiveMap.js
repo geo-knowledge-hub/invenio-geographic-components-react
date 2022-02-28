@@ -14,6 +14,7 @@ import { useEffect, useRef } from "react";
 import L from "leaflet";
 import { useLeafletContext } from "@react-leaflet/core";
 
+import "leaflet/dist/leaflet.css";
 import { MapContainer, TileLayer } from "react-leaflet";
 
 /**
