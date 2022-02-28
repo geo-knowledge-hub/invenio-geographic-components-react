@@ -39,6 +39,7 @@ class App extends Component {
     return (
       <InteractiveMap
         mapContainerOptions={{
+          id: "map-container",
           scrollWheelZoom: true,
         }}
         geoJSONData={geoJSONData}
