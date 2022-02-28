@@ -6,6 +6,8 @@
 
 import _ from "lodash";
 
+import PropTypes from "prop-types";
+
 import React, { Component } from "react";
 import { useEffect, useRef } from "react";
 
@@ -14,6 +16,10 @@ import { useLeafletContext } from "@react-leaflet/core";
 
 import { MapContainer, TileLayer } from "react-leaflet";
 
+/**
+ * GeoJSON Geometry representation component to use
+ * into the ``InteractiveMap``.
+ */
 const GeoJSONGeometry = (props) => {
   const context = useLeafletContext();
 
@@ -34,36 +40,43 @@ const GeoJSONGeometry = (props) => {
       container.fitBounds(geometryLayerRef.current.getBounds());
 
       return () => {
-        container.removeLayer(geometryLayerRef.current)
-      }
+        container.removeLayer(geometryLayerRef.current);
+      };
     }
   }, [context]);
 
   return null;
 };
 
+/**
+ * Interactive map component.
+ */
 export default class InteractiveMap extends Component {
-  constructor(props) {
-    super(props);
-
-    // setting the default values
-    this.mapDivId = props.mapDivId || "map";
-    this.geoJSONData = props.geoJSONData || null;
-    this.mapContainerOptions = props.mapContainerOptions || {
-      scrollWheelZoom: false,
-    };
-  }
-
   render() {
+    const { mapContainerOptions, geoJSONData } = this.props;
+
     return (
-      <MapContainer {...this.mapContainerOptions}>
+      <MapContainer {...mapContainerOptions}>
         <TileLayer
           attribution='&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
         />
 
-        <GeoJSONGeometry geometryData={this.geoJSONData} />
+        <GeoJSONGeometry geometryData={geoJSONData} />
       </MapContainer>
     );
   }
 }
+
+InteractiveMap.propTypes = {
+  geoJSONData: PropTypes.object,
+  mapContainerOptions: PropTypes.object,
+};
+
+InteractiveMap.defaultProps = {
+  geoJSONData: null,
+  mapContainerOptions: {
+    id: "map-container",
+    scrollWheelZoom: false,
+  },
+};
