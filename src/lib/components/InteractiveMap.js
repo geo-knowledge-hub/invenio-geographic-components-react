@@ -1,21 +1,22 @@
-// This file is part of GEO Metadata Previewer React
-// Copyright (C) 2022 GEO Secretariat.
-//
-// GEO Metadata Previewer is free software; you can redistribute it and/or modify it
-// under the terms of the MIT License; see LICENSE file for more details.
+/*
+ * This file is part of GEO-Metadata-Previewer.
+ * Copyright (C) 2022 GEO Secretariat.
+ *
+ * GEO-Metadata-Previewer is free software; you can redistribute it and/or modify it
+ * under the terms of the MIT License; see LICENSE file for more details.
+ */
 
-import _ from "lodash";
+import _ from 'lodash';
 
-import PropTypes from "prop-types";
+import PropTypes from 'prop-types';
 
-import React, { Component } from "react";
-import { useEffect, useRef } from "react";
+import React from 'react';
+import { useEffect, useRef } from 'react';
 
-import L from "leaflet";
-import { useLeafletContext } from "@react-leaflet/core";
+import L from 'leaflet';
+import { useLeafletContext } from '@react-leaflet/core';
 
-import "leaflet/dist/leaflet.css";
-import { MapContainer, TileLayer } from "react-leaflet";
+import { MapContainer, TileLayer } from 'react-leaflet';
 
 /**
  * GeoJSON Geometry representation component to use
@@ -52,22 +53,18 @@ const GeoJSONGeometry = (props) => {
 /**
  * Interactive map component.
  */
-export default class InteractiveMap extends Component {
-  render() {
-    const { mapContainerOptions, geoJSONData } = this.props;
+export const InteractiveMap = ({ mapContainerOptions, geoJSONData }) => {
+  return (
+    <MapContainer {...mapContainerOptions}>
+      <TileLayer
+        attribution='&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
+        url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+      />
 
-    return (
-      <MapContainer {...mapContainerOptions}>
-        <TileLayer
-          attribution='&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
-          url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-        />
-
-        <GeoJSONGeometry geometryData={geoJSONData} />
-      </MapContainer>
-    );
-  }
-}
+      <GeoJSONGeometry geometryData={geoJSONData} />
+    </MapContainer>
+  );
+};
 
 InteractiveMap.propTypes = {
   geoJSONData: PropTypes.object,
@@ -77,7 +74,7 @@ InteractiveMap.propTypes = {
 InteractiveMap.defaultProps = {
   geoJSONData: null,
   mapContainerOptions: {
-    id: "map-container",
+    id: 'map-container',
     scrollWheelZoom: false,
   },
 };

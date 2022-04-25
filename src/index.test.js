@@ -7,9 +7,11 @@
  */
 
 import React from 'react';
-import ReactDOM from 'react-dom';
-import { App } from './demos/App';
+import { render } from '@testing-library/react';
 
-import 'leaflet/dist/leaflet.css';
+test('Basic App test', () => {
+  // ToDo: add tests for the components itself.
+  const { getByText } = render(<h1>GEO Metadata Previewer</h1>);
 
-ReactDOM.render(<App />, document.getElementById('root'));
+  expect(getByText('GEO Metadata Previewer')).toBeInTheDocument();
+});
