@@ -7,3 +7,4 @@
  */
 
 export { InteractiveMap } from './InteractiveMap';
+export { GeospatialMetadataVisualizer } from './GeospatialMetadataVisualizer';
