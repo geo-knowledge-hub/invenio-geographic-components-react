@@ -19,7 +19,9 @@ import { useLeafletContext } from '@react-leaflet/core';
 import { MapContainer, TileLayer } from 'react-leaflet';
 
 /**
- * GeoJSON Geometry representation component to use
+ * GeoJSONGeometry
+ *
+ * @summary GeoJSON Geometry representation component to use
  * into the ``InteractiveMap``.
  */
 const GeoJSONGeometry = (props) => {
@@ -51,7 +53,10 @@ const GeoJSONGeometry = (props) => {
 };
 
 /**
- * Interactive map component.
+ * InteractiveMap
+ *
+ * @summary Interactive map component.
+ *
  */
 export const InteractiveMap = ({ mapContainerOptions, geoJSONData }) => {
   return (

@@ -8,7 +8,7 @@
 
 import React from 'react';
 
-import { InteractiveMap } from '../lib';
+import { GeospatialMetadataVisualizer } from '../lib';
 
 import './App.css';
 
@@ -38,12 +38,16 @@ export const App = () => {
 
   return (
     <>
-      <InteractiveMap
+      <GeospatialMetadataVisualizer
         mapContainerOptions={{
           id: 'map-container',
           scrollWheelZoom: true,
         }}
-        geoJSONData={geoJSONData}
+        recordContext={{
+          metadata: {
+            locations: geoJSONData
+          }
+        }}
       />
     </>
   );

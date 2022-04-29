@@ -7,6 +7,8 @@
  */
 
 import _ from 'lodash';
+import PropTypes from 'prop-types';
+
 import { InteractiveMap } from './InteractiveMap';
 
 /**
@@ -18,42 +20,40 @@ export const GeospatialMetadataVisualizer = ({
   mapContainerOptions,
   recordContext,
 }) => {
-  {
-    if (
-      _.isEmpty(recordContext) ||
-      _.get(recordContext, 'metadata.locations', null)
-    ) {
-      throw new Error('You must define a record with the locations defined.');
-    }
-
-    // organizing the locations
-    let recordLocationsObject = {};
-    const recordLocations = recordContext.metadata.locations;
-
-    if (!_.isEmpty(recordLocations)) {
-      // getting the locations that have an spatial geometry associated
-      const recordLocationsWithGeometry = recordLocations.features.filter(
-        (item) => {
-          return _.has(item, 'geometry');
-        }
-      );
-
-      // preparing the GeoJSON object.
-      recordLocationsObject = {
-        type: 'FeatureCollection',
-        features: recordLocationsWithGeometry.map((x) => {
-          return { type: 'Feature', ...x };
-        }),
-      };
-    }
-
-    return (
-      <InteractiveMap
-        mapContainerOptions={mapContainerOptions}
-        geoJSONData={recordLocationsObject}
-      />
-    );
+  if (
+    _.isEmpty(recordContext) ||
+    !_.get(recordContext, 'metadata.locations', null)
+  ) {
+    throw new Error('You must provide a record with the locations defined.');
   }
+
+  // organizing the locations
+  let recordLocationsObject = {};
+  const recordLocations = recordContext.metadata.locations;
+
+  if (!_.isEmpty(recordLocations)) {
+    // getting the locations that have an spatial geometry associated
+    const recordLocationsWithGeometry = recordLocations.features.filter(
+      (item) => {
+        return _.has(item, 'geometry');
+      }
+    );
+
+    // preparing the GeoJSON object.
+    recordLocationsObject = {
+      type: 'FeatureCollection',
+      features: recordLocationsWithGeometry.map((x) => {
+        return { type: 'Feature', ...x };
+      }),
+    };
+  }
+
+  return (
+    <InteractiveMap
+      mapContainerOptions={mapContainerOptions}
+      geoJSONData={recordLocationsObject}
+    />
+  );
 };
 
 GeospatialMetadataVisualizer.propTypes = {
