@@ -6,12 +6,12 @@
  * under the terms of the MIT License; see LICENSE file for more details.
  */
 
+import React from 'react';
+import { useEffect, useRef } from 'react';
+
 import _ from 'lodash';
 
 import PropTypes from 'prop-types';
-
-import React from 'react';
-import { useEffect, useRef } from 'react';
 
 import L from 'leaflet';
 import { useLeafletContext } from '@react-leaflet/core';
