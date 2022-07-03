@@ -8,8 +8,27 @@
 
 import React from 'react';
 import ReactDOM from 'react-dom';
+
 import { App } from './demos/App';
 
+// Leaflet
 import 'leaflet/dist/leaflet.css';
+
+// Geocoding controller
+import 'leaflet-control-geocoder/dist/Control.Geocoder.js';
+import 'leaflet-control-geocoder/dist/Control.Geocoder.css';
+
+// Geometry editor
+import '@geoman-io/leaflet-geoman-free';
+import '@geoman-io/leaflet-geoman-free/dist/leaflet-geoman.css';
+
+// Fullscreen
+import 'leaflet.fullscreen';
+
+// Semantic UI
+import 'semantic-ui-css/semantic.min.css';
+
+// Semantic UI Toasts
+import 'react-semantic-toasts/styles/react-semantic-alert.css';
 
 ReactDOM.render(<App />, document.getElementById('root'));

@@ -6,4 +6,7 @@
  * under the terms of the MIT License; see LICENSE file for more details.
  */
 
+import './i18next';
+
+export * from './base';
 export * from './components';
