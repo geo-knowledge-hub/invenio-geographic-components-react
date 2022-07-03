@@ -7,11 +7,15 @@
  */
 
 import React from 'react';
-import { render } from '@testing-library/react';
 
-test('Basic App test', () => {
-  // ToDo: add tests for the components itself.
-  const { getByText } = render(<h1>GEO Metadata Previewer</h1>);
+import L from 'leaflet';
+import { createControlComponent } from '@react-leaflet/core';
 
-  expect(getByText('GEO Metadata Previewer')).toBeInTheDocument();
-});
+import './base';
+
+/**
+ * Mouse Coordinate location component.
+ */
+export const MouseCoordinateControl = createControlComponent((props) =>
+  L.Control.mouseCoordinate(props)
+);

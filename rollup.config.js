@@ -17,6 +17,8 @@ import path from 'path';
 import peerDepsExternal from 'rollup-plugin-peer-deps-external';
 import postcss from 'rollup-plugin-postcss';
 import json from '@rollup/plugin-json';
+import node from '@rollup/plugin-node-resolve';
+
 import pkg from './package.json';
 
 export default {
@@ -56,6 +58,10 @@ export default {
       exclude: 'node_modules/**',
     }),
     commonjs(),
+    node({
+      browser: true,
+      preferBuiltins: false
+    }),
     json(),
   ],
 };

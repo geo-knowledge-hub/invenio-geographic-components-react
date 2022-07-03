@@ -8,47 +8,4 @@
 
 import React from 'react';
 
-import { GeospatialMetadataVisualizer } from '../lib';
-
-import './App.css';
-
-export const App = () => {
-  // defining the properties
-  const geoJSONData = {
-    type: 'FeatureCollection',
-    features: [
-      {
-        type: 'Feature',
-        properties: {},
-        geometry: {
-          type: 'Polygon',
-          coordinates: [
-            [
-              [6.214485168457031, 46.23780244949404],
-              [6.288299560546875, 46.23780244949404],
-              [6.288299560546875, 46.275783689088],
-              [6.214485168457031, 46.275783689088],
-              [6.214485168457031, 46.23780244949404],
-            ],
-          ],
-        },
-      },
-    ],
-  };
-
-  return (
-    <>
-      <GeospatialMetadataVisualizer
-        mapContainerOptions={{
-          id: 'map-container',
-          scrollWheelZoom: true,
-        }}
-        recordContext={{
-          metadata: {
-            locations: geoJSONData
-          }
-        }}
-      />
-    </>
-  );
-};
+export const App = () => <></>;
