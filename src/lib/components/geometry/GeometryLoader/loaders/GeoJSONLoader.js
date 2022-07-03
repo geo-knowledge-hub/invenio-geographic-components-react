@@ -13,7 +13,7 @@ import _isNil from 'lodash/isNil';
 
 import { Dropdown } from 'semantic-ui-react';
 
-import { GeometryLoader } from '../../../../base';
+import { GeometryLoaderOperator } from '../../../../base';
 import { i18next } from '@translations/i18next';
 
 /**
@@ -37,7 +37,7 @@ export const GeoJSONLoader = ({ onImport, dropdownItemConfig }) => {
       const fileAttached = files[0];
 
       if (!_isNil(fileAttached)) {
-        GeometryLoader.GeoJSONLoader.loader(onImport, fileAttached);
+        GeometryLoaderOperator.GeoJSONLoader.loader(onImport, fileAttached);
       }
     } else {
       resultData.errors = [

@@ -24,6 +24,20 @@ import {
   GeometryField,
 } from '../';
 
+/**
+ * Location field.
+ *
+ * @param {String} action Name of the action performed with the component (e.g., add or edit).
+ * @param {Function} onLocationChange Function called when the location object changed.
+ * @param {Function} trigger Component used to trigger the Location Field Modal.
+ * @param {String} addLabel Text used in the label when the component is used to add a new location.
+ * @param {String} editLabel Text used in the label when the component is used to edit a location.
+ * @param {Object} initialLocation Initial values for the location. This option can be used to fill the fields
+ *                                 in the edition mode.
+ * @param {Object} interactiveMapConfig Configuration object for the `InteractiveMap`.
+ * @returns {JSX.Element}
+ * @constructor
+ */
 export const LocationField = ({
   action,
   onLocationChange,
@@ -38,6 +52,14 @@ export const LocationField = ({
     action: null,
     formState: null,
   });
+
+  /**
+   * Messages
+   */
+  const Messages = {
+    Added: i18next.t('Added'),
+    SaveAndAdd: i18next.t('Save and add another'),
+  };
 
   /**
    * Modal Actions
@@ -56,17 +78,17 @@ export const LocationField = ({
    * Addition Message
    */
   const [addedMessageState, setAddedMessageState] = useState(
-    'Save and add another'
+    Messages.SaveAndAdd
   );
 
   /**
    * Change content effect (on addition)
    */
   const changeContent = () => {
-    setAddedMessageState('Added');
+    setAddedMessageState(Messages.Added);
 
     setTimeout(() => {
-      setAddedMessageState('Save and add another');
+      setAddedMessageState(i18next.t(Messages.SaveAndAdd));
     }, 2000);
   };
 
@@ -189,7 +211,7 @@ export const LocationField = ({
                 name={'submit'}
                 onClick={(event, form) => {
                   setModalState({
-                    action: 'saveAndContinue',
+                    action: 'saveAndClose',
                     formState: form,
                   });
                 }}

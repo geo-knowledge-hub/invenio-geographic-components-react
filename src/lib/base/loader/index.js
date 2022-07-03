@@ -9,7 +9,7 @@
 import { WFSLoader } from './wfs';
 import { GeoJSONLoader } from './geojson';
 
-export const GeometryLoader = {
+export const GeometryLoaderOperator = {
   GeoJSONLoader,
   WFSLoader,
 };
