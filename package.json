@@ -1,5 +1,5 @@
 {
-  "name": "@geo-knowledge-hub/geo-metadata-previewer-react",
+  "name": "@geo-knowledge-hub/invenio-geographic-components-react",
   "version": "0.2.0",
   "main": "dist/cjs/index.js",
   "browser": "dist/cjs/index.js",
