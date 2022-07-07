@@ -26,6 +26,7 @@ import {
 
 /**
  * Locations modal.
+ * @constructor
  *
  * @param {String} action Name of the action performed with the component (e.g., add or edit).
  * @param {Function} onLocationChange Function called when the location object changed.
@@ -36,7 +37,10 @@ import {
  *                                 in the edition mode.
  * @param {Object} interactiveMapConfig Configuration object for the `InteractiveMap`.
  * @returns {JSX.Element}
- * @constructor
+ *
+ * @note This component is based on `CreatibutorsModal` from React Invenio Deposit.
+ * @see https://github.com/inveniosoftware/react-invenio-deposit/blob/0e7977fa917a21bf0ff9f69025e3aedd7a747000/src/lib/components/Creatibutors/CreatibutorsModal.js
+ *
  */
 export const LocationsModal = ({
   action,

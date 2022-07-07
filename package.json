@@ -155,7 +155,7 @@
     "moduleNameMapper": {
       "@translations/i18next": "<rootDir>/src/lib/i18next",
       "@tests/setup": "<rootDir>/src/setupTests",
-      "@tests/mock/spatial/(.*)": "<rootDir>/src/mocks/spatial/$1"
+      "@tests/mock/(.*)/(.*)": "<rootDir>/src/mocks/$1/$2"
     }
   }
 }

@@ -41,6 +41,9 @@ import { LocationsFieldItem } from './LocationsFieldItem';
  * @param {String} labelIcon Field icon.
  * @param {Bool} required Flag to set if the field is required in the form.
  * @returns {JSX.Element}
+ *
+ * @note This component is based on `CreatibutorsField` from React Invenio Deposit.
+ * @see https://github.com/inveniosoftware/react-invenio-deposit/blob/0e7977fa917a21bf0ff9f69025e3aedd7a747000/src/lib/components/Creatibutors/CreatibutorsField.js
  */
 export const LocationsFieldForm = ({
   form: { values, errors, initialErrors, initialValues },

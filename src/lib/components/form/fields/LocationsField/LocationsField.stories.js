@@ -8,6 +8,8 @@
 
 import React from 'react';
 
+import withMock from 'storybook-addon-mock';
+
 import { Formik } from 'formik';
 
 import { Global } from '@emotion/react';
@@ -15,12 +17,28 @@ import { SemanticToastContainer, toast } from 'react-semantic-toasts';
 
 import { Button, Icon } from 'semantic-ui-react';
 
+import geonamesData from '@tests/mock/vocabularies/geonames-geoidentifiers-api.json';
 import { LocationsField as LocationsFieldComponent } from './LocationsField';
 
 export default {
   title: 'Form/Field/Locations/Locations Field',
   component: LocationsFieldComponent,
+  decorators: [withMock],
 };
+
+/**
+ * Mock API
+ */
+const mockApiConfig = [
+  {
+    url: '/api/geoidentifiers?size=&suggest=',
+    method: 'GET',
+    status: 200,
+    response: (request) => {
+      return geonamesData;
+    },
+  },
+];
 
 /**
  * Component template
@@ -64,4 +82,8 @@ Basic.args = {
     </Button>
   ),
   interactiveMapConfig: {},
+};
+
+Basic.parameters = {
+  mockData: mockApiConfig,
 };

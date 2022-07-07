@@ -9,7 +9,9 @@
 import React, { useState } from 'react';
 import PropTypes from 'prop-types';
 
-import { Field } from 'formik';
+import _isEmpty from 'lodash/isEmpty';
+
+import { Field, getIn } from 'formik';
 import { FieldLabel } from 'react-invenio-forms';
 
 import {
@@ -104,103 +106,109 @@ export const GeometryField = ({
 
   return (
     <Field name={fieldPath}>
-      {(formikProps) => (
-        <>
-          <div>
-            <FieldLabel htmlFor={fieldPath} icon={labelIcon} label={label} />
-          </div>
-          <Segment>
-            <Grid>
-              <Grid.Column floated={'left'} width={5}>
-                <Breadcrumb>
-                  <Breadcrumb.Section
-                    link={true}
-                    active={activatedBreadcrumb === 'menu'}
-                    onClick={() => {
-                      if (!interactiveMapInitialized) {
-                        changeBreadcrumb('menu');
-                      }
-                    }}
-                  >
-                    {i18next.t('Menu')}
-                  </Breadcrumb.Section>
-                  <Breadcrumb.Divider />
-                  <Breadcrumb.Section
-                    link={true}
-                    active={activatedBreadcrumb === 'visualization'}
-                    onClick={() => {
-                      if (interactiveMapInitialized) {
-                        changeBreadcrumb('visualization');
-                      }
-                    }}
-                  >
-                    {i18next.t('Visualization')}
-                  </Breadcrumb.Section>
-                </Breadcrumb>
-              </Grid.Column>
+      {(formikProps) => {
+        // Checking if an initial values is defined.
+        const initialValues = getIn(formikProps.form.values, fieldPath, {});
 
-              <Grid.Column floated={'right'} width={5}>
-                <Button
-                  basic
-                  icon={'repeat'}
-                  floated={'right'}
-                  size={'tiny'}
-                  content={i18next.t('Reset')}
-                  labelPosition={'left'}
-                  disabled={!interactiveMapInitialized}
-                  onClick={onCleanDataCallback(formikProps)}
-                />
-              </Grid.Column>
-            </Grid>
-            <Segment placeholder>
-              {interactiveMapInitialized &&
-              activatedBreadcrumb === 'visualization' ? (
-                <>
-                  <InteractiveMap
-                    formikProps={formikProps}
-                    {...interactiveMapConfig}
+        return (
+          <>
+            <div>
+              <FieldLabel htmlFor={fieldPath} icon={labelIcon} label={label} />
+            </div>
+            <Segment>
+              <Grid>
+                <Grid.Column floated={'left'} width={5}>
+                  <Breadcrumb>
+                    <Breadcrumb.Section
+                      link={true}
+                      active={activatedBreadcrumb === 'menu'}
+                      onClick={() => {
+                        if (!interactiveMapInitialized) {
+                          changeBreadcrumb('menu');
+                        }
+                      }}
+                    >
+                      {i18next.t('Menu')}
+                    </Breadcrumb.Section>
+                    <Breadcrumb.Divider />
+                    <Breadcrumb.Section
+                      link={true}
+                      active={activatedBreadcrumb === 'visualization'}
+                      onClick={() => {
+                        if (interactiveMapInitialized) {
+                          changeBreadcrumb('visualization');
+                        }
+                      }}
+                    >
+                      {i18next.t('Visualization')}
+                    </Breadcrumb.Section>
+                  </Breadcrumb>
+                </Grid.Column>
+
+                <Grid.Column floated={'right'} width={5}>
+                  <Button
+                    basic
+                    icon={'repeat'}
+                    floated={'right'}
+                    size={'tiny'}
+                    content={i18next.t('Reset')}
+                    labelPosition={'left'}
+                    disabled={!interactiveMapInitialized}
+                    onClick={onCleanDataCallback(formikProps)}
                   />
-                </>
-              ) : (
-                <Grid columns={2} stackable textAlign="center">
-                  <Divider vertical>Or</Divider>
+                </Grid.Column>
+              </Grid>
+              <Segment placeholder>
+                {(interactiveMapInitialized &&
+                  activatedBreadcrumb === 'visualization') ||
+                !_isEmpty(initialValues) ? (
+                  <>
+                    <InteractiveMap
+                      formikProps={formikProps}
+                      {...interactiveMapConfig}
+                    />
+                  </>
+                ) : (
+                  <Grid columns={2} stackable textAlign="center">
+                    <Divider vertical>Or</Divider>
 
-                  <Grid.Row verticalAlign="middle">
-                    <Grid.Column>
-                      <Header as={'h3'} icon>
-                        <Icon name={menuOptions.interactiveMap.icon} />
-                        {menuOptions.interactiveMap.header}
-                      </Header>
-                      <Button
-                        content={i18next.t('Use')}
-                        onClick={enableEmptyInteractiveMap(formikProps)}
-                      />
-                    </Grid.Column>
+                    <Grid.Row verticalAlign="middle">
+                      <Grid.Column>
+                        <Header as={'h3'} icon>
+                          <Icon name={menuOptions.interactiveMap.icon} />
+                          {menuOptions.interactiveMap.header}
+                        </Header>
+                        <Button
+                          content={i18next.t('Use')}
+                          onClick={enableEmptyInteractiveMap(formikProps)}
+                        />
+                      </Grid.Column>
 
-                    <Grid.Column>
-                      <Header as={'h3'} icon>
-                        <Icon name={menuOptions.importManager.icon} />
-                        {menuOptions.importManager.header}
-                      </Header>
+                      <Grid.Column>
+                        <Header as={'h3'} icon>
+                          <Icon name={menuOptions.importManager.icon} />
+                          {menuOptions.importManager.header}
+                        </Header>
 
-                      <ImportManager
-                        onImport={onDataLoadCallback(formikProps)}
-                        onError={onLoadErrorCallback(formikProps)}
-                        geometryLoaderConfig={{
-                          dropdownConfig: {
-                            as: Button,
-                            text: i18next.t('Use'),
-                          },
-                        }}
-                      />
-                    </Grid.Column>
-                  </Grid.Row>
-                </Grid>
-              )}
+                        <ImportManager
+                          onImport={onDataLoadCallback(formikProps)}
+                          onError={onLoadErrorCallback(formikProps)}
+                          geometryLoaderConfig={{
+                            dropdownConfig: {
+                              as: Button,
+                              text: i18next.t('Use'),
+                            },
+                          }}
+                        />
+                      </Grid.Column>
+                    </Grid.Row>
+                  </Grid>
+                )}
+              </Segment>
             </Segment>
-          </Segment>
-        </>
-      )}
+          </>
+        );
+      }}
     </Field>
   );
 };

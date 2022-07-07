@@ -8,6 +8,8 @@
 
 import React from 'react';
 
+import withMock from 'storybook-addon-mock';
+
 import { Formik } from 'formik';
 
 import { Global } from '@emotion/react';
@@ -20,7 +22,22 @@ import { LocationsModal as LocationsModalComponent } from './LocationsModal';
 export default {
   title: 'Form/Field/Locations/Modal',
   component: LocationsModalComponent,
+  decorators: [withMock],
 };
+
+/**
+ * Mock API
+ */
+const mockApiConfig = [
+  {
+    url: '/api/geoidentifiers?size=&suggest=',
+    method: 'GET',
+    status: 200,
+    response: (request) => {
+      return geonamesData;
+    },
+  },
+];
 
 /**
  * Component template
@@ -64,4 +81,8 @@ Basic.args = {
     </Button>
   ),
   interactiveMapConfig: {},
+};
+
+Basic.parameters = {
+  mockData: mockApiConfig,
 };

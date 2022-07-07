@@ -12,6 +12,7 @@ import PropTypes from 'prop-types';
 import _map from 'lodash/map';
 import _get from 'lodash/get';
 import _uniq from 'lodash/uniq';
+import _capitalize from 'lodash/capitalize';
 
 import { useDrag, useDrop } from 'react-dnd';
 import { Button, Item, Label, List, Icon, Ref } from 'semantic-ui-react';
@@ -38,13 +39,17 @@ const LocationItem = ({ location }) => {
   const geometryType = _get(location, 'geometry.type');
 
   // Identifiers
-  const identifiers = _map(location, 'identifiers', {});
-  const identifiersScheme = _uniq(_get(location.identifiers, 'scheme', []));
+  const identifiers = _get(location, 'identifiers', []);
+  const identifierSchemeNames = _uniq(
+    _map(identifiers, (value) => {
+      return _capitalize(value.scheme);
+    })
+  );
 
   return (
     <Item>
       <Item.Content>
-        {identifiersScheme && (
+        {identifierSchemeNames && (
           <Item.Extra className="labels-actions">
             {geometryType && (
               // <Icon color={'blue'} size={'tiny'} name={'compass'} circular />
@@ -54,7 +59,7 @@ const LocationItem = ({ location }) => {
               </Label>
             )}
 
-            {identifiersScheme.map((scheme, index) => (
+            {identifierSchemeNames.map((scheme, index) => (
               <Label key={index} size={'tiny'} color={'grey'}>
                 {scheme}
               </Label>
@@ -83,6 +88,9 @@ const LocationItem = ({ location }) => {
  * @param {String} addLabel Label used in the button for creating a new location.
  * @param {String} editLabel Label used in the button for editing an existing location.
  * @param {Object} initialLocation Location values.
+ *
+ * @note This component is based on `CreatibutorsFieldItem` from React Invenio Deposit.
+ * @see https://github.com/inveniosoftware/react-invenio-deposit/blob/0e7977fa917a21bf0ff9f69025e3aedd7a747000/src/lib/components/Creatibutors/CreatibutorsFieldItem.js
  */
 export const LocationsFieldItem = ({
   index,
