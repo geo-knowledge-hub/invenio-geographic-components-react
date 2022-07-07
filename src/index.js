@@ -24,6 +24,7 @@ import '@geoman-io/leaflet-geoman-free/dist/leaflet-geoman.css';
 
 // Fullscreen
 import 'leaflet.fullscreen';
+import 'leaflet.fullscreen/Control.FullScreen.css';
 
 // Semantic UI
 import 'semantic-ui-css/semantic.min.css';

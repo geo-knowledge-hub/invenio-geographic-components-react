@@ -12,6 +12,7 @@ import 'leaflet/dist/leaflet.css';
 
 // Fullscreen
 import 'leaflet.fullscreen';
+import 'leaflet.fullscreen/Control.FullScreen.css';
 
 // Geocoding controller
 import 'leaflet-control-geocoder/dist/Control.Geocoder.js';
