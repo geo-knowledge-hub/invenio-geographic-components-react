@@ -90,7 +90,9 @@
     "@mapbox/geojsonhint": "^3.0.1",
     "object-hash": "^3.0.0",
     "prop-types": "^15.8.1",
-    "react-semantic-toasts": "^0.6.6"
+    "react-semantic-toasts": "^0.6.6",
+    "react-dnd": "^11.1.0",
+    "react-dnd-html5-backend": "^11.1.0"
   },
   "peerDependencies": {
     "react": "^17.0.2",
@@ -119,7 +121,9 @@
     "@turf/centroid": "^6.5.0",
     "@mapbox/geojsonhint": "^3.0.1",
     "object-hash": "^3.0.0",
-    "prop-types": "^15.8.1"
+    "prop-types": "^15.8.1",
+    "react-dnd": "^11.1.0",
+    "react-dnd-html5-backend": "^11.1.0"
   },
   "author": {
     "name": "GEO Secretariat",
@@ -127,10 +131,10 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/geo-knowledge-hub/geo-metadata-previewer-react.git"
+    "url": "https://github.com/geo-knowledge-hub/invenio-geographic-components-react.git"
   },
   "bugs": {
-    "url": "https://github.com/geo-knowledge-hub/geo-metadata-previewer-react/issues"
+    "url": "https://github.com/geo-knowledge-hub/invenio-geographic-components-react/issues"
   },
   "license": "MIT",
   "eslintConfig": {

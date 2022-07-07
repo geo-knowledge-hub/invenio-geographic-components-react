@@ -22,14 +22,14 @@ import {
   DescriptionField,
   GeographicIdentifiersField,
   GeometryField,
-} from '../';
+} from '../internal';
 
 /**
- * Location field.
+ * Locations modal.
  *
  * @param {String} action Name of the action performed with the component (e.g., add or edit).
  * @param {Function} onLocationChange Function called when the location object changed.
- * @param {Function} trigger Component used to trigger the Location Field Modal.
+ * @param {React.ReactNode} trigger Component used to trigger the Location Field Modal.
  * @param {String} addLabel Text used in the label when the component is used to add a new location.
  * @param {String} editLabel Text used in the label when the component is used to edit a location.
  * @param {Object} initialLocation Initial values for the location. This option can be used to fill the fields
@@ -38,7 +38,7 @@ import {
  * @returns {JSX.Element}
  * @constructor
  */
-export const LocationField = ({
+export const LocationsModal = ({
   action,
   onLocationChange,
   trigger,
@@ -227,10 +227,10 @@ export const LocationField = ({
   );
 };
 
-LocationField.propTypes = {
+LocationsModal.propTypes = {
   action: PropTypes.oneOf(['add', 'edit']).isRequired,
   onLocationChange: PropTypes.func,
-  trigger: PropTypes.object.isRequired,
+  trigger: PropTypes.node.isRequired,
   addLabel: PropTypes.string.isRequired,
   editLabel: PropTypes.string.isRequired,
   initialLocation: PropTypes.shape({
@@ -242,7 +242,7 @@ LocationField.propTypes = {
   interactiveMapConfig: PropTypes.object,
 };
 
-LocationField.defaultProps = {
+LocationsModal.defaultProps = {
   addLabel: i18next.t('Add location'),
   editLabel: i18next.t('Edit location'),
 };

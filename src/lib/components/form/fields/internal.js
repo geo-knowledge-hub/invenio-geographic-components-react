@@ -6,8 +6,10 @@
  * under the terms of the MIT License; see LICENSE file for more details.
  */
 
+// Avoiding circular import. We are defining the components in this `divided way`,
+// to make them more reusable.
+
 export { GeometryField } from './GeometryField';
 export { DescriptionField } from './DescriptionField';
 export { GeographicIdentifiersField } from './GeographicIdentifiersField';
 export { PlaceField } from './PlaceField';
-export { LocationsField } from './LocationsField';

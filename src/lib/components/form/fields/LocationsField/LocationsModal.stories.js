@@ -15,11 +15,11 @@ import { SemanticToastContainer, toast } from 'react-semantic-toasts';
 
 import { Button, Icon } from 'semantic-ui-react';
 
-import { LocationField as LocationFieldComponent } from './LocationField';
+import { LocationsModal as LocationsModalComponent } from './LocationsModal';
 
 export default {
-  title: 'Form/Field/Location Field',
-  component: LocationFieldComponent,
+  title: 'Form/Field/Locations/Modal',
+  component: LocationsModalComponent,
 };
 
 /**
@@ -41,7 +41,7 @@ const Template = (args) => (
         geometry: {},
       }}
     >
-      <LocationFieldComponent {...args} />
+      <LocationsModalComponent {...args} />
     </Formik>
 
     <SemanticToastContainer />
