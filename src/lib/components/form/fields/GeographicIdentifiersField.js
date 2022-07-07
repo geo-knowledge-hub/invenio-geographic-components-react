@@ -9,6 +9,9 @@
 import React, { useState } from 'react';
 import PropTypes from 'prop-types';
 
+import _split from 'lodash/split';
+import _capitalize from 'lodash/capitalize';
+
 import { Field, getIn } from 'formik';
 import { Form } from 'semantic-ui-react';
 
@@ -58,14 +61,16 @@ export const GeographicIdentifiersField = ({
 
   const serializeIdentifiers = (identifiers) =>
     identifiers.map((identifier) => {
-      const scheme = identifier.scheme ? `(${identifier.scheme})` : '';
+      const scheme = _split(identifier.id, '::', 1).at(0); // pattern from geoidentifiers
+      const schemeText = scheme ? `(${_capitalize(scheme)})` : '';
 
       return {
-        text: `${scheme} ${identifier.name}`,
+        text: `${schemeText} ${identifier.name}`,
         value: identifier.name,
         key: identifier.name,
         ...(identifier.id ? { id: identifier.id } : {}),
         name: identifier.name,
+        scheme: scheme,
       };
     });
 
@@ -154,7 +159,7 @@ GeographicIdentifiersField.defaultProps = {
   fieldPath: 'identifiers',
   limitOptions: [
     {
-      text: 'GeoNames',
+      text: 'Geonames',
       value: 'GEONAMES', // Available on: Invenio Geographic Identifiers.
     },
     {

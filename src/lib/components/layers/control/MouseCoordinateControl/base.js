@@ -12,7 +12,9 @@ import './base.css';
 /**
  * MouseCoordinate plugin for Leaflet.
  *
- *
+ * @note This plugin was adapted from the `Michal Zimmermann` implementation (`Leaflet Coordinates Control`). We
+ *       import the entire source code to avoid extra dependencies in the project.
+ * @see https://github.com/zimmicz/Leaflet-Coordinates-Control
  */
 L.Control.MouseCoordinate = L.Control.extend({
   options: {

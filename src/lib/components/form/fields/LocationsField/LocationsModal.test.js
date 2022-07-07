@@ -8,7 +8,7 @@
 
 import React from 'react';
 
-import { LocationField } from './LocationField';
+import { LocationsModal } from './LocationsModal';
 import { renderWithFormikProvider } from '@tests/setup';
 
 describe('LocationField tests', () => {
@@ -16,7 +16,7 @@ describe('LocationField tests', () => {
     it('should render without crashing', () => {
       renderWithFormikProvider(
         <>
-          <LocationField
+          <LocationsModal
             action={'add'}
             trigger={<button>Trigger button</button>}
             initialLocation={{}}
