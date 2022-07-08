@@ -54,7 +54,7 @@ export const GeometryField = ({
   fieldPath,
   label,
   labelIcon,
-    menu,
+  menu,
   menuOptions,
   onLoadError,
   onDataClean,
@@ -161,7 +161,8 @@ export const GeometryField = ({
                 </Grid.Column>
               </Grid>
               <Segment placeholder>
-                {!menu || (interactiveMapInitialized &&
+                {!menu ||
+                (interactiveMapInitialized &&
                   activatedBreadcrumb === 'visualization') ||
                 !_isEmpty(initialValues) ? (
                   <>
