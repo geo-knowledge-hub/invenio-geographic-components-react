@@ -37,6 +37,7 @@ import { InteractiveMap } from './InteractiveMap';
  * @param {String} fieldPath Path where the field data will be stored in the Formik data.
  * @param {String} label Field Label
  * @param {String} labelIcon Field icon
+ * @param {Boolean} menu Flag indicating if the import menu should be used.
  * @param {Object} menuOptions Configuration object for the menu. This parameter can be used
  *                             to change the `icon` and the `text` of the menu options
  *                             (e.g., `Import Manager` and `Interactive Map`).
@@ -53,6 +54,7 @@ export const GeometryField = ({
   fieldPath,
   label,
   labelIcon,
+  menu,
   menuOptions,
   onLoadError,
   onDataClean,
@@ -159,7 +161,8 @@ export const GeometryField = ({
                 </Grid.Column>
               </Grid>
               <Segment placeholder>
-                {(interactiveMapInitialized &&
+                {!menu ||
+                (interactiveMapInitialized &&
                   activatedBreadcrumb === 'visualization') ||
                 !_isEmpty(initialValues) ? (
                   <>
@@ -217,6 +220,7 @@ GeometryField.propTypes = {
   fieldName: PropTypes.string.isRequired,
   label: PropTypes.string,
   labelIcon: PropTypes.string,
+  menu: PropTypes.bool,
   menuOptions: PropTypes.shape({
     interactiveMap: PropTypes.object,
     importManager: PropTypes.shape({
@@ -234,6 +238,7 @@ GeometryField.defaultProps = {
   fieldName: 'geometry',
   label: i18next.t('Geometry'),
   labelIcon: 'location arrow',
+  menu: true,
   menuOptions: {
     interactiveMap: {
       header: i18next.t('Interactive Map'),
