@@ -114,52 +114,69 @@ export const GeometryField = ({
 
         return (
           <>
-            <div>
-              <FieldLabel htmlFor={fieldPath} icon={labelIcon} label={label} />
-            </div>
-            <Segment>
-              <Grid>
-                <Grid.Column floated={'left'} width={5}>
-                  <Breadcrumb>
-                    <Breadcrumb.Section
-                      link={true}
-                      active={activatedBreadcrumb === 'menu'}
-                      onClick={() => {
-                        if (!interactiveMapInitialized) {
-                          changeBreadcrumb('menu');
-                        }
-                      }}
-                    >
-                      {i18next.t('Menu')}
-                    </Breadcrumb.Section>
-                    <Breadcrumb.Divider />
-                    <Breadcrumb.Section
-                      link={true}
-                      active={activatedBreadcrumb === 'visualization'}
-                      onClick={() => {
-                        if (interactiveMapInitialized) {
-                          changeBreadcrumb('visualization');
-                        }
-                      }}
-                    >
-                      {i18next.t('Visualization')}
-                    </Breadcrumb.Section>
-                  </Breadcrumb>
-                </Grid.Column>
+            {menu ? (
+              <div>
+                <FieldLabel
+                  htmlFor={fieldPath}
+                  icon={labelIcon}
+                  label={label}
+                />
+              </div>
+            ) : null}
 
-                <Grid.Column floated={'right'} width={5}>
-                  <Button
-                    basic
-                    icon={'repeat'}
-                    floated={'right'}
-                    size={'tiny'}
-                    content={i18next.t('Reset')}
-                    labelPosition={'left'}
-                    disabled={!interactiveMapInitialized}
-                    onClick={onCleanDataCallback(formikProps)}
+            <Segment basic={!menu}>
+              {menu ? (
+                <Grid>
+                  <Grid.Column floated={'left'} width={5}>
+                    <Breadcrumb>
+                      <Breadcrumb.Section
+                        link={true}
+                        active={activatedBreadcrumb === 'menu'}
+                        onClick={() => {
+                          if (!interactiveMapInitialized) {
+                            changeBreadcrumb('menu');
+                          }
+                        }}
+                      >
+                        {i18next.t('Menu')}
+                      </Breadcrumb.Section>
+                      <Breadcrumb.Divider />
+                      <Breadcrumb.Section
+                        link={true}
+                        active={activatedBreadcrumb === 'visualization'}
+                        onClick={() => {
+                          if (interactiveMapInitialized) {
+                            changeBreadcrumb('visualization');
+                          }
+                        }}
+                      >
+                        {i18next.t('Visualization')}
+                      </Breadcrumb.Section>
+                    </Breadcrumb>
+                  </Grid.Column>
+
+                  <Grid.Column floated={'right'} width={5}>
+                    <Button
+                      basic
+                      icon={'repeat'}
+                      floated={'right'}
+                      size={'tiny'}
+                      content={i18next.t('Reset')}
+                      labelPosition={'left'}
+                      disabled={!interactiveMapInitialized}
+                      onClick={onCleanDataCallback(formikProps)}
+                    />
+                  </Grid.Column>
+                </Grid>
+              ) : (
+                <div>
+                  <FieldLabel
+                    htmlFor={fieldPath}
+                    icon={labelIcon}
+                    label={label}
                   />
-                </Grid.Column>
-              </Grid>
+                </div>
+              )}
               <Segment placeholder>
                 {!menu ||
                 (interactiveMapInitialized &&
