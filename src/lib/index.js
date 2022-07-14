@@ -10,3 +10,5 @@ import './i18next';
 
 export * from './base';
 export * from './components';
+
+export * from './contrib';

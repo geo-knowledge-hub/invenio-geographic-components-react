@@ -28,6 +28,10 @@ import {
  * - Fullscreen Control;
  * - Mouse Coordinate Control.
  *
+ * @param {Boolean} useTileLayers Flag to enable/disable the `Tile Layer Control`;
+ * @param {Boolean} useGeocoding Flag to enable/disable the `Geocoding Control`;
+ * @param {Boolean} useFullscreen Flag to enable/disable the `Fullscreen Control`;
+ * @param {Boolean} useMouseCoordinate Flag to enable/disble the `Mouse Coordinate Control`;
  * @param {Object} layersConfig Configuration object for the following layers:
  *                              - TileLayerControl (`tileLayersConfig`);
  *                              - GeocodingControl (`geocodingConfig`);
@@ -36,19 +40,50 @@ import {
  *
  * @returns {JSX.Element}
  */
-export const BaseMapLayers = ({ ...layersConfig }) => (
-  <>
-    <TileLayerControl {...layersConfig.tileLayersConfig} />
+export const BaseMapLayers = ({
+  useTileLayers,
+  useGeocoding,
+  useFullscreen,
+  useMouseCoordinate,
+  ...layersConfig
+}) => {
+  const baseLayersDefinition = [
+    {
+      enable: useTileLayers,
+      render: () => <TileLayerControl {...layersConfig.tileLayersConfig} />,
+    },
+    {
+      enable: useGeocoding,
+      render: () => <GeocodingControl {...layersConfig.geocodingConfig} />,
+    },
+    {
+      enable: useFullscreen,
+      render: () => <FullscreenControl {...layersConfig.fullscreenConfig} />,
+    },
+    {
+      enable: useMouseCoordinate,
+      render: () => (
+        <MouseCoordinateControl {...layersConfig.mouseCoordinateConfig} />
+      ),
+    },
+  ];
 
-    <GeocodingControl {...layersConfig.geocodingConfig} />
-
-    <FullscreenControl {...layersConfig.fullscreenConfig} />
-
-    <MouseCoordinateControl {...layersConfig.mouseCoordinateConfig} />
-  </>
-);
+  return (
+    <>
+      {baseLayersDefinition.map((layerDefinition) => {
+        if (layerDefinition.enable) {
+          return layerDefinition.render();
+        }
+      })}
+    </>
+  );
+};
 
 BaseMapLayers.propTypes = {
+  useTileLayers: PropTypes.bool,
+  useGeocoding: PropTypes.bool,
+  useFullscreen: PropTypes.bool,
+  useMouseCoordinate: PropTypes.bool,
   tileLayersConfig: PropTypes.object,
   geocodingConfig: PropTypes.object,
   fullscreenConfig: PropTypes.object,
@@ -56,6 +91,10 @@ BaseMapLayers.propTypes = {
 };
 
 BaseMapLayers.defaultProps = {
+  useTileLayers: true,
+  useGeocoding: true,
+  useFullscreen: true,
+  useMouseCoordinate: true,
   tileLayersConfig: {},
   geocodingConfig: {},
   fullscreenConfig: {},
