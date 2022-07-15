@@ -11,8 +11,6 @@ import PropTypes from 'prop-types';
 
 import { useMap } from 'react-leaflet';
 
-import { DrawEventAssigner, isPropertyDefined } from '../../../../base';
-
 /**
  * Geometry Editor control
  * @constructor
@@ -20,27 +18,20 @@ import { DrawEventAssigner, isPropertyDefined } from '../../../../base';
  * @param {Object} editorConfig Configuration object.
  * @returns {JSX.Element}
  */
-export const GeometryEditorControl = ({ editorConfig }) => {
+export const GeometryEditorControl = ({ toolbarConfig, controlOrder }) => {
   // hooks
   const mapContext = useMap();
 
   useEffect(() => {
     // Defining the map level events (e.g., `pm:create` and `pm:cut`).
 
-    /**
-     * Assigning create event.
-     */
-    DrawEventAssigner.assignMapDrawEvents(mapContext, editorConfig);
-
-    /**
-     * Configuring the geoman toolbox
-     */
-    if (isPropertyDefined(editorConfig, 'toolbarConfig')) {
-      mapContext.pm.addControls(editorConfig.toolbarConfig);
+    // Configuring the geoman toolbox
+    if (toolbarConfig) {
+      mapContext.pm.addControls(toolbarConfig);
     }
 
-    if (isPropertyDefined(editorConfig, 'controlOrder')) {
-      mapContext.pm.Toolbar.changeControlOrder(editorConfig.controlOrder);
+    if (controlOrder) {
+      mapContext.pm.Toolbar.changeControlOrder(controlOrder);
     }
   }, []); // avoiding re-rendering
 
@@ -48,16 +39,11 @@ export const GeometryEditorControl = ({ editorConfig }) => {
 };
 
 GeometryEditorControl.propTypes = {
-  onCreate: PropTypes.func,
-  onCut: PropTypes.func,
-  onEdit: PropTypes.func,
-  onRemove: PropTypes.func,
-  toolbarConfig: PropTypes.shape({
-    toolbarConfig: PropTypes.object,
-    controlOrder: PropTypes.array,
-  }),
+  toolbarConfig: PropTypes.object,
+  controlOrder: PropTypes.array,
 };
 
 GeometryEditorControl.defaultProps = {
   toolbarConfig: {},
+  controlOrder: [],
 };

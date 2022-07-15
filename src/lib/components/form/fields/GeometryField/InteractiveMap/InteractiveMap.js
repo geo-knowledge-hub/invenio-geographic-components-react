@@ -23,9 +23,7 @@ import { BaseMapLayers } from '../../../../layers';
  * @param {GeometryStore} geometryStore Geometry Store object.
  * @param {Object} mapConfig Map Container and `GeometryEditorControl` configurations.
  */
-const InteractiveMapComponent = ({ formikProps, mapConfig }) => {
-  const geometryStore = new GeometryStore(formikProps);
-
+const InteractiveMapComponent = ({ geometryStore, mapConfig }) => {
   return (
     <MapContainer {...mapConfig.mapContainer}>
       <BaseMapLayers {...mapConfig} />
@@ -48,7 +46,7 @@ export const InteractiveMap = React.memo(
 );
 
 InteractiveMap.propTypes = {
-  formikProps: PropTypes.object.isRequired,
+  geometryStore: PropTypes.object.isRequired,
   mapConfig: PropTypes.shape({
     mapContainer: PropTypes.object.isRequired,
     tileLayersConfig: PropTypes.object,

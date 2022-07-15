@@ -54,7 +54,7 @@ export const GeographicIdentifiersField = ({
 
   const prepareSuggest = (searchQuery) => {
     const limitTo = fieldState.limitTo;
-    const prefix = limitTo === 'all' ? '' : `${limitTo}:`;
+    const prefix = limitTo === 'all' ? '' : `${limitTo}::`;
 
     return `${prefix}${searchQuery}`;
   };

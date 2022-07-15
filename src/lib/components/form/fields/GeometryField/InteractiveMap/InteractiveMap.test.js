@@ -13,13 +13,17 @@ import { Field } from 'formik';
 import { InteractiveMap } from './InteractiveMap';
 import { renderWithFormikProvider } from '@tests/setup';
 
+import { GeometryStore } from '../GeometryStore';
+
 describe('GeometryEditor tests', () => {
   describe('Render tests', () => {
     it('should render without crashing', () => {
       renderWithFormikProvider(
         <>
           <Field>
-            {(formikProps) => <InteractiveMap formikProps={formikProps} />}
+            {(formikProps) => (
+              <InteractiveMap geometryStore={new GeometryStore(formikProps)} />
+            )}
           </Field>
         </>
       );

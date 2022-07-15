@@ -62,16 +62,18 @@ export const GeometryField = ({
   interactiveMapConfig,
 }) => {
   // States
-  const [geometryStore, setGeometryStore] = useState(new GeometryStore());
   const [interactiveMapInitialized, setInteractiveMapInitialized] =
     useState(false);
   const [activatedBreadcrumb, setActivatedBreadcrumb] = useState('menu');
+
+  // Local store
+  const geometryStore = new GeometryStore();
 
   // Handlers
   const changeBreadcrumb = (breadcrumbName) =>
     setActivatedBreadcrumb(breadcrumbName);
 
-  const enableEmptyInteractiveMap = (formikProps) => () => {
+  const enableEmptyInteractiveMap = () => {
     changeBreadcrumb('visualization');
     setInteractiveMapInitialized(true);
   };
@@ -82,15 +84,14 @@ export const GeometryField = ({
   };
 
   const onDataLoadCallback = (formikProps) => {
-    geometryStore.loadFormikProps(formikProps);
-
     return (data) => {
-      geometryStore.setGeometries(data);
+      geometryStore.loadGeoJSON(data);
 
       // Side effecting
-      onDataLoad(data);
+      changeBreadcrumb('visualization');
       setInteractiveMapInitialized(true);
-      setActivatedBreadcrumb('visualization');
+
+      onDataLoad(data);
     };
   };
 
@@ -109,8 +110,15 @@ export const GeometryField = ({
   return (
     <Field name={fieldPath}>
       {(formikProps) => {
+        // Linking the geometry store with the formik storage
+        geometryStore.loadFormikProps(formikProps);
+
         // Checking if an initial values is defined.
         const initialValues = getIn(formikProps.form.values, fieldPath, {});
+
+        if (!_isEmpty(initialValues)) {
+          enableEmptyInteractiveMap();
+        }
 
         return (
           <>
@@ -180,11 +188,10 @@ export const GeometryField = ({
               <Segment placeholder>
                 {!menu ||
                 (interactiveMapInitialized &&
-                  activatedBreadcrumb === 'visualization') ||
-                !_isEmpty(initialValues) ? (
+                  activatedBreadcrumb === 'visualization') ? (
                   <>
                     <InteractiveMap
-                      formikProps={formikProps}
+                      geometryStore={geometryStore}
                       {...interactiveMapConfig}
                     />
                   </>
@@ -200,7 +207,7 @@ export const GeometryField = ({
                         </Header>
                         <Button
                           content={i18next.t('Use')}
-                          onClick={enableEmptyInteractiveMap(formikProps)}
+                          onClick={enableEmptyInteractiveMap}
                         />
                       </Grid.Column>
 

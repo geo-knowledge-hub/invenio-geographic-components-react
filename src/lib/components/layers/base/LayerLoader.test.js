@@ -8,15 +8,15 @@
 
 import React from 'react';
 
-import { EditableGeoJSONLayer } from './EditableGeoJSONLayer';
+import { LayerLoader } from './LayerLoader';
 import { renderWithMapContainer } from '@tests/setup';
 
-describe('EditableGeoJSONLayer tests', () => {
+describe('LayerLoader tests', () => {
   describe('Render tests', () => {
     it('should render without crashing', () => {
       renderWithMapContainer(
         <>
-          <EditableGeoJSONLayer />
+          <LayerLoader layers={[]} />
         </>
       );
     });

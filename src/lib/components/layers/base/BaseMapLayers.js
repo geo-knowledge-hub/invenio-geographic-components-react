@@ -50,29 +50,38 @@ export const BaseMapLayers = ({
   const baseLayersDefinition = [
     {
       enable: useTileLayers,
-      render: () => <TileLayerControl {...layersConfig.tileLayersConfig} />,
+      render: (key) => (
+        <TileLayerControl key={key} {...layersConfig.tileLayersConfig} />
+      ),
     },
     {
       enable: useGeocoding,
-      render: () => <GeocodingControl {...layersConfig.geocodingConfig} />,
+      render: (key) => (
+        <GeocodingControl key={key} {...layersConfig.geocodingConfig} />
+      ),
     },
     {
       enable: useFullscreen,
-      render: () => <FullscreenControl {...layersConfig.fullscreenConfig} />,
+      render: (key) => (
+        <FullscreenControl key={key} {...layersConfig.fullscreenConfig} />
+      ),
     },
     {
       enable: useMouseCoordinate,
-      render: () => (
-        <MouseCoordinateControl {...layersConfig.mouseCoordinateConfig} />
+      render: (key) => (
+        <MouseCoordinateControl
+          key={key}
+          {...layersConfig.mouseCoordinateConfig}
+        />
       ),
     },
   ];
 
   return (
     <>
-      {baseLayersDefinition.map((layerDefinition) => {
+      {baseLayersDefinition.map((layerDefinition, index) => {
         if (layerDefinition.enable) {
-          return layerDefinition.render();
+          return layerDefinition.render(index);
         }
       })}
     </>

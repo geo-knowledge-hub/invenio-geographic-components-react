@@ -103,6 +103,16 @@ const assignMapDrawEvents = (mapContext, eventCallbackProvider) => {
     MapDrawEvents.onCut,
     DrawEventMethods.cut
   );
+
+  /**
+   * Assigning `Leaflet.Map.layeradd` event
+   * (for when the layers are reloaded from the formik in the map).
+   */
+  mapContext.on('layeradd', ({ layer }) => {
+    if (layer._map) {
+      assignLayerDrawEvents(layer, eventCallbackProvider);
+    }
+  });
 };
 
 export const DrawEventAssigner = {
