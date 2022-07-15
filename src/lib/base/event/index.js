@@ -7,4 +7,6 @@
  */
 
 export * as DrawEventTypes from './DrawEventTypes';
+
+export { useDrawEvents } from './useDrawEvents';
 export { DrawEventAssigner } from './DrawEventAssigner';

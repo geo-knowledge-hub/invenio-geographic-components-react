@@ -15,7 +15,11 @@ import _isEmpty from 'lodash/isEmpty';
 import { useMap } from 'react-leaflet';
 import L, { GeoJSON as LeafletGeoJSON } from 'leaflet';
 
-import { DrawEventAssigner } from '../../../base';
+import {
+  DrawEventAssigner,
+  GeometryMutator,
+  isPropertyDefined,
+} from '../../../base';
 
 /**
  * Editable GeoJSONLayer.
@@ -25,7 +29,7 @@ import { DrawEventAssigner } from '../../../base';
  *
  * @returns {JSX.Element}
  */
-export const EditableGeoJSONLayer = ({ geoJsonData, eventProvider }) => {
+export const EditableGeoJSONLayer = ({ geoJsonData }) => {
   let leafletGeoJSONObject = null;
 
   if (!_isNil(geoJsonData) && !_isEmpty(geoJsonData)) {
@@ -37,11 +41,34 @@ export const EditableGeoJSONLayer = ({ geoJsonData, eventProvider }) => {
     // Adding edit/draw events for all geometries available
     // into the GeoJSON object.
     leafletGeoJSONObject.eachLayer((layer) => {
-      DrawEventAssigner.assignLayerDrawEvents(layer, eventProvider);
+      // Exploding the geometry
+      const geometriesExploded = GeometryMutator.generateGeometryExploded(
+        layer.feature.geometry
+      );
 
-      // adding to the map
-      // this is ok! the map is not rendered by React
-      layer.addTo(mapContext);
+      // mapContext.on('layeradd', (e) => {
+      //   console.log('layer just added to the map');
+      //   console.log(e.layer);
+      // })
+
+      // Generating the geometry layers
+      // Note: The GeoJSON can be used as a FeatureGroup, but, for the form
+      // purpose we need enable users to edit each geometry individually.
+      geometriesExploded.map((geometryExploded) => {
+        const geojsonLayer = new LeafletGeoJSON(geometryExploded);
+
+        geojsonLayer.options.pmIgnore = false;
+        L.PM.reInitLayer(geojsonLayer);
+
+        console.log('geojsonLayer');
+        console.log(geojsonLayer);
+
+        // Associating the events in the layer
+        // DrawEventAssigner.assignLayerDrawEvents(geojsonLayer, eventProvider);
+
+        // Adding the layer to the map
+        geojsonLayer.addTo(mapContext);
+      });
     });
   }
 

@@ -6,17 +6,13 @@
  * under the terms of the MIT License; see LICENSE file for more details.
  */
 
-import React from 'react';
+import React, { useState } from 'react';
 import PropTypes from 'prop-types';
-
-import _assign from 'lodash/assign';
 
 import { MapEventHandler } from './MapEventHandler';
 
-import {
-  EditableGeoJSONLayer,
-  GeometryEditorControl,
-} from '../../../../layers';
+import { useDrawEvents } from '../../../../../base';
+import { GeometryEditorControl, LayerLoader } from '../../../../layers';
 
 /**
  * Geometry editor component.
@@ -28,19 +24,23 @@ import {
  * @returns {JSX.Element}
  */
 export const GeometryEditor = ({ geometryStore, geometryEditorConfig }) => {
-  // Configuring the event handler
-  const mapEventHandler = _assign(
-    new MapEventHandler(geometryStore),
-    geometryEditorConfig
-  );
+  // States
+  const [controlRendered, setControlRendered] = useState(false);
+
+  // Handlers
+  const mapEventHandler = new MapEventHandler(geometryStore);
+
+  // Hooks
+  useDrawEvents(mapEventHandler, () => setControlRendered(true));
 
   return (
     <>
-      <GeometryEditorControl editorConfig={mapEventHandler} />
-      <EditableGeoJSONLayer
-        geoJsonData={geometryStore.getGeometries()}
-        eventProvider={mapEventHandler}
-      />
+      {controlRendered ? (
+        <>
+          <GeometryEditorControl {...geometryEditorConfig} />
+          <LayerLoader layers={geometryStore.getLayers()} />
+        </>
+      ) : null}
     </>
   );
 };

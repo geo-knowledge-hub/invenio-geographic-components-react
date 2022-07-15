@@ -13,6 +13,54 @@ import _isEmpty from 'lodash/isEmpty';
 import _isNil from 'lodash/isNil';
 
 /**
+ * Generate the GeoJSON Geometry Object without using `multi` or `collection` types
+ *
+ * @param {Object} geometryObject GeoJSON Geometry object.
+ */
+const generateGeometryExploded = (geometryObject) => {
+  // defining the types
+  const typeRecursive = ['GeometryCollection'];
+
+  const typeUnique = ['Point', 'Polygon', 'LineString'];
+  const typeMultiple = ['MultiPolygon', 'MultiPoint', 'MultiLineString'];
+
+  // auxiliary function
+  const explodeGeometry = (geometry) => {
+    const geometryType = _get(geometry, 'type');
+
+    if (typeUnique.includes(geometryType)) {
+      return [geometry];
+    }
+
+    if (typeMultiple.includes(geometryType)) {
+      const geometryTypeUnique = geometryType.replace('Multi', '');
+      const geometryCoordinates = _get(geometry, 'coordinates');
+
+      return geometryCoordinates.map((geometryCoordinate) => ({
+        type: geometryTypeUnique,
+        coordinates: geometryCoordinate,
+      }));
+    }
+
+    if (typeRecursive.includes(geometryType)) {
+      return _get(geometryObject, 'geometries', []).map((geometry) =>
+        explodeGeometry(geometry)
+      );
+    }
+  };
+
+  return explodeGeometry(geometryObject).map((geometry) => {
+    let geometryData = geometry;
+
+    if (Array.isArray(geometry)) {
+      geometryData = geometryData[0];
+    }
+
+    return generateGeoJSONFeature(geometryData);
+  });
+};
+
+/**
  * Generate a GeoJSON Geometry Object with the type based on
  * the content of the given geometries.
  *
@@ -55,12 +103,12 @@ const generateGeoJSONGeometryObject = (geometries) => {
 
 const generateGeometryObjectsFromFeatures = (featureData) => {
   // checking if is a feature or feature collection
-  let extractedData = null;
+  let extractedData = featureData;
   const featureType = _get(featureData, 'type');
 
   if (featureType === 'Feature') {
     extractedData = [featureData];
-  } else {
+  } else if (featureType === 'FeatureCollection') {
     extractedData = featureData.features;
   }
 
@@ -100,5 +148,6 @@ export const GeometryMutator = {
   generateGeoJSONGeometryObject,
   generateGeoJSONFeature,
   generateGeometryObjectsFromFeatures,
+  generateGeometryExploded,
   isFeatureOrFeatureCollection,
 };

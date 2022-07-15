@@ -6,67 +6,88 @@
  * under the terms of the MIT License; see LICENSE file for more details.
  */
 
-import { leafletLayerToObject } from './utils';
-import { GeometryMutator } from '../../../../../base';
-
 /**
  * Map event handler.
  */
 export class MapEventHandler {
   /**
    * @constructor
-   * @param {GeometryStore} geometryStore Geometry Store object.
+   * @param {Object} geometryStore Geometry Store object.
    */
   constructor(geometryStore) {
-    this.layersIndex = {};
     this.geometryStore = geometryStore;
   }
 
-  // store methods.
-  refreshStore(shouldBeRefreshed) {
-    if (shouldBeRefreshed) {
-      this.geometryStore.setGeometries(
-        GeometryMutator.generateGeoJSONGeometryObject(
-          Object.values(this.layersIndex)
-        )
-      );
-    }
+  _copyLayerIdentifier(oldLayer, newLayer) {
+    newLayer._store_identifier = oldLayer._store_identifier;
   }
 
-  // index methods.
-  upsertLayerToIndex(layer, refresh = true) {
-    const layerObject = leafletLayerToObject(layer);
-
-    this.layersIndex[layerObject.id] = layerObject;
-    this.refreshStore(refresh);
+  /**
+   * Add a new layer to the Index.
+   *
+   * @param {Object} layer Layer to be added in the index.
+   * @private
+   */
+  _addLayerToIndex(layer) {
+    this.geometryStore.addLayer(layer);
   }
 
-  removeLayerFromIndex(layerId, refresh = true) {
-    delete this.layersIndex[layerId];
-    this.refreshStore(refresh);
+  /**
+   * Update a layer reference in the Index.
+   *
+   * @param {Object} layer Layer to be updated. This layer must be a new reference
+   *                       with the id of the layer to be replaced.
+   * @private
+   */
+  _updateLayerOnIndex(layer) {
+    this.geometryStore.updateLayer(layer);
   }
 
-  // event handling methods.
-  onCreate(e, refresh = true) {
-    this.upsertLayerToIndex(e.layer);
-    this.refreshStore(refresh);
+  /**
+   * Remove a layer from the Index.
+   *
+   * @param {Object} layer Layer to be removed.
+   * @private
+   */
+  _removeLayerFromIndex(layer) {
+    this.geometryStore.removeLayer(layer);
   }
 
-  onEdit(e, refresh = true) {
-    this.upsertLayerToIndex(e.layer);
-    this.refreshStore(refresh);
+  /**
+   * onCreate event handler.
+   * @param {Object} e event object;
+   */
+  onCreate(e) {
+    this._addLayerToIndex(e.layer);
   }
 
-  onRemove(e, refresh = true) {
-    this.removeLayerFromIndex(e.layer._leaflet_id);
-    this.refreshStore(refresh);
-  }
-
-  onCut(e, refresh = true) {
+  /**
+   * onEdit event handler.
+   * @param {Object} e event object;
+   */
+  onEdit(e) {
     const newLayer = e.layer;
-    const originalLayer = e.originalLayer;
+    const oldLayer = e.sourceTarget;
 
-    this.upsertLayerToIndex(newLayer, true);
-    this.removeLayerFromIndex(originalLayer._leaflet_id);
+    // updating the index
+    this._copyLayerIdentifier(oldLayer, newLayer);
+
+    this._updateLayerOnIndex(newLayer);
+  }
+
+  /**
+   * onRemove event handler.
+   * @param {Object} e event object;
+   */
+  onRemove(e) {
+    this._removeLayerFromIndex(e.sourceTarget);
+  }
+
+  /**
+   * onCut event handler.
+   * @param {Object} e event object;
+   */
+  onCut(e) {
+    this._updateLayerOnIndex(e.layer);
   }
 }
