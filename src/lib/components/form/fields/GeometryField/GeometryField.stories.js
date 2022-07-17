@@ -49,8 +49,29 @@ const Template = (args) => (
 /**
  * Component stories
  */
-export const Basic = Template.bind({});
-Basic.args = {
+export const UniqueLayer = Template.bind({});
+UniqueLayer.args = {
+  uniqueLayer: true,
+  fieldPath: 'geometry',
+  label: 'Geometry',
+  labelIcon: 'location arrow',
+  onDataClean: () => {
+    setTimeout((_) => {
+      toast({
+        title: 'Data cleaned',
+        description: 'Data has been cleaned',
+        type: 'info',
+        icon: 'info',
+        time: 5000,
+        animation: 'fade right',
+      });
+    }, 100);
+  },
+};
+
+export const MultipleLayers = Template.bind({});
+MultipleLayers.args = {
+  uniqueLayer: false,
   fieldPath: 'geometry',
   label: 'Geometry',
   labelIcon: 'location arrow',

@@ -11,8 +11,10 @@ import PropTypes from 'prop-types';
 
 import { MapEventHandler } from './MapEventHandler';
 
+import { LayerLoader } from './LayerLoader';
+
 import { useDrawEvents } from '../../../../../base';
-import { GeometryEditorControl, LayerLoader } from '../../../../layers';
+import { GeometryEditorControl } from '../../../../layers';
 
 /**
  * Geometry editor component.
@@ -25,20 +27,41 @@ import { GeometryEditorControl, LayerLoader } from '../../../../layers';
  */
 export const GeometryEditor = ({ geometryStore, geometryEditorConfig }) => {
   // States
+  const [renderFlag, setRenderFlag] = useState(null);
   const [controlRendered, setControlRendered] = useState(false);
 
+  // Configurations
+  const uniqueLayer = geometryStore.uniqueLayer;
+
+  // Auxiliary functions
+  const renderFlagGenerator = (id) => {
+    uniqueLayer ? setRenderFlag(id) : null;
+  };
+
   // Handlers
-  const mapEventHandler = new MapEventHandler(geometryStore);
+  const mapEventHandler = new MapEventHandler(
+    geometryStore,
+    renderFlagGenerator
+  );
 
   // Hooks
   useDrawEvents(mapEventHandler, () => setControlRendered(true));
+
+  // Checking if the current store is already populated.
+  if (!geometryStore.isEmpty() && renderFlag === null) {
+    setRenderFlag(geometryStore.indexKey);
+  }
 
   return (
     <>
       {controlRendered ? (
         <>
           <GeometryEditorControl {...geometryEditorConfig} />
-          <LayerLoader layers={geometryStore.getLayers()} />
+          <LayerLoader
+            renderFlag={renderFlag}
+            layers={geometryStore.getLayers()}
+            enableMultipleLayers={!uniqueLayer}
+          />
         </>
       ) : null}
     </>
@@ -47,7 +70,10 @@ export const GeometryEditor = ({ geometryStore, geometryEditorConfig }) => {
 
 GeometryEditor.propTypes = {
   geometryStore: PropTypes.object.isRequired,
-  geometryEditorConfig: PropTypes.object,
+  geometryEditorConfig: PropTypes.shape({
+    toolbarConfig: PropTypes.object.isRequired,
+    uniqueLayer: PropTypes.bool.isRequired,
+  }),
 };
 
 GeometryEditor.defaultProps = {

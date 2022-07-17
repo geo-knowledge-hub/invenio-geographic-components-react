@@ -13,11 +13,35 @@ export class MapEventHandler {
   /**
    * @constructor
    * @param {Object} geometryStore Geometry Store object.
+   * @param {Function} renderFlagGenerator Function to generate a flag identifier
+   *                                       for the current render step.
    */
-  constructor(geometryStore) {
+  constructor(geometryStore, renderFlagGenerator) {
     this.geometryStore = geometryStore;
+    this.uniqueLayer = geometryStore.uniqueLayer;
+
+    this.renderFlagGenerator = renderFlagGenerator;
   }
 
+  /**
+   * Apply the rules to enable the support of unique layer in the map.
+   * @private
+   */
+  _checkForUniqueLayer() {
+    if (this.uniqueLayer) {
+      this.geometryStore.getLayers().forEach((layer) => {
+        this._removeLayerFromIndex(layer);
+      });
+    }
+  }
+
+  /**
+   * Make a copy of the layer identifier (`_store_identifier`) from the `oldLayer`
+   * to the `newLayer`.
+   * @param {Object} oldLayer `Leaflet.Layer` from where the identifier will be copied.
+   * @param {Object} newLayer `Leaflet.Layer` where the identifier will be set.
+   * @private
+   */
   _copyLayerIdentifier(oldLayer, newLayer) {
     newLayer._store_identifier = oldLayer._store_identifier;
   }
@@ -30,6 +54,8 @@ export class MapEventHandler {
    */
   _addLayerToIndex(layer) {
     this.geometryStore.addLayer(layer);
+
+    this.renderFlagGenerator(this.geometryStore.indexKey);
   }
 
   /**
@@ -41,6 +67,8 @@ export class MapEventHandler {
    */
   _updateLayerOnIndex(layer) {
     this.geometryStore.updateLayer(layer);
+
+    this.renderFlagGenerator(this.geometryStore.indexKey);
   }
 
   /**
@@ -51,6 +79,8 @@ export class MapEventHandler {
    */
   _removeLayerFromIndex(layer) {
     this.geometryStore.removeLayer(layer);
+
+    this.renderFlagGenerator(this.geometryStore.indexKey);
   }
 
   /**
@@ -58,6 +88,7 @@ export class MapEventHandler {
    * @param {Object} e event object;
    */
   onCreate(e) {
+    this._checkForUniqueLayer();
     this._addLayerToIndex(e.layer);
   }
 
@@ -72,6 +103,7 @@ export class MapEventHandler {
     // updating the index
     this._copyLayerIdentifier(oldLayer, newLayer);
 
+    this._checkForUniqueLayer();
     this._updateLayerOnIndex(newLayer);
   }
 
@@ -88,6 +120,7 @@ export class MapEventHandler {
    * @param {Object} e event object;
    */
   onCut(e) {
+    this._checkForUniqueLayer();
     this._updateLayerOnIndex(e.layer);
   }
 }

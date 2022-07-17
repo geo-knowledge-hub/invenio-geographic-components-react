@@ -40,10 +40,16 @@ const InteractiveMapComponent = ({ geometryStore, mapConfig }) => {
  * rendering system makes all the content modification.
  *
  */
-export const InteractiveMap = React.memo(
-  InteractiveMapComponent,
-  (props) => true // avoiding re-render
-);
+export const InteractiveMap = React.memo(InteractiveMapComponent, (props) => {
+  // We need to define if the map must be rerender (in react) or not.
+  // In this case, we are defining if rerender is required based on
+  // the mode selected by the user:
+  //  - uniqueLayer (true): Unique will be presented in the map. In this case,
+  //                        we need rerender to sync the map and the formik store;
+  //  - uniqueLayer (false): All drawn layers will be presented, and we do not
+  //                         need to rerender.
+  return !props.geometryStore.uniqueLayer;
+});
 
 InteractiveMap.propTypes = {
   geometryStore: PropTypes.object.isRequired,

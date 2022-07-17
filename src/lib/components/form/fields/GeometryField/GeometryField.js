@@ -48,6 +48,7 @@ import { InteractiveMap } from './InteractiveMap';
  * @param {Function} onDataLoad Function called when the data is loaded. This function can be used to present
  *                               a message (e.g., toast) to the user.
  * @param {Object} interactiveMapConfig Configuration object for the `Interactive Map` component.
+ * @param {Boolean} uniqueLayer Enable/Disable users to draw multiple geometries in the map.
  * @returns {JSX.Element}
  */
 export const GeometryField = ({
@@ -60,6 +61,7 @@ export const GeometryField = ({
   onDataClean,
   onDataLoad,
   interactiveMapConfig,
+  uniqueLayer,
 }) => {
   // States
   const [interactiveMapInitialized, setInteractiveMapInitialized] =
@@ -67,7 +69,7 @@ export const GeometryField = ({
   const [activatedBreadcrumb, setActivatedBreadcrumb] = useState('menu');
 
   // Local store
-  const geometryStore = new GeometryStore();
+  const geometryStore = new GeometryStore(null, uniqueLayer);
 
   // Handlers
   const changeBreadcrumb = (breadcrumbName) =>
