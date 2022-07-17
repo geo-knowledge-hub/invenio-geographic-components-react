@@ -49,8 +49,8 @@ const Template = (args) => (
 /**
  * Component stories
  */
-export const Basic = Template.bind({});
-Basic.args = {
+export const MultipleLayers = Template.bind({});
+MultipleLayers.args = {
   fieldPath: 'geometry',
   label: 'Geometry',
   labelIcon: 'location arrow',
@@ -65,5 +65,90 @@ Basic.args = {
         animation: 'fade right',
       });
     }, 100);
+  },
+  interactiveMapConfig: {
+    mapConfig: {
+      mapContainer: {
+        center: [30, -50],
+        zoom: 1,
+        zoomControl: true,
+      },
+      geometryEditorConfig: {
+        toolbarConfig: {
+          positions: {
+            draw: 'topleft',
+            edit: 'topright',
+          },
+          drawText: false,
+          drawCircleMarker: false,
+          drawCircle: false,
+          cutPolygon: false,
+          controlOrder: [
+            'drawMarker',
+            'drawPolyline',
+            'drawRectangle',
+            'drawPolygon',
+            'editMode',
+            'dragMode',
+            'cutPolygon',
+            'rotateMode',
+            'removalMode',
+          ],
+        },
+        uniqueLayer: false,
+      },
+    },
+  },
+};
+
+export const UniqueGeometry = Template.bind({});
+UniqueGeometry.args = {
+  fieldPath: 'geometry',
+  label: 'Geometry',
+  labelIcon: 'location arrow',
+  onDataClean: () => {
+    setTimeout((_) => {
+      toast({
+        title: 'Data cleaned',
+        description: 'Data has been cleaned',
+        type: 'info',
+        icon: 'info',
+        time: 5000,
+        animation: 'fade right',
+      });
+    }, 100);
+  },
+  interactiveMapConfig: {
+    mapConfig: {
+      mapContainer: {
+        center: [30, -50],
+        zoom: 1,
+        zoomControl: true,
+      },
+      geometryEditorConfig: {
+        toolbarConfig: {
+          positions: {
+            draw: 'topleft',
+            edit: 'topright',
+          },
+          drawText: false,
+          drawCircleMarker: false,
+          drawCircle: false,
+          cutPolygon: false,
+          controlOrder: [
+            'drawMarker',
+            'drawPolyline',
+            'drawRectangle',
+            'drawPolygon',
+            'editMode',
+            'dragMode',
+            'cutPolygon',
+            'rotateMode',
+            'removalMode',
+          ],
+        },
+        uniqueLayer: true,
+      },
+    },
   },
 };

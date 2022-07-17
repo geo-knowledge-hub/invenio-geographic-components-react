@@ -13,10 +13,21 @@ import { renderWithMapContainer } from '@tests/setup';
 
 describe('LayerLoader tests', () => {
   describe('Render tests', () => {
-    it('should render without crashing', () => {
+    it('should render without crashing with enableMultipleLayer disabled', () => {
       renderWithMapContainer(
         <>
-          <LayerLoader layers={[]} />
+          <LayerLoader
+            layers={[]}
+            renderFlag={1}
+            enableMultipleLayers={false}
+          />
+        </>
+      );
+    });
+    it('should render without crashing enableMultipleLayer enabled', () => {
+      renderWithMapContainer(
+        <>
+          <LayerLoader layers={[]} renderFlag={1} enableMultipleLayers={true} />
         </>
       );
     });

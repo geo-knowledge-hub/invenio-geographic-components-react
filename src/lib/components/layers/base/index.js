@@ -8,4 +8,3 @@
 
 export { BaseMapLayers } from './BaseMapLayers';
 export { GeoJSONLayer } from './GeoJSONLayer';
-export { LayerLoader } from './LayerLoader';
