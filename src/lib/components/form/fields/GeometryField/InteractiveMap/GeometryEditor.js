@@ -31,7 +31,7 @@ export const GeometryEditor = ({ geometryStore, geometryEditorConfig }) => {
   const [controlRendered, setControlRendered] = useState(false);
 
   // Configurations
-  const { uniqueLayer } = geometryEditorConfig;
+  const uniqueLayer = geometryStore.uniqueLayer;
 
   // Auxiliary functions
   const renderFlagGenerator = (id) => {
@@ -41,8 +41,7 @@ export const GeometryEditor = ({ geometryStore, geometryEditorConfig }) => {
   // Handlers
   const mapEventHandler = new MapEventHandler(
     geometryStore,
-    renderFlagGenerator,
-    geometryEditorConfig
+    renderFlagGenerator
   );
 
   // Hooks
@@ -61,7 +60,7 @@ export const GeometryEditor = ({ geometryStore, geometryEditorConfig }) => {
           <LayerLoader
             renderFlag={renderFlag}
             layers={geometryStore.getLayers()}
-            enableMultipleLayers={!geometryEditorConfig.uniqueLayer}
+            enableMultipleLayers={!uniqueLayer}
           />
         </>
       ) : null}
@@ -100,6 +99,5 @@ GeometryEditor.defaultProps = {
         'removalMode',
       ],
     },
-    uniqueLayer: false,
   },
 };

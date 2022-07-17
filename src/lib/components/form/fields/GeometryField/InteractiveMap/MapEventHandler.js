@@ -14,12 +14,11 @@ export class MapEventHandler {
    * @constructor
    * @param {Object} geometryStore Geometry Store object.
    * @param {Function} renderFlagGenerator Function to generate a flag identifier
-   *                                       for the current render step
-   * @param {Object} config Configuration object for the `Map Event Handler`.
+   *                                       for the current render step.
    */
-  constructor(geometryStore, renderFlagGenerator, config = {}) {
+  constructor(geometryStore, renderFlagGenerator) {
     this.geometryStore = geometryStore;
-    this.config = config;
+    this.uniqueLayer = geometryStore.uniqueLayer;
 
     this.renderFlagGenerator = renderFlagGenerator;
   }
@@ -29,9 +28,7 @@ export class MapEventHandler {
    * @private
    */
   _checkForUniqueLayer() {
-    const uniqueLayerEnabled = this.config ? this.config.uniqueLayer : false;
-
-    if (uniqueLayerEnabled) {
+    if (this.uniqueLayer) {
       this.geometryStore.getLayers().forEach((layer) => {
         this._removeLayerFromIndex(layer);
       });

@@ -9,8 +9,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 
-import _get from 'lodash/get';
-
 import { MapContainer } from 'react-leaflet';
 
 import { GeometryStore } from '../GeometryStore';
@@ -50,7 +48,7 @@ export const InteractiveMap = React.memo(InteractiveMapComponent, (props) => {
   //                        we need rerender to sync the map and the formik store;
   //  - uniqueLayer (false): All drawn layers will be presented, and we do not
   //                         need to rerender.
-  return !_get(props, 'mapConfig.geometryEditorConfig.uniqueLayer');
+  return !props.geometryStore.uniqueLayer;
 });
 
 InteractiveMap.propTypes = {

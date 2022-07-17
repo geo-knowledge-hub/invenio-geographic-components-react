@@ -49,8 +49,9 @@ const Template = (args) => (
 /**
  * Component stories
  */
-export const MultipleLayers = Template.bind({});
-MultipleLayers.args = {
+export const UniqueLayer = Template.bind({});
+UniqueLayer.args = {
+  uniqueLayer: true,
   fieldPath: 'geometry',
   label: 'Geometry',
   labelIcon: 'location arrow',
@@ -65,44 +66,12 @@ MultipleLayers.args = {
         animation: 'fade right',
       });
     }, 100);
-  },
-  interactiveMapConfig: {
-    mapConfig: {
-      mapContainer: {
-        center: [30, -50],
-        zoom: 1,
-        zoomControl: true,
-      },
-      geometryEditorConfig: {
-        toolbarConfig: {
-          positions: {
-            draw: 'topleft',
-            edit: 'topright',
-          },
-          drawText: false,
-          drawCircleMarker: false,
-          drawCircle: false,
-          cutPolygon: false,
-          controlOrder: [
-            'drawMarker',
-            'drawPolyline',
-            'drawRectangle',
-            'drawPolygon',
-            'editMode',
-            'dragMode',
-            'cutPolygon',
-            'rotateMode',
-            'removalMode',
-          ],
-        },
-        uniqueLayer: false,
-      },
-    },
   },
 };
 
-export const UniqueGeometry = Template.bind({});
-UniqueGeometry.args = {
+export const MultipleLayers = Template.bind({});
+MultipleLayers.args = {
+  uniqueLayer: false,
   fieldPath: 'geometry',
   label: 'Geometry',
   labelIcon: 'location arrow',
@@ -117,38 +86,5 @@ UniqueGeometry.args = {
         animation: 'fade right',
       });
     }, 100);
-  },
-  interactiveMapConfig: {
-    mapConfig: {
-      mapContainer: {
-        center: [30, -50],
-        zoom: 1,
-        zoomControl: true,
-      },
-      geometryEditorConfig: {
-        toolbarConfig: {
-          positions: {
-            draw: 'topleft',
-            edit: 'topright',
-          },
-          drawText: false,
-          drawCircleMarker: false,
-          drawCircle: false,
-          cutPolygon: false,
-          controlOrder: [
-            'drawMarker',
-            'drawPolyline',
-            'drawRectangle',
-            'drawPolygon',
-            'editMode',
-            'dragMode',
-            'cutPolygon',
-            'rotateMode',
-            'removalMode',
-          ],
-        },
-        uniqueLayer: true,
-      },
-    },
   },
 };

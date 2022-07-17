@@ -22,11 +22,13 @@ export class GeometryStore {
   /**
    * @constructor
    * @param {Object} formikProps Formik Bag object.
+   * @param {Boolean} uniqueLayer Enable/Disable users to draw multiple geometries in the map.
    */
-  constructor(formikProps = null) {
+  constructor(formikProps = null, uniqueLayer = false) {
     // definitions
     this.formikProps = null;
     this.fieldPath = null;
+    this.uniqueLayer = uniqueLayer;
 
     this.indexKey = 0;
     this.geometryIndex = {};
@@ -171,6 +173,10 @@ export class GeometryStore {
    */
   addLayer(layer) {
     const layerKey = this._generateKey();
+
+    if (this.uniqueLayer) {
+      this.geometryIndex = {};
+    }
 
     layer._store_identifier = layerKey;
     this.geometryIndex[layerKey] = layer;
