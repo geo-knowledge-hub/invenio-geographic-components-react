@@ -1,5 +1,9 @@
 # Changes
 
+## Version 0.2.1 (2022-07-19)
+
+- Fixed the data load operation in the `GeographicIdentifiersField` component.
+
 ## Version 0.2.0 (2022-07-17)
 
 - Package review

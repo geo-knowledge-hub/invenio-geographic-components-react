@@ -9,6 +9,9 @@
 import React, { useState } from 'react';
 import PropTypes from 'prop-types';
 
+import axios from 'axios';
+
+import _get from 'lodash/get';
 import _split from 'lodash/split';
 import _capitalize from 'lodash/capitalize';
 
@@ -48,10 +51,14 @@ export const GeographicIdentifiersField = ({
   noQueryMessage,
   suggestionAPIUrl,
 }) => {
+  // States
+  const [initialValuesLoaded, setInitialValuesLoaded] = useState(false);
+
   const [fieldState, setFieldState] = useState({
     limitTo: limitOptions[0].value,
   });
 
+  // Auxiliary functions
   const prepareSuggest = (searchQuery) => {
     const limitTo = fieldState.limitTo;
     const prefix = limitTo === 'all' ? '' : `${limitTo}::`;
@@ -61,7 +68,7 @@ export const GeographicIdentifiersField = ({
 
   const serializeIdentifiers = (identifiers) =>
     identifiers.map((identifier) => {
-      const scheme = _split(identifier.id, '::', 1).at(0); // pattern from geoidentifiers
+      const scheme = _split(identifier.id, '::', 1).at(0); // Pattern from GeoIdentifiers
       const schemeText = scheme ? `(${_capitalize(scheme)})` : '';
 
       return {
@@ -73,6 +80,41 @@ export const GeographicIdentifiersField = ({
         scheme: scheme,
       };
     });
+
+  // Function to transform the Initial Values in a format valid for the Component.
+  // By now, we are using this "basic" approach, where we request the API many times.
+  // This is temporary and in the future can be revised.
+  const transformInitialValues = (initialValues, setFieldValue) => {
+    if (initialValues.length !== 0 && !initialValuesLoaded) {
+      Promise.all(
+        initialValues.map(async (identifier) => {
+          const identifierValue = _get(identifier, 'identifier');
+
+          if (identifierValue) {
+            // getting data from the identifier api
+            const identifierApi = `${suggestionAPIUrl}/${identifierValue}`;
+            const result = await axios.get(identifierApi);
+
+            // extracting the values
+            if (result.status === 200) {
+              return result.data;
+            }
+          }
+
+          return identifier;
+        })
+      ).then((res) => {
+        // Saving the transformed values
+        setFieldValue(serializeIdentifiers(res));
+
+        // Enable the component
+        setInitialValuesLoaded(true);
+      });
+    } else {
+      // Enable the component
+      setInitialValuesLoaded(true);
+    }
+  };
 
   return (
     <GroupField className={'main-group-field'}>
@@ -100,29 +142,42 @@ export const GeographicIdentifiersField = ({
         </GroupField>
       </Form.Field>
       <Field name={fieldPath}>
-        {({ form: { values } }) => {
+        {({ form: { values, setFieldValue } }) => {
+          // Looking for initial values
+          transformInitialValues(getIn(values, fieldPath, []), (value) => {
+            setFieldValue(fieldPath, value);
+          });
+
           return (
-            <RemoteSelectField
-              clearable={clearable}
-              fieldPath={fieldPath}
-              initialSuggestions={getIn(values, fieldPath, [])}
-              multiple={multiple}
-              noQueryMessage={noQueryMessage}
-              placeholder={placeholder}
-              preSearchChange={prepareSuggest}
-              required={required}
-              serializeSuggestions={serializeIdentifiers}
-              suggestionAPIUrl={suggestionAPIUrl}
-              onValueChange={({ formikProps }, selectedSuggestions) => {
-                formikProps.form.setFieldValue(fieldPath, selectedSuggestions);
-              }}
-              value={getIn(values, fieldPath, []).map((val) => val.name)}
-              label={
-                <label className="mobile-hidden">&nbsp;</label>
-              } /** For alignment purposes */
-              allowAdditions={false}
-              width={11}
-            />
+            <>
+              {/* Presenting the component after define the Initial values. */}
+              {initialValuesLoaded ? (
+                <RemoteSelectField
+                  clearable={clearable}
+                  fieldPath={fieldPath}
+                  initialSuggestions={getIn(values, fieldPath, [])}
+                  multiple={multiple}
+                  noQueryMessage={noQueryMessage}
+                  placeholder={placeholder}
+                  preSearchChange={prepareSuggest}
+                  required={required}
+                  serializeSuggestions={serializeIdentifiers}
+                  suggestionAPIUrl={suggestionAPIUrl}
+                  onValueChange={({ formikProps }, selectedSuggestions) => {
+                    formikProps.form.setFieldValue(
+                      fieldPath,
+                      selectedSuggestions
+                    );
+                  }}
+                  value={getIn(values, fieldPath, []).map((val) => val.name)}
+                  label={
+                    <label className="mobile-hidden">&nbsp;</label>
+                  } /** For alignment purposes */
+                  allowAdditions={false}
+                  width={11}
+                />
+              ) : null}
+            </>
           );
         }}
       </Field>
@@ -159,8 +214,8 @@ GeographicIdentifiersField.defaultProps = {
   fieldPath: 'identifiers',
   limitOptions: [
     {
-      text: 'Geonames',
-      value: 'GEONAMES', // Available on: Invenio Geographic Identifiers.
+      text: 'GeoNames',
+      value: 'geonames', // Available on: Invenio Geographic Identifiers.
     },
     {
       text: 'All',
