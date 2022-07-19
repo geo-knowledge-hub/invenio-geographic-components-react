@@ -6,6 +6,8 @@
  * under the terms of the MIT License; see LICENSE file for more details.
  */
 
+import axios from 'axios';
+
 import _get from 'lodash/get';
 import _set from 'lodash/set';
 import _cloneDeep from 'lodash/cloneDeep';
@@ -40,7 +42,7 @@ export class LocationsFieldSerializer {
       const identifiers = _get(location, 'identifiers', []).map(
         (identifier) => ({
           scheme: identifier.scheme,
-          identifier: identifier.id,
+          identifier: identifier.identifier || identifier.id,
         })
       );
 
