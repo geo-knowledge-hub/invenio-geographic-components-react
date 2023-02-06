@@ -1,6 +1,6 @@
 {
   "name": "@geo-knowledge-hub/invenio-geographic-components-react",
-  "version": "0.2.1",
+  "version": "0.2.2",
   "main": "dist/cjs/index.js",
   "browser": "dist/cjs/index.js",
   "module": "dist/esm/index.js",
@@ -73,7 +73,7 @@
     "react": "^17.0.2",
     "react-dom": "^17.0.2",
     "react-i18next": "^11.11.0",
-    "react-invenio-forms": "^0.10.8",
+    "react-invenio-forms": "^1.0.0",
     "react-leaflet": "3.1.0",
     "react-leaflet-fullscreen": "^2.0.2",
     "react-scripts": "^5.0.0",

@@ -12,8 +12,7 @@ import PropTypes from 'prop-types';
 import _get from 'lodash/get';
 import { Formik } from 'formik';
 
-import { ActionButton } from 'react-invenio-forms';
-import { Modal, Grid, Form, Header } from 'semantic-ui-react';
+import { Button, Modal, Grid, Form, Header } from 'semantic-ui-react';
 
 import { i18next } from '@translations/i18next';
 
@@ -141,7 +140,7 @@ export const LocationsModal = ({
         }
       }}
     >
-      {({ values, resetForm }) => {
+      {({ values, resetForm, form }) => {
         const placePath = 'place';
         const geometryPath = 'geometry';
         const descriptionPath = 'description';
@@ -187,10 +186,10 @@ export const LocationsModal = ({
               </Form>
             </Modal.Content>
             <Modal.Actions>
-              <ActionButton
+              <Button
                 name={'cancel'}
-                onClick={(values, formikHelpers) => {
-                  formikHelpers.resetForm();
+                onClick={() => {
+                  resetForm();
                   closeModal();
                 }}
                 icon={'remove'}
@@ -198,9 +197,9 @@ export const LocationsModal = ({
                 floated={'left'}
               />
               {action === modalActions.ADD && (
-                <ActionButton
+                <Button
                   name={'submit'}
-                  onClick={(event, form) => {
+                  onClick={() => {
                     setModalState({
                       action: 'saveAndContinue',
                       formState: form,
@@ -211,9 +210,9 @@ export const LocationsModal = ({
                   content={addedMessageState}
                 />
               )}
-              <ActionButton
+              <Button
                 name={'submit'}
-                onClick={(event, form) => {
+                onClick={() => {
                   setModalState({
                     action: 'saveAndClose',
                     formState: form,
