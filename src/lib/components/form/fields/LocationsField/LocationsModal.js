@@ -140,7 +140,7 @@ export const LocationsModal = ({
         }
       }}
     >
-      {({ values, resetForm, form }) => {
+      {({ values, resetForm, ...form }) => {
         const placePath = 'place';
         const geometryPath = 'geometry';
         const descriptionPath = 'description';
