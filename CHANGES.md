@@ -1,5 +1,14 @@
 # Changes
 
+## Version 0.2.3 (2023-05-08)
+
+- Fixed `LocationsModal` object to be used with Invenio Forms;
+- Updated dependencies.
+
+## Version 0.2.2 (2023-02-12)
+
+- Updated Invenio Form components.
+
 ## Version 0.2.1 (2022-07-19)
 
 - Fixed the data load operation in the `GeographicIdentifiersField` component.
