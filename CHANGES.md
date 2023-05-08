@@ -2,7 +2,7 @@
 
 ## Version 0.2.3 (2023-05-08)
 
-- Fixed `LocationsModal` version to be used with Invenio Forms;
+- Fixed `LocationsModal` object to be used with Invenio Forms;
 - Updated dependencies.
 
 ## Version 0.2.2 (2023-02-12)
