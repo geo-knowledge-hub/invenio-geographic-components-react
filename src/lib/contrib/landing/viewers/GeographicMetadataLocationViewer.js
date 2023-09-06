@@ -9,6 +9,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 
+import _get from 'lodash/get';
 import _pick from 'lodash/pick';
 import _isNil from 'lodash/isNil';
 import _compact from 'lodash/compact';
@@ -37,13 +38,19 @@ export const GeographicMetadataLocationViewer = ({
       featuresData.map((feature) => {
         const geometryData = _pick(feature, ['geometry']);
 
+        const place = _get(feature, 'place');
+        const description = _get(feature, 'description');
+
         if (_isNil(geometryData) || _isEmpty(geometryData)) {
           return null;
         }
 
         return {
           type: 'Feature',
-          properties: {},
+          properties: {
+            place,
+            description,
+          },
           ...geometryData,
         };
       })
@@ -66,7 +73,30 @@ export const GeographicMetadataLocationViewer = ({
       <BaseMapLayers {...mapConfig} />
 
       {featureCollection ? (
-        <GeoJSONLayer geoJsonData={featureCollection} />
+        <GeoJSONLayer
+          geoJsonData={featureCollection}
+          options={{
+            onEachFeature: (feature, layer) => {
+              const placeText = _get(feature, 'properties.place', '');
+              const descriptionText = _get(
+                feature,
+                'properties.description',
+                ''
+              );
+
+              if (placeText || descriptionText) {
+                layer.bindPopup(`
+              <h4>${placeText}</h4>
+              <p>${descriptionText}</p>
+            `);
+              } else {
+                layer.bindPopup(
+                  "This geometry doesn't have any extra information"
+                );
+              }
+            },
+          }}
+        />
       ) : null}
     </MapContainer>
   );
