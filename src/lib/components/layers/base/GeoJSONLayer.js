@@ -23,7 +23,7 @@ import { useLeafletContext } from '@react-leaflet/core';
  * @param {Object} geoJsonData GeoJSON Data to be added in the Layer.
  * @returns {null}
  */
-export const GeoJSONLayer = ({ geoJsonData }) => {
+export const GeoJSONLayer = ({ geoJsonData, options }) => {
   const context = useLeafletContext();
 
   const propsRef = useRef(geoJsonData);
@@ -36,7 +36,7 @@ export const GeoJSONLayer = ({ geoJsonData }) => {
     const geometryData = propsRef.current;
 
     if (!_isEmpty(geometryData)) {
-      geometryLayerRef.current = L.geoJSON().addTo(container);
+      geometryLayerRef.current = L.geoJSON(undefined, options).addTo(container);
       geometryLayerRef.current.addData(geometryData);
 
       // adjusting the map bounds
