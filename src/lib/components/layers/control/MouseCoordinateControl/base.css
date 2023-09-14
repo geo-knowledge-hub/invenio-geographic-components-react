@@ -4,5 +4,9 @@
   padding: 0 5px;
   margin: 0;
   color: #333;
-  font: 13px/1.5 'Helvetica Nueu', Arial, Helvetica, sans-serif;
+  font:
+    13px/1.5 'Helvetica Nueu',
+    Arial,
+    Helvetica,
+    sans-serif;
 }
