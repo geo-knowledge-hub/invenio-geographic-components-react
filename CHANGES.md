@@ -1,5 +1,9 @@
 # Changes
 
+## Version 0.2.4 (2023-09-14)
+
+- Added geometry properties view in the `GeographicMetadataLocationViewer` component.
+
 ## Version 0.2.3 (2023-05-08)
 
 - Fixed `LocationsModal` object to be used with Invenio Forms;
