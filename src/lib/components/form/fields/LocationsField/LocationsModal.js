@@ -162,7 +162,7 @@ export const LocationsModal = ({
           >
             <Modal.Header as={'h6'} className={'pt-10 pb-10'}>
               <Grid>
-                <Grid.Column floated={'left'} width={4}>
+                <Grid.Column floated={'left'} width={16}>
                   <Header as={'h2'}>
                     {action === modalActions.ADD ? addLabel : editLabel}
                   </Header>
