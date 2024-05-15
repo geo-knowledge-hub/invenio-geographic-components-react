@@ -117,19 +117,17 @@ export const GeographicIdentifiersField = ({
   };
 
   return (
-    <GroupField className={'main-group-field'}>
+    <GroupField className={'main-group-field'} style={{ marginBottom: '1em' }}>
       <Form.Field width={5}>
         <FieldLabel htmlFor={fieldPath} icon={labelIcon} label={label} />
-        <GroupField>
+        <GroupField style={{ padding: 0 }}>
           <Form.Field
             width={8}
             style={{ marginBottom: 'auto', marginTop: 'auto' }}
-            className={'p-0'}
           >
             {i18next.t('Suggest from')}
           </Form.Field>
           <Form.Dropdown
-            className={'p-0'}
             defaultValue={limitOptions[0].value}
             fluid
             onChange={(event, data) => {

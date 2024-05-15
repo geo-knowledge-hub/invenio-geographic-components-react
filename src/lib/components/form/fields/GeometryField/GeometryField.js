@@ -198,38 +198,80 @@ export const GeometryField = ({
                     />
                   </>
                 ) : (
-                  <Grid columns={2} stackable textAlign="center">
-                    <Divider vertical>Or</Divider>
+                  <Grid>
+                    <Grid.Row only={'computer tablet'}>
+                      <Grid columns={2} stackable textAlign="center">
+                        <Divider vertical>Or</Divider>
 
-                    <Grid.Row verticalAlign="middle">
-                      <Grid.Column>
-                        <Header as={'h3'} icon>
-                          <Icon name={menuOptions.interactiveMap.icon} />
-                          {menuOptions.interactiveMap.header}
-                        </Header>
-                        <Button
-                          content={i18next.t('Use')}
-                          onClick={enableEmptyInteractiveMap}
-                        />
-                      </Grid.Column>
+                        <Grid.Row verticalAlign="middle">
+                          <Grid.Column>
+                            <Header as={'h3'} icon>
+                              <Icon name={menuOptions.interactiveMap.icon} />
+                              {menuOptions.interactiveMap.header}
+                            </Header>
+                            <Button
+                              content={i18next.t('Use')}
+                              onClick={enableEmptyInteractiveMap}
+                            />
+                          </Grid.Column>
 
-                      <Grid.Column>
-                        <Header as={'h3'} icon>
-                          <Icon name={menuOptions.importManager.icon} />
-                          {menuOptions.importManager.header}
-                        </Header>
+                          <Grid.Column>
+                            <Header as={'h3'} icon>
+                              <Icon name={menuOptions.importManager.icon} />
+                              {menuOptions.importManager.header}
+                            </Header>
 
-                        <ImportManager
-                          onImport={onDataLoadCallback(formikProps)}
-                          onError={onLoadErrorCallback(formikProps)}
-                          geometryLoaderConfig={{
-                            dropdownConfig: {
-                              as: Button,
-                              text: i18next.t('Use'),
-                            },
-                          }}
-                        />
-                      </Grid.Column>
+                            <ImportManager
+                              onImport={onDataLoadCallback(formikProps)}
+                              onError={onLoadErrorCallback(formikProps)}
+                              geometryLoaderConfig={{
+                                dropdownConfig: {
+                                  as: Button,
+                                  text: i18next.t('Use'),
+                                },
+                              }}
+                            />
+                          </Grid.Column>
+                        </Grid.Row>
+                      </Grid>
+                    </Grid.Row>
+                    <Grid.Row only={'mobile'}>
+                      <Grid columns={3} stackable textAlign="center">
+                        <Grid.Row verticalAlign="middle">
+                          <Grid.Column>
+                            <Header as={'h3'} icon>
+                              <Icon name={menuOptions.interactiveMap.icon} />
+                              {menuOptions.interactiveMap.header}
+                            </Header>
+                            <Button
+                              content={i18next.t('Use')}
+                              onClick={enableEmptyInteractiveMap}
+                            />
+                          </Grid.Column>
+
+                          <Grid.Column>
+                            <Divider vertical>Or</Divider>
+                          </Grid.Column>
+
+                          <Grid.Column>
+                            <Header as={'h3'} icon>
+                              <Icon name={menuOptions.importManager.icon} />
+                              {menuOptions.importManager.header}
+                            </Header>
+
+                            <ImportManager
+                              onImport={onDataLoadCallback(formikProps)}
+                              onError={onLoadErrorCallback(formikProps)}
+                              geometryLoaderConfig={{
+                                dropdownConfig: {
+                                  as: Button,
+                                  text: i18next.t('Use'),
+                                },
+                              }}
+                            />
+                          </Grid.Column>
+                        </Grid.Row>
+                      </Grid>
                     </Grid.Row>
                   </Grid>
                 )}
