@@ -40,9 +40,7 @@ export const GeoJSONLayer = ({ geoJsonData, options }) => {
       geometryLayerRef.current.addData(geometryData);
 
       // adjusting the map bounds
-      container.fitBounds(geometryLayerRef.current.getBounds(), {
-        maxZoom: 6,
-      });
+      container.fitBounds(geometryLayerRef.current.getBounds());
 
       return () => {
         container.removeLayer(geometryLayerRef.current);

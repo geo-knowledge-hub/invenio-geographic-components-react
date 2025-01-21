@@ -6,10 +6,11 @@
  * under the terms of the MIT License; see LICENSE file for more details.
  */
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
 
-import { LayersControl, TileLayer } from 'react-leaflet';
+import { LayersControl, TileLayer, useMap } from 'react-leaflet';
+import './TileLayerControl.css';
 
 /**
  * @typedef TileLayerObject
@@ -26,25 +27,26 @@ import { LayersControl, TileLayer } from 'react-leaflet';
 export const DefaultTileLayers = [
   {
     baseLayer: {
+      name: 'Esri World Imagery',
+    },
+    tileLayer: {
+      url: 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
+      maxZoom: 17,
+    },
+    attribution:
+      'Tiles &copy; Esri &mdash; Source: Esri, i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, Aerogrid, IGN, IGP, UPR-EGP, and the GIS User Community',
+  },
+  {
+    baseLayer: {
       checked: true,
       name: 'Open Street Map',
     },
     tileLayer: {
       url: 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
-      attribution:
-        "&copy; <a href='https://www.openstreetmap.org/copyright'>OpenStreetMap</a> contributors",
-      maxNativeZoom: 19,
+      maxZoom: 17,
     },
-  },
-  {
-    baseLayer: {
-      name: 'Esri World Imagery',
-    },
-    tileLayer: {
-      url: 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
-      attribution:
-        'Tiles &copy; Esri &mdash; Source: Esri, i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, Aerogrid, IGN, IGP, UPR-EGP, and the GIS User Community',
-    },
+    attribution:
+      "Map data: &copy; <a href='https://www.openstreetmap.org/copyright'>OpenStreetMap</a> contributors",
   },
   {
     baseLayer: {
@@ -53,9 +55,9 @@ export const DefaultTileLayers = [
     tileLayer: {
       url: 'https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png',
       maxZoom: 17,
-      attribution:
-        'Map data: &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors, <a href="http://viewfinderpanoramas.org">SRTM</a> | Map style: &copy; <a href="https://opentopomap.org">OpenTopoMap</a> (<a href="https://creativecommons.org/licenses/by-sa/3.0/">CC-BY-SA</a>)',
     },
+    attribution:
+      'Map data: &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors, <a href="http://viewfinderpanoramas.org">SRTM</a> | Map style: &copy; <a href="https://opentopomap.org">OpenTopoMap</a> (<a href="https://creativecommons.org/licenses/by-sa/3.0/">CC-BY-SA</a>)',
   },
 ];
 
@@ -67,18 +69,158 @@ export const DefaultTileLayers = [
  * @param layersControlConfig
  * @returns {JSX.Element}
  *
- * @note Maybe, this component can be generated to accept not only
- *       tile layers, but other types of layers.
  */
-export const TileLayerControl = ({ tileLayers, layersControlConfig }) => (
-  <LayersControl {...layersControlConfig}>
-    {tileLayers.map((tileLayer, index) => (
-      <LayersControl.BaseLayer key={index} {...tileLayer.baseLayer}>
-        <TileLayer {...tileLayer.tileLayer} />
-      </LayersControl.BaseLayer>
-    ))}
-  </LayersControl>
-);
+export const TileLayerControl = ({ tileLayers, layersControlConfig }) => {
+  /**
+   * Map object
+   */
+  const map = useMap();
+
+  /**
+   * States
+   */
+  const [popupVisible, setPopupVisible] = useState(false);
+  const [popupContent, setPopupContent] = useState('');
+  const [isHoveringControl, setIsHoveringControl] = useState(false);
+  const [isHoveringPopup, setIsHoveringPopup] = useState(false);
+  const [isTimerRunning, setIsTimerRunning] = useState(false);
+
+  /**
+   * Auxiliary functions
+   */
+  const togglePopup = (attribution) => {
+    setPopupContent(attribution);
+    setPopupVisible(true);
+  };
+
+  const closePopup = () => {
+    setPopupVisible(false);
+    setPopupContent('');
+  };
+
+  /**
+   * Effects - Manage popup based on user interaction
+   */
+  useEffect(() => {
+    const layersControl = document.querySelector('.leaflet-control-layers');
+
+    const handleMouseEnter = () => {
+      setIsHoveringControl(true);
+      setIsTimerRunning(false);
+    };
+
+    const handleMouseLeave = () => {
+      setIsHoveringControl(false);
+      if (!isHoveringPopup) {
+        setIsTimerRunning(true);
+      }
+    };
+
+    if (layersControl) {
+      layersControl.addEventListener('mouseenter', handleMouseEnter);
+      layersControl.addEventListener('mouseleave', handleMouseLeave);
+    }
+
+    return () => {
+      if (layersControl) {
+        layersControl.removeEventListener('mouseenter', handleMouseEnter);
+        layersControl.removeEventListener('mouseleave', handleMouseLeave);
+      }
+    };
+  }, [isHoveringPopup]);
+
+  /**
+   * Effects - Automatic close credits popup
+   */
+  useEffect(() => {
+    if (
+      popupVisible &&
+      !isHoveringPopup &&
+      !isHoveringControl &&
+      isTimerRunning
+    ) {
+      const timer = setTimeout(() => closePopup(), 5000);
+      return () => clearTimeout(timer);
+    }
+  }, [popupVisible, isHoveringPopup, isHoveringControl, isTimerRunning]);
+
+  /**
+   * Effects - Close popup when base layer changes
+   */
+  useEffect(() => {
+    const handleBaseLayerChange = () => closePopup();
+
+    map.on('baselayerchange', handleBaseLayerChange);
+
+    return () => {
+      map.off('baselayerchange', handleBaseLayerChange);
+    };
+  }, [map]);
+
+  return (
+    <>
+      <LayersControl
+        className="leaflet-control-layers-expanded"
+        {...layersControlConfig}
+      >
+        {tileLayers.map((tileLayer, index) => (
+          <LayersControl.BaseLayer
+            key={index}
+            checked={index === 0}
+            name={`
+              <div class="leaflet-control-layers-item">
+                <span>${tileLayer.baseLayer.name}</span>
+                <button 
+                  class="leaflet-control-layers-button" 
+                  onclick="(function() {
+                    const event = new CustomEvent('toggle-popup-${index}');
+                    document.dispatchEvent(event);
+                  })()"
+                >
+                  Credits
+                </button>
+              </div>
+            `}
+          >
+            <TileLayer {...tileLayer.tileLayer} />
+          </LayersControl.BaseLayer>
+        ))}
+        {tileLayers.map((tileLayer, index) => {
+          document.addEventListener(`toggle-popup-${index}`, () =>
+            togglePopup(tileLayer.attribution)
+          );
+          return null;
+        })}
+      </LayersControl>
+
+      {popupVisible && (
+        <div
+          className="leaflet-control-popup"
+          onMouseEnter={() => {
+            setIsHoveringPopup(true);
+            setIsTimerRunning(false);
+          }}
+          onMouseLeave={() => {
+            setIsHoveringPopup(false);
+            if (!isHoveringControl) {
+              setIsTimerRunning(true);
+            }
+          }}
+        >
+          <div dangerouslySetInnerHTML={{ __html: popupContent }} />
+          <div>
+            <button
+              className="leaflet-control-popup-close"
+              onClick={closePopup}
+            >
+              Close
+            </button>
+          </div>
+        </div>
+      )}
+    </>
+  );
+};
 
 TileLayerControl.propTypes = {
   tileLayers: PropTypes.arrayOf(

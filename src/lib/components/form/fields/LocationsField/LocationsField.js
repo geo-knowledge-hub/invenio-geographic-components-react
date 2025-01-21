@@ -58,7 +58,7 @@ export const LocationsFieldForm = ({
   label,
   labelIcon,
   required,
-  interactiveMapConfig
+  interactiveMapConfig,
 }) => {
   // field values
   const formikValues = getIn(values, fieldPath, []);
@@ -167,7 +167,7 @@ LocationsField.propTypes = {
     addLabel: PropTypes.string.isRequired,
     editLabel: PropTypes.string.isRequired,
   }).isRequired,
-  interactiveMapConfig: PropTypes.object
+  interactiveMapConfig: PropTypes.object,
 };
 
 LocationsField.defaultProps = {
@@ -179,5 +179,5 @@ LocationsField.defaultProps = {
     addLabel: i18next.t('Add location'),
     editLabel: i18next.t('Edit location'),
   },
-  interactiveMapConfig: {}
+  interactiveMapConfig: {},
 };
