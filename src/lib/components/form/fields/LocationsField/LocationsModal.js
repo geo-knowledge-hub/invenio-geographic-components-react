@@ -182,7 +182,7 @@ export const LocationsModal = ({
                   clearable={true}
                   required={false}
                 />
-                <GeometryField fieldPath={geometryPath} />
+                <GeometryField fieldPath={geometryPath} interactiveMapConfig={interactiveMapConfig} />
               </Form>
             </Modal.Content>
             <Modal.Actions>
