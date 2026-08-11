@@ -7,3 +7,5 @@
  */
 
 export { LocationsField } from './LocationsField';
+export { LocationsFieldItem } from './LocationsFieldItem';
+export { LocationsModal } from './LocationsModal';

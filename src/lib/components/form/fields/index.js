@@ -10,4 +10,8 @@ export { GeometryField } from './GeometryField';
 export { DescriptionField } from './DescriptionField';
 export { GeographicIdentifiersField } from './GeographicIdentifiersField';
 export { PlaceField } from './PlaceField';
-export { LocationsField } from './LocationsField';
+export {
+  LocationsField,
+  LocationsFieldItem,
+  LocationsModal,
+} from './LocationsField';
