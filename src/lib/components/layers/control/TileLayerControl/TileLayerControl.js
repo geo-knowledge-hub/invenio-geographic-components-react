@@ -88,6 +88,18 @@ export const TileLayerControl = ({ tileLayers, layersControlConfig }) => {
   /**
    * Auxiliary functions
    */
+
+  /**
+   * The layers control of this map
+   *
+   * A page can hold more than one map. The deposit form opens its editor over
+   * the landing page in the same document. So the control is looked up inside
+   * this map's container rather than in the whole document
+   */
+  const controlElement = () => {
+    return map.getContainer().querySelector('.leaflet-control-layers');
+  };
+
   const togglePopup = (attribution) => {
     setPopupContent(attribution);
     setPopupVisible(true);
@@ -99,10 +111,44 @@ export const TileLayerControl = ({ tileLayers, layersControlConfig }) => {
   };
 
   /**
+   * Effects - Manage the credits button
+   */
+  useEffect(() => {
+    // Get the layers control
+    const layersControl = controlElement();
+
+    // If the layers control is not found,
+    // return undefined
+    if (!layersControl) {
+      return undefined;
+    }
+
+    // Handle the click event
+    const handleClick = (event) => {
+      const button = event.target.closest?.('.leaflet-control-layers-button');
+
+      if (!button) {
+        return;
+      }
+
+      // Each item is a `<label>`, so a click anywhere inside it also
+      // selects the base map. The credits button should not change the map
+      event.preventDefault();
+      event.stopPropagation();
+
+      togglePopup(tileLayers[Number(button.dataset.layerIndex)].attribution);
+    };
+
+    layersControl.addEventListener('click', handleClick);
+
+    return () => layersControl.removeEventListener('click', handleClick);
+  }, [map, tileLayers]);
+
+  /**
    * Effects - Manage popup based on user interaction
    */
   useEffect(() => {
-    const layersControl = document.querySelector('.leaflet-control-layers');
+    const layersControl = controlElement();
 
     const handleMouseEnter = () => {
       setIsHoveringControl(true);
@@ -170,12 +216,10 @@ export const TileLayerControl = ({ tileLayers, layersControlConfig }) => {
             name={`
               <div class="leaflet-control-layers-item">
                 <span>${tileLayer.baseLayer.name}</span>
-                <button 
-                  class="leaflet-control-layers-button" 
-                  onclick="(function() {
-                    const event = new CustomEvent('toggle-popup-${index}');
-                    document.dispatchEvent(event);
-                  })()"
+                <button
+                  type="button"
+                  class="leaflet-control-layers-button"
+                  data-layer-index="${index}"
                 >
                   Credits
                 </button>
@@ -185,12 +229,6 @@ export const TileLayerControl = ({ tileLayers, layersControlConfig }) => {
             <TileLayer {...tileLayer.tileLayer} />
           </LayersControl.BaseLayer>
         ))}
-        {tileLayers.map((tileLayer, index) => {
-          document.addEventListener(`toggle-popup-${index}`, () =>
-            togglePopup(tileLayer.attribution)
-          );
-          return null;
-        })}
       </LayersControl>
 
       {popupVisible && (
