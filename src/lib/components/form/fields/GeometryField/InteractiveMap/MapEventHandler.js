@@ -50,12 +50,16 @@ export class MapEventHandler {
    * Add a new layer to the Index.
    *
    * @param {Object} layer Layer to be added in the index.
+   * @returns {Boolean} Whether the store accepted the layer.
+   *
    * @private
    */
   _addLayerToIndex(layer) {
-    this.geometryStore.addLayer(layer);
+    const stored = this.geometryStore.addLayer(layer);
 
     this.renderFlagGenerator(this.geometryStore.indexKey);
+
+    return stored;
   }
 
   /**
@@ -63,12 +67,15 @@ export class MapEventHandler {
    *
    * @param {Object} layer Layer to be updated. This layer must be a new reference
    *                       with the id of the layer to be replaced.
+   * @returns {Boolean} Whether the store accepted the change.
+   *
    * @private
    */
   _updateLayerOnIndex(layer) {
-    this.geometryStore.updateLayer(layer);
+    const stored = this.geometryStore.updateLayer(layer);
 
     this.renderFlagGenerator(this.geometryStore.indexKey);
+    return stored;
   }
 
   /**
@@ -89,7 +96,13 @@ export class MapEventHandler {
    */
   onCreate(e) {
     this._checkForUniqueLayer();
-    this._addLayerToIndex(e.layer);
+
+    if (!this._addLayerToIndex(e.layer)) {
+      // The store refused the geometry this drawing would have produced, so
+      // the shape comes off the map too. Left there it would look saved while
+      // the record has no trace of it
+      e.layer.remove();
+    }
   }
 
   /**
@@ -104,6 +117,10 @@ export class MapEventHandler {
     this._copyLayerIdentifier(oldLayer, newLayer);
 
     this._checkForUniqueLayer();
+
+    // An edit reshapes a layer without changing what kind of shape it is, so
+    // the set of types is the same one the store already accepted. Nothing to
+    // put back on refusal.
     this._updateLayerOnIndex(newLayer);
   }
 
@@ -120,7 +137,19 @@ export class MapEventHandler {
    * @param {Object} e event object;
    */
   onCut(e) {
+    const map = e.layer._map;
+
     this._checkForUniqueLayer();
-    this._updateLayerOnIndex(e.layer);
+
+    if (!this._updateLayerOnIndex(e.layer)) {
+      // Cutting a polygon in two makes a MultiPolygon, which most instances
+      // cannot store. Geoman has already swapped the shapes on the map, so the
+      // uncut one goes back. `pm:cut` hands it over for exactly this
+      e.layer.remove();
+
+      if (map && e.originalLayer) {
+        e.originalLayer.addTo(map);
+      }
+    }
   }
 }

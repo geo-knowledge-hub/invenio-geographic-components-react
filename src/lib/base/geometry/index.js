@@ -8,4 +8,4 @@
 
 export { GeometryMutator } from './mutators';
 export { GeometryOperator } from './operations';
-export { GeometryValidator } from './validators';
+export { GeometryValidator, SUPPORTED_GEOMETRY_TYPES } from './validators';

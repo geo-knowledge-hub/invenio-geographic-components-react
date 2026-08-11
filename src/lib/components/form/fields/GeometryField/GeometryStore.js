@@ -11,7 +11,11 @@ import _isEmpty from 'lodash/isEmpty';
 
 import _has from 'lodash/has';
 
-import { GeometryMutator } from '../../../../base';
+import {
+  GeometryMutator,
+  GeometryValidator,
+  SUPPORTED_GEOMETRY_TYPES,
+} from '../../../../base';
 import { GeoJSON as LeafletGeoJSON } from 'leaflet';
 
 /**
@@ -23,12 +27,23 @@ export class GeometryStore {
    * @constructor
    * @param {Object} formikProps Formik Bag object.
    * @param {Boolean} uniqueLayer Enable/Disable users to draw multiple geometries in the map.
+   * @param {Object} options Store options:
+   *                          - `geometryTypes` (Array): geometry types the instance
+   *                            accepts. Drawings that would produce anything else are
+   *                            refused, so the depositor is not left with a shape the
+   *                            record cannot keep;
+   *                          - `onRejected` (Function): called with `{ type, allowedTypes }`
+   *                            when a change is refused, and with `null` once a
+   *                            change is stored.
    */
-  constructor(formikProps = null, uniqueLayer = false) {
+  constructor(formikProps = null, uniqueLayer = false, options = {}) {
     // definitions
     this.formikProps = null;
     this.fieldPath = null;
     this.uniqueLayer = uniqueLayer;
+
+    this.geometryTypes = options.geometryTypes || SUPPORTED_GEOMETRY_TYPES;
+    this.onRejected = options.onRejected || (() => {});
 
     this.indexKey = 0;
     this.geometryIndex = {};
@@ -74,14 +89,69 @@ export class GeometryStore {
       const layerKey = layer._store_identifier;
 
       if (!_isNil(layerKey)) {
+        const previousIndex = { ...this.geometryIndex };
+
         operation(layerKey, layer);
-        this._updateFormikStore();
+        return this._commit(previousIndex);
       }
     }
+    return false;
+  }
+
+  /**
+   * Save the Store Index in the Formik storage, keeping the index and the
+   * stored value in step.
+   *
+   * A set of layers is not stored as it is drawn: two shapes of the same type
+   * become a `Multi...` geometry and two of different types a
+   * `GeometryCollection`, and most of those are not geometries InvenioRDM can
+   * keep. When the drawing would produce one of them the index is put back the
+   * way it was, so the map, the store and the record never disagree.
+   *
+   * @param {Object} previousIndex Index to restore if the change is refused.
+   * @returns {Boolean} Whether the change was stored.
+   * @private
+   */
+  _commit(previousIndex) {
+    if (this._updateFormikStore()) {
+      return true;
+    }
+
+    this.geometryIndex = previousIndex;
+    return false;
+  }
+
+  /**
+   * Write a geometry to the Formik storage, unless the instance cannot keep it.
+   *
+   * @param {Object} geometryObject GeoJSON Geometry object.
+   * @returns {Boolean} Whether the geometry was accepted and stored.
+   * @private
+   */
+  _storeGeometry(geometryObject) {
+    if (
+      !GeometryValidator.isGeometryTypeAllowed(
+        geometryObject,
+        this.geometryTypes
+      )
+    ) {
+      this.onRejected({
+        type: geometryObject.type,
+        allowedTypes: this.geometryTypes,
+      });
+
+      return false;
+    }
+
+    this.formikProps.form.setFieldValue(this.fieldPath, geometryObject);
+    this.onRejected(null);
+    return true;
   }
 
   /**
    * Save the Store Index in the Formik storage.
+   *
+   * @returns {Boolean} Whether the geometry was accepted and stored.
    * @private
    */
   _updateFormikStore() {
@@ -97,10 +167,9 @@ export class GeometryStore {
       return geojson;
     });
 
-    const geometryObject =
-      GeometryMutator.generateGeometryObjectsFromFeatures(features);
-
-    this.formikProps.form.setFieldValue(this.fieldPath, geometryObject);
+    return this._storeGeometry(
+      GeometryMutator.generateGeometryObjectsFromFeatures(features)
+    );
   }
 
   /**
@@ -151,13 +220,16 @@ export class GeometryStore {
   /**
    * Load data from a GeoJSON object.
    *
+   * An imported file goes through the same check as a drawing: a file holding
+   * features of more than one type also collapses into a `GeometryCollection`.
+   *
    * @param {Object} geoJsonData GeoJSON Object.
+   * @returns {Boolean} Whether the geometry was accepted and stored.
    */
   loadGeoJSON(geoJsonData) {
-    const geometryObject =
-      GeometryMutator.generateGeometryObjectsFromFeatures(geoJsonData);
-
-    this.formikProps.form.setFieldValue(this.fieldPath, geometryObject);
+    return this._storeGeometry(
+      GeometryMutator.generateGeometryObjectsFromFeatures(geoJsonData)
+    );
   }
 
   /**
@@ -170,8 +242,10 @@ export class GeometryStore {
   /**
    * Add a `Leaflet.Layer` to the Store.
    * @param {Object} layer Leaflet Layer to be added to the store.
+   * @returns {Boolean} Whether the layer was stored.
    */
   addLayer(layer) {
+    const previousIndex = { ...this.geometryIndex };
     const layerKey = this._generateKey();
 
     if (this.uniqueLayer) {
@@ -181,15 +255,16 @@ export class GeometryStore {
     layer._store_identifier = layerKey;
     this.geometryIndex[layerKey] = layer;
 
-    this._updateFormikStore();
+    return this._commit(previousIndex);
   }
 
   /**
    * Update a `Leaflet.Layer` from the Store.
    * @param {Object} layer Leaflet Layer to be updated in the store.
+   * @returns {Boolean} Whether the change was stored.
    */
   updateLayer(layer) {
-    this._operateOnPreDefinedLayer(layer, (layerKey, layer) => {
+    return this._operateOnPreDefinedLayer(layer, (layerKey, layer) => {
       this.geometryIndex[layerKey] = layer;
     });
   }
@@ -197,9 +272,10 @@ export class GeometryStore {
   /**
    * Remove a `Leaflet.Layer` from the Store.
    * @param {Object} layer Leaflet Layer to be removed from the store.
+   * @returns {Boolean} Whether the change was stored.
    */
   removeLayer(layer) {
-    this._operateOnPreDefinedLayer(layer, (layerKey, layer) => {
+    return this._operateOnPreDefinedLayer(layer, (layerKey, layer) => {
       delete this.geometryIndex[layerKey];
     });
   }
