@@ -1,0 +1,27 @@
+{#
+  This file is part of Invenio-Geographic-Components.
+  Copyright (C) 2022-2026 GEO Secretariat.
+
+  Invenio-Geographic-Components is free software; you can redistribute it and/or
+  modify it under the terms of the MIT License; see LICENSE file for more details.
+#}
+
+{%- set serialization = record_ui if record_ui is defined else record %}
+{%- set features = (features if features is defined
+                    else serialization["ui"].get("locations", {}).get("features", []))
+                   | selectattr("geometry") | selectattr("geometry.coordinates") | list %}
+
+{%- if features %}
+  <div class="sidebar-container">
+    <h2 class="ui medium top attached header mt-0">{{ _("Geographic locations") }}</h2>
+    <div class="ui segment bottom attached rdm-sidebar p-0">
+      <div class="invenio-locations-map"
+           data-invenio-locations-map
+           data-features='{{ features | tojson }}'
+           data-map-config='{{ config.GEOGRAPHIC_COMPONENTS_MAP_CONFIG | tojson }}'></div>
+    </div>
+  </div>
+
+  <link rel="stylesheet" href="{{ url_for('invenio_geographic_components.static', filename='invenio_geographic_components/locations-viewer.css') }}">
+  <script defer src="{{ url_for('invenio_geographic_components.static', filename='invenio_geographic_components/locations-viewer.js') }}"></script>
+{%- endif %}

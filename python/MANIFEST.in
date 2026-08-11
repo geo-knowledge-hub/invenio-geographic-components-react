@@ -1,0 +1,3 @@
+include *.md *.cfg *.sh *.toml LICENSE
+recursive-include invenio_geographic_components *.html *.js *.css
+recursive-include tests *.py
