@@ -11,6 +11,10 @@ import PropTypes from 'prop-types';
 
 import { useMap } from 'react-leaflet';
 
+// Registers `map.pm` on Leaflet
+import '@geoman-io/leaflet-geoman-free';
+import '@geoman-io/leaflet-geoman-free/dist/leaflet-geoman.css';
+
 /**
  * Geometry Editor control
  * @constructor

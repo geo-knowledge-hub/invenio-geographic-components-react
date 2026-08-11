@@ -1,0 +1,17 @@
+/*
+ * This file is part of Invenio-Geographic-Components.
+ * Copyright (C) 2022-2026 GEO Secretariat.
+ *
+ * Invenio-Geographic-Components is free software; you can redistribute it and/or
+ * modify it under the terms of the MIT License; see LICENSE file for more details.
+ */
+
+/**
+ * Note on height:
+ * Leaflet needs an explicit height, otherwise the 
+ * map collapses to 0px
+ */
+.leaflet-container.invenio-geometry-map {
+  height: 30em;
+  z-index: 0;
+}

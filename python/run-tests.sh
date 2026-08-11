@@ -1,0 +1,14 @@
+#!/usr/bin/env bash
+#
+# This file is part of Invenio-Geographic-Components.
+# Copyright (C) 2022-2026 GEO Secretariat.
+#
+# Invenio-Geographic-Components is free software; you can redistribute it and/or
+# modify it under the terms of the MIT License; see LICENSE file for more details.
+
+set -e
+
+cd "$(dirname "$0")"
+
+python -m check_manifest --no-build-isolation
+python -m pytest

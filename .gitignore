@@ -110,6 +110,9 @@ dist
 # Docusaurus cache and generated files
 .docusaurus
 
+# Storybook build output
+storybook-static/
+
 # Serverless directories
 .serverless/
 
@@ -155,5 +158,8 @@ thumb
 sketch
 
 .idea
+
+# Extras
+_resources/
 
 # End of https://www.toptal.com/developers/gitignore/api/node,react

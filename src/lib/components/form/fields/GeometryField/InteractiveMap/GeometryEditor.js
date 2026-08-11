@@ -70,9 +70,9 @@ export const GeometryEditor = ({ geometryStore, geometryEditorConfig }) => {
 
 GeometryEditor.propTypes = {
   geometryStore: PropTypes.object.isRequired,
+  // `uniqueLayer` is read from the store, not from this object.
   geometryEditorConfig: PropTypes.shape({
     toolbarConfig: PropTypes.object.isRequired,
-    uniqueLayer: PropTypes.bool.isRequired,
   }),
 };
 
@@ -86,10 +86,15 @@ GeometryEditor.defaultProps = {
       drawText: false,
       drawCircleMarker: false,
       drawCircle: false,
+      // InvenioRDM only stores Point, MultiPoint and Polygon geometries
+      // (`marshmallow_utils.schemas.GeometryObjectSchema`). For example, a line
+      // drawn here is rejected on save with "Unsupported value: LineString" and the
+      // location is stored without it, so the tool is not offered. Instances
+      // that extend the schema can put it back through `toolbarConfig`.
+      drawPolyline: false,
       cutPolygon: false, // temporary
       controlOrder: [
         'drawMarker',
-        'drawPolyline',
         'drawRectangle',
         'drawPolygon',
         'editMode',

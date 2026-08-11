@@ -10,14 +10,14 @@ import React from 'react';
 import PropTypes from 'prop-types';
 
 import _get from 'lodash/get';
-import _pick from 'lodash/pick';
 import _isNil from 'lodash/isNil';
 import _compact from 'lodash/compact';
 import _isEmpty from 'lodash/isEmpty';
 
 import { MapContainer } from 'react-leaflet';
 
-import { BaseMapLayers, GeoJSONLayer } from '../../../components';
+import { BaseMapLayers } from '../../../components/layers/base/BaseMapLayers';
+import { GeoJSONLayer } from '../../../components/layers/base/GeoJSONLayer';
 
 /**
  * Geographic metadata locations viewer component to visualize in an interactive map the
@@ -36,12 +36,17 @@ export const GeographicMetadataLocationViewer = ({
     // extracting the geometry from the features
     const featuresGeometries = _compact(
       featuresData.map((feature) => {
-        const geometryData = _pick(feature, ['geometry']);
+        const geometry = _get(feature, 'geometry');
 
         const place = _get(feature, 'place');
         const description = _get(feature, 'description');
 
-        if (_isNil(geometryData) || _isEmpty(geometryData)) {
+        // A location may carry a place and no geometry at all, and InvenioRDM
+        // serializes the geometry types it cannot represent with null
+        // coordinates.
+        // Leaflet reads their length and throws, taking the whole
+        // map down with it. Neither is drawable, so neither is passed on.
+        if (_isNil(geometry) || _isEmpty(_get(geometry, 'coordinates'))) {
           return null;
         }
 
@@ -51,7 +56,7 @@ export const GeographicMetadataLocationViewer = ({
             place,
             description,
           },
-          ...geometryData,
+          geometry,
         };
       })
     );
@@ -75,6 +80,7 @@ export const GeographicMetadataLocationViewer = ({
       {featureCollection ? (
         <GeoJSONLayer
           geoJsonData={featureCollection}
+          fitBoundsOptions={mapConfig.fitBoundsOptions}
           options={{
             onEachFeature: (feature, layer) => {
               const placeText = _get(feature, 'properties.place', '');

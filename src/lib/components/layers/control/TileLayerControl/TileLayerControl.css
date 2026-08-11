@@ -1,0 +1,102 @@
+/* Layers control - Base modifications to allow better customization */
+.leaflet-container .leaflet-control-layers-list .leaflet-control-layers-base {
+  display: flex;
+  gap: 7px;
+  flex-direction: column;
+}
+
+.leaflet-container .leaflet-control-layers-list .leaflet-control-layers-base span {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  gap: 3px;
+}
+
+/* Layers control - Base container */
+.leaflet-control-layers-expanded {
+  min-width: 200px;
+}
+
+/* Layers control - Items */
+.leaflet-control-layers-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+}
+
+/* Layers control - Credits button */
+.leaflet-control-layers-button {
+  background-color: white;
+  color: rgba(0, 0, 0, 0.6);
+  border: 1px solid rgba(34, 36, 38, 0.15);
+  border-radius: 4px;
+  padding: 2px 4px;
+  font-size: 9px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+  display: flex;
+}
+
+.leaflet-control-layers-button:hover {
+  background-color: #f9f9f9;
+}
+
+/* Layers control - New icon */
+.leaflet-retina .leaflet-control-layers-toggle,
+.leaflet-control-layers-toggle {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23333' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolygon points='3 6 9 3 15 6 21 3 21 18 15 21 9 18 3 21 3 6'%3E%3C/polygon%3E%3Cline x1='9' y1='3' x2='9' y2='18'%3E%3C/line%3E%3Cline x1='15' y1='6' x2='15' y2='21'%3E%3C/line%3E%3C/svg%3E");
+  background-size: 50%;
+  background-repeat: no-repeat;
+  background-position: center;
+  background-color: #ffffff;
+  border-radius: 8px;
+  width: 40px;
+  height: 40px;
+  cursor: pointer;
+  transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+.leaflet-retina .leaflet-control-layers-toggle:hover,
+.leaflet-control-layers-toggle:hover {
+  background-color: #f5f5f5;
+  transform: scale(1.1);
+}
+
+/* Credits - Popup container */
+.leaflet-control-popup {
+  position: absolute;
+  bottom: 20px;
+  right: 20px;
+  z-index: 1000;
+  background: white;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  padding: 10px;
+  max-width: 350px;
+  font-size: 10px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  transition: opacity 0.3s ease;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+  gap: 3px;
+}
+
+/* Credits - Popup close button */
+.leaflet-control-popup-close {
+  background-color: white;
+  color: rgba(0, 0, 0, 0.6);
+  border: 1px solid rgba(34, 36, 38, 0.15);
+  border-radius: 4px;
+  padding: 2px 4px;
+  font-size: 9px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.leaflet-control-popup-close:hover {
+  background-color: #f9f9f9;
+}

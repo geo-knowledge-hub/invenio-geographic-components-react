@@ -9,12 +9,14 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 
-import {
-  TileLayerControl,
-  GeocodingControl,
-  FullscreenControl,
-  MouseCoordinateControl,
-} from '../control';
+// Leaflet stylesheet and default marker icons
+import '../../../base/leaflet';
+
+// Imported from the leaf modules
+import { TileLayerControl } from '../control/TileLayerControl';
+import { GeocodingControl } from '../control/GeocodingControl';
+import { FullscreenControl } from '../control/FullscreenControl';
+import { MouseCoordinateControl } from '../control/MouseCoordinateControl';
 
 /**
  * Basic set of layers.

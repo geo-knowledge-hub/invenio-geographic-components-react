@@ -16,6 +16,8 @@ import { GeometryEditor } from './GeometryEditor';
 
 import { BaseMapLayers } from '../../../../layers';
 
+import './InteractiveMap.css';
+
 /**
  * Interactive Map Base component.
  * @constructor
@@ -25,7 +27,8 @@ import { BaseMapLayers } from '../../../../layers';
  */
 const InteractiveMapComponent = ({ geometryStore, mapConfig }) => {
   return (
-    <MapContainer {...mapConfig.mapContainer}>
+    // `className` comes first so that `mapContainer` can override it.
+    <MapContainer className="invenio-geometry-map" {...mapConfig.mapContainer}>
       <BaseMapLayers {...mapConfig} />
       <GeometryEditor geometryStore={geometryStore} {...mapConfig} />
     </MapContainer>

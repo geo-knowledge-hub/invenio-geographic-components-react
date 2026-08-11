@@ -2,32 +2,62 @@ name: CI
 
 on:
   push:
-    branches: [ master ]
+    branches: [master]
   pull_request:
-    branches: [ master ]
+    branches: [master]
 
 jobs:
   Tests:
-
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-latest
 
     strategy:
       matrix:
-        node-version: [14.x]
+        node-version: [18.x]
+        python-version: ["3.12"]
 
     steps:
-    - name: Checkout
-      uses: actions/checkout@v2
+      - name: Checkout
+        uses: actions/checkout@v4
 
-    - name: Use Node.js ${{ matrix.node-version }}
-      uses: actions/setup-node@v1
-      with:
-        node-version: ${{ matrix.node-version }}
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
 
-    - name: Install & Build
-      run: |
-        npm install
-        npm run build
-  
-    - name: Test
-      run: npm test
+      - name: Use Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Install
+        run: |
+          npm install --legacy-peer-deps
+          pip install -e "./python[tests]"
+
+      - name: Build
+        run: npm run build
+
+      # The Python package ships the built bundles, so they must be committed
+      # and up to date with the sources. `git status` is used rather than
+      # `git diff`, so that a bundle the build adds is reported too.
+      - name: Check the committed bundles are up to date
+        run: |
+          changed=$(git status --porcelain python/invenio_geographic_components)
+          if [ -n "$changed" ]; then
+            echo "$changed"
+            echo "::error::Run 'npm run build' and commit the result."
+            exit 1
+          fi
+
+      - name: Test the JavaScript
+        run: npm test -- --watchAll=false
+
+      # The remaining steps run from `python/`, so `setup.cfg` is picked up: the
+      # manifest for check-manifest, and `[tool:pytest]` with its `testpaths`.
+      - name: Check the distribution manifest
+        run: python -m check_manifest --no-build-isolation
+        working-directory: python
+
+      - name: Test the Python package
+        run: python -m pytest
+        working-directory: python

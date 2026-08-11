@@ -20,11 +20,14 @@ import {
   Divider,
   Grid,
   Header,
+  Message,
   Segment,
   Icon,
 } from 'semantic-ui-react';
 
 import { i18next } from '@translations/i18next';
+
+import { SUPPORTED_GEOMETRY_TYPES } from '../../../../base';
 
 import { GeometryStore } from './GeometryStore';
 import { ImportManager } from '../../../import';
@@ -49,6 +52,8 @@ import { InteractiveMap } from './InteractiveMap';
  *                               a message (e.g., toast) to the user.
  * @param {Object} interactiveMapConfig Configuration object for the `Interactive Map` component.
  * @param {Boolean} uniqueLayer Enable/Disable users to draw multiple geometries in the map.
+ * @param {Array.<String>} geometryTypes Geometry types the instance accepts. Drawings that
+ *                                       would produce anything else are refused.
  * @returns {JSX.Element}
  */
 export const GeometryField = ({
@@ -62,14 +67,19 @@ export const GeometryField = ({
   onDataLoad,
   interactiveMapConfig,
   uniqueLayer,
+  geometryTypes,
 }) => {
   // States
   const [interactiveMapInitialized, setInteractiveMapInitialized] =
     useState(false);
   const [activatedBreadcrumb, setActivatedBreadcrumb] = useState('menu');
+  const [rejectedGeometry, setRejectedGeometry] = useState(null);
 
   // Local store
-  const geometryStore = new GeometryStore(null, uniqueLayer);
+  const geometryStore = new GeometryStore(null, uniqueLayer, {
+    geometryTypes,
+    onRejected: setRejectedGeometry,
+  });
 
   // Handlers
   const changeBreadcrumb = (breadcrumbName) =>
@@ -87,7 +97,11 @@ export const GeometryField = ({
 
   const onDataLoadCallback = (formikProps) => {
     return (data) => {
-      geometryStore.loadGeoJSON(data);
+      // A refused import leaves the field as it was, so the menu stays open
+      // with the reason next to it rather than an empty map.
+      if (!geometryStore.loadGeoJSON(data)) {
+        return;
+      }
 
       // Side effecting
       changeBreadcrumb('visualization');
@@ -100,6 +114,7 @@ export const GeometryField = ({
   const onCleanDataCallback = (formikProps) => () => {
     // Cleaning the store
     geometryStore.clean();
+    setRejectedGeometry(null);
 
     // Return the breadcrumb to the default.
     setActivatedBreadcrumb('menu');
@@ -187,6 +202,22 @@ export const GeometryField = ({
                   />
                 </div>
               )}
+              {rejectedGeometry && (
+                <Message
+                  warning
+                  icon={'warning sign'}
+                  onDismiss={() => setRejectedGeometry(null)}
+                  header={i18next.t('Geometry not added')}
+                  content={i18next.t(
+                    'Together with what is already there this would be a {{type}}, and this repository stores {{allowedTypes}}.',
+                    {
+                      type: rejectedGeometry.type,
+                      allowedTypes: rejectedGeometry.allowedTypes.join(', '),
+                    }
+                  )}
+                />
+              )}
+
               <Segment placeholder>
                 {!menu ||
                 (interactiveMapInitialized &&
@@ -300,6 +331,8 @@ GeometryField.propTypes = {
   onDataClean: PropTypes.func,
   onDataLoad: PropTypes.func,
   interactiveMapConfig: PropTypes.object,
+  uniqueLayer: PropTypes.bool,
+  geometryTypes: PropTypes.arrayOf(PropTypes.string),
 };
 
 GeometryField.defaultProps = {
@@ -321,4 +354,6 @@ GeometryField.defaultProps = {
   onDataLoad: (data) => {},
   onDataClean: () => {},
   interactiveMapConfig: {},
+  uniqueLayer: false,
+  geometryTypes: SUPPORTED_GEOMETRY_TYPES,
 };
