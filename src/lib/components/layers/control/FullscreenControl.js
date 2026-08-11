@@ -8,6 +8,7 @@
 
 import L from 'leaflet';
 import 'leaflet.fullscreen';
+import 'leaflet.fullscreen/Control.FullScreen.css';
 
 import { createControlComponent } from '@react-leaflet/core';
 

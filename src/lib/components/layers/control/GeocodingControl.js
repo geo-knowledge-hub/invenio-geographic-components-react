@@ -11,8 +11,12 @@ import { createControlComponent, useLeafletContext } from '@react-leaflet/core';
 import L from 'leaflet';
 import PropTypes from 'prop-types';
 
+// Registers `L.Control.Geocoder`
+import 'leaflet-control-geocoder';
+import 'leaflet-control-geocoder/dist/Control.Geocoder.css';
+
 /**
- * Geocoding Control component.
+ * Geocoding Control component
  */
 export const GeocodingControl = createControlComponent(
   ({ providerName, providerOptions, geocodingOptions, events }) => {
