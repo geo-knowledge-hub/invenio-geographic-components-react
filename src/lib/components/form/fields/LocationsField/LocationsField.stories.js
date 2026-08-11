@@ -8,8 +8,6 @@
 
 import React from 'react';
 
-import withMock from 'storybook-addon-mock';
-
 import { Formik } from 'formik';
 
 import { Global } from '@emotion/react';
@@ -23,7 +21,6 @@ import { LocationsField as LocationsFieldComponent } from './LocationsField';
 export default {
   title: 'Form/Field/Locations/Locations Field',
   component: LocationsFieldComponent,
-  decorators: [withMock],
 };
 
 /**

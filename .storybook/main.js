@@ -7,17 +7,21 @@
  */
 
 const path = require('path');
+const webpack = require('webpack');
 
 module.exports = {
-  stories: ['../src/**/*.stories.mdx', '../src/**/*.stories.@(js|jsx|ts|tsx)'],
+  stories: ['../src/**/*.stories.@(js|jsx|ts|tsx)'],
   addons: [
     '@storybook/addon-links',
     '@storybook/addon-essentials',
     '@storybook/addon-interactions',
     '@storybook/addon-jest',
-    'storybook-addon-mock/register',
+    'storybook-addon-mock',
   ],
-  framework: '@storybook/react',
+  framework: {
+    name: '@storybook/react-webpack5',
+    options: {}
+  },
   webpackFinal: async (config, { configType }) => {
     // aliases
     config.resolve.alias = {
@@ -40,9 +44,21 @@ module.exports = {
       },
     });
 
-    // geojsonhint
-    config.node = {
-      fs: 'empty',
+    // tinymce
+    // `react-invenio-forms` pulls in the rich text editor and its plugins, and
+    // TinyMCE is not a dependency here. None of these components use it, so it
+    // is stubbed the same way the jest suites stub it (`moduleNameMapper`).
+    config.plugins.push(
+      new webpack.NormalModuleReplacementPlugin(
+        /^tinymce(\/.*)?$|^@tinymce\/tinymce-react$/,
+        path.resolve(__dirname, '../src/mocks/tinymce.js')
+      )
+    );
+
+    // geojsonhint - provide fallback for 'fs' (webpack 5)
+    config.resolve.fallback = {
+      ...config.resolve.fallback,
+      fs: false,
     };
 
     return config;
