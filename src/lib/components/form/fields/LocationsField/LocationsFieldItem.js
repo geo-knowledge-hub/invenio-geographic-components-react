@@ -88,6 +88,9 @@ const LocationItem = ({ location }) => {
  * @param {String} addLabel Label used in the button for creating a new location.
  * @param {String} editLabel Label used in the button for editing an existing location.
  * @param {Object} initialLocation Location values.
+ * @param {Object} interactiveMapConfig Configurations for the InteractiveMap object.
+ * @param {Boolean} uniqueLayer Enable/Disable users to draw multiple geometries in the map.
+ * @param {Array.<String>} geometryTypes Geometry types the instance accepts.
  *
  * @note This component is based on `CreatibutorsFieldItem` from React Invenio Deposit.
  * @see https://github.com/inveniosoftware/react-invenio-deposit/blob/0e7977fa917a21bf0ff9f69025e3aedd7a747000/src/lib/components/Creatibutors/CreatibutorsFieldItem.js
@@ -102,6 +105,9 @@ export const LocationsFieldItem = ({
   addLabel,
   editLabel,
   initialLocation,
+  interactiveMapConfig,
+  uniqueLayer,
+  geometryTypes,
 }) => {
   // Definitions
   const firstError =
@@ -157,6 +163,9 @@ export const LocationsFieldItem = ({
             addLabel={addLabel}
             editLabel={editLabel}
             initialLocation={initialLocation}
+            interactiveMapConfig={interactiveMapConfig}
+            uniqueLayer={uniqueLayer}
+            geometryTypes={geometryTypes}
             trigger={
               <Button size={'mini'} type={'button'} primary>
                 {i18next.t('Edit')}
@@ -197,6 +206,9 @@ LocationsFieldItem.propTypes = {
   addLabel: PropTypes.string,
   editLabel: PropTypes.string,
   initialLocation: PropTypes.object,
+  interactiveMapConfig: PropTypes.object,
+  uniqueLayer: PropTypes.bool,
+  geometryTypes: PropTypes.arrayOf(PropTypes.string),
 };
 
 LocationsFieldItem.defaultProps = {

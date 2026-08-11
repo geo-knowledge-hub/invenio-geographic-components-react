@@ -35,6 +35,8 @@ import {
  * @param {Object} initialLocation Initial values for the location. This option can be used to fill the fields
  *                                 in the edition mode.
  * @param {Object} interactiveMapConfig Configuration object for the `InteractiveMap`.
+ * @param {Boolean} uniqueLayer Enable/Disable users to draw multiple geometries in the map.
+ * @param {Array.<String>} geometryTypes Geometry types the instance accepts.
  * @returns {JSX.Element}
  *
  * @note This component is based on `CreatibutorsModal` from React Invenio Deposit.
@@ -49,6 +51,8 @@ export const LocationsModal = ({
   editLabel,
   initialLocation,
   interactiveMapConfig,
+  uniqueLayer,
+  geometryTypes,
 }) => {
   const [modalState, setModalState] = useState({
     open: false,
@@ -185,6 +189,8 @@ export const LocationsModal = ({
                 <GeometryField
                   fieldPath={geometryPath}
                   interactiveMapConfig={interactiveMapConfig}
+                  uniqueLayer={uniqueLayer}
+                  geometryTypes={geometryTypes}
                 />
               </Form>
             </Modal.Content>
@@ -246,6 +252,8 @@ LocationsModal.propTypes = {
     identifiers: PropTypes.array,
   }),
   interactiveMapConfig: PropTypes.object,
+  uniqueLayer: PropTypes.bool,
+  geometryTypes: PropTypes.arrayOf(PropTypes.string),
 };
 
 LocationsModal.defaultProps = {

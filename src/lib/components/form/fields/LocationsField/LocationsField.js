@@ -41,6 +41,9 @@ import { LocationsFieldItem } from './LocationsFieldItem';
  * @param {String} labelIcon Field icon.
  * @param {Bool} required Flag to set if the field is required in the form.
  * @param {Object} interactiveMapConfig Configurations for the InteractiveMap object.
+ * @param {Boolean} uniqueLayer Enable/Disable users to draw multiple geometries in the map.
+ * @param {Array.<String>} geometryTypes Geometry types the instance accepts. Drawings that
+ *                                       would produce anything else are refused.
  * @returns {JSX.Element}
  *
  * @note This component is based on `CreatibutorsField` from React Invenio Deposit.
@@ -59,6 +62,8 @@ export const LocationsFieldForm = ({
   labelIcon,
   required,
   interactiveMapConfig,
+  uniqueLayer,
+  geometryTypes,
 }) => {
   // field values
   const formikValues = getIn(values, fieldPath, []);
@@ -106,6 +111,9 @@ export const LocationsFieldForm = ({
                     moveLocation: formikArrayMove,
                     addLabel: modalConfig.addLabel,
                     editLabel: modalConfig.editLabel,
+                    interactiveMapConfig,
+                    uniqueLayer,
+                    geometryTypes,
                   }}
                   // identifiersError={identifiersError}
                 />
@@ -125,7 +133,9 @@ export const LocationsFieldForm = ({
                 {locationAddButtonLabel}
               </Button>
             }
-            {...interactiveMapConfig}
+            interactiveMapConfig={interactiveMapConfig}
+            uniqueLayer={uniqueLayer}
+            geometryTypes={geometryTypes}
           />
           {locationsError && typeof locationsError === 'string' && (
             <Label pointing={'left'} prompt>
@@ -168,6 +178,8 @@ LocationsField.propTypes = {
     editLabel: PropTypes.string.isRequired,
   }).isRequired,
   interactiveMapConfig: PropTypes.object,
+  uniqueLayer: PropTypes.bool,
+  geometryTypes: PropTypes.arrayOf(PropTypes.string),
 };
 
 LocationsField.defaultProps = {
