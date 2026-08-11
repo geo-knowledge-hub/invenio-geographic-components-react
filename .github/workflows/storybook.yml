@@ -1,0 +1,66 @@
+name: Storybook
+
+on:
+  push:
+    branches: [master]
+  pull_request:
+    branches: [master]
+  workflow_dispatch:
+
+# One run per branch. A superseded run is cancelled, so two 
+# deploys never compete
+concurrency:
+  group: storybook-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  Build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Use Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 18.x
+          cache: npm
+
+      - name: Install
+        run: npm ci --legacy-peer-deps
+
+      - name: Build
+        run: npm run storybook-build
+        env:
+          STORYBOOK_DISABLE_TELEMETRY: 1
+
+      - name: Upload the site
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: storybook-static
+
+  # Pull requests build the site but do not publish it, so a broken story fails
+  # the check without touching what is live
+  Deploy:
+    needs: Build
+    if: github.event_name != 'pull_request'
+    runs-on: ubuntu-latest
+
+    # Pages needs to write the deployment and mint an OIDC token. The
+    # permissions are scoped to this job rather than the whole workflow.
+    permissions:
+      pages: write
+      id-token: write
+
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
