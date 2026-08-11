@@ -21,9 +21,12 @@ import { useLeafletContext } from '@react-leaflet/core';
  * @constructor
  *
  * @param {Object} geoJsonData GeoJSON Data to be added in the Layer.
+ * @param {Object} options Options for the underlying Leaflet GeoJSON layer.
+ * @param {Object} fitBoundsOptions Options for the initial `fitBounds` call
+ *                                  (e.g. `maxZoom`, useful for single points).
  * @returns {null}
  */
-export const GeoJSONLayer = ({ geoJsonData, options }) => {
+export const GeoJSONLayer = ({ geoJsonData, options, fitBoundsOptions }) => {
   const context = useLeafletContext();
 
   const propsRef = useRef(geoJsonData);
@@ -40,7 +43,10 @@ export const GeoJSONLayer = ({ geoJsonData, options }) => {
       geometryLayerRef.current.addData(geometryData);
 
       // adjusting the map bounds
-      container.fitBounds(geometryLayerRef.current.getBounds());
+      container.fitBounds(
+        geometryLayerRef.current.getBounds(),
+        fitBoundsOptions
+      );
 
       return () => {
         container.removeLayer(geometryLayerRef.current);
@@ -53,8 +59,12 @@ export const GeoJSONLayer = ({ geoJsonData, options }) => {
 
 GeoJSONLayer.propTypes = {
   geoJsonData: PropTypes.object,
+  options: PropTypes.object,
+  fitBoundsOptions: PropTypes.object,
 };
 
 GeoJSONLayer.defaultProps = {
   geoJsonData: {},
+  options: {},
+  fitBoundsOptions: {},
 };
