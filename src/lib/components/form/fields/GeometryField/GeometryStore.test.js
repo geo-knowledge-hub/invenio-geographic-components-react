@@ -8,7 +8,9 @@
 
 import { Marker, Polygon } from 'leaflet';
 
-import { GeometryStore } from './GeometryStore';
+import { SAO_PAULO_POINT, ZURICH_POINT } from '@tests/mock/spatial/points';
+
+import { GEOMETRY_REJECTIONS, GeometryStore } from './GeometryStore';
 
 /**
  * A Formik bag that records what the store writes.
@@ -104,6 +106,7 @@ describe('GeometryStore tests', () => {
       store.addLayer(polygon());
 
       expect(onRejected).toHaveBeenLastCalledWith({
+        reason: GEOMETRY_REJECTIONS.UNSUPPORTED_TYPE,
         type: 'GeometryCollection',
         allowedTypes: ['Point', 'MultiPoint', 'Polygon'],
       });
@@ -116,6 +119,175 @@ describe('GeometryStore tests', () => {
       store.addLayer(marker());
 
       expect(onRejected).toHaveBeenLastCalledWith(null);
+    });
+  });
+
+  describe('Geometries that were not drawn', () => {
+    it('should store a geometry on an empty store', () => {
+      // Render the field
+      const props = formikProps();
+      const store = new GeometryStore(props);
+
+      // Add the geometry
+      expect(store.addGeometry(SAO_PAULO_POINT)).toBe(true);
+      expect(props.field.value).toEqual(SAO_PAULO_POINT);
+    });
+
+    it('should add to what is already stored', () => {
+      // Render the field
+      const props = formikProps();
+      const store = new GeometryStore(props);
+
+      // Add the geometry
+      store.addGeometry(SAO_PAULO_POINT);
+
+      // Add the other geometry
+      expect(store.addGeometry(ZURICH_POINT)).toBe(true);
+      expect(props.field.value).toEqual({
+        type: 'MultiPoint',
+        coordinates: [SAO_PAULO_POINT.coordinates, ZURICH_POINT.coordinates],
+      });
+    });
+
+    it('should add to what was drawn', () => {
+      // Render the field
+      const props = formikProps();
+      const store = new GeometryStore(props);
+
+      // Add the geometry
+      store.addLayer(marker());
+
+      // Add the other geometry
+      expect(store.addGeometry(SAO_PAULO_POINT)).toBe(true);
+      expect(props.field.value.type).toBe('MultiPoint');
+    });
+
+    it('should keep the geometry it has when only one is kept', () => {
+      // Render the field
+      const props = formikProps();
+      const onRejected = jest.fn();
+      const store = new GeometryStore(props, true, { onRejected });
+
+      // Add the geometry
+      store.addGeometry(SAO_PAULO_POINT);
+
+      // Add the other geometry
+      expect(store.addGeometry(ZURICH_POINT)).toBe(false);
+      expect(props.field.value).toEqual(SAO_PAULO_POINT);
+      expect(onRejected).toHaveBeenLastCalledWith({
+        reason: GEOMETRY_REJECTIONS.UNIQUE_LAYER,
+      });
+    });
+
+    it('should keep what was drawn when only one geometry is kept', () => {
+      // Render the field
+      const props = formikProps();
+      const store = new GeometryStore(props, true);
+
+      // Add the geometry
+      store.addLayer(polygon());
+
+      expect(store.addGeometry(SAO_PAULO_POINT)).toBe(false);
+      expect(props.field.value.type).toBe('Polygon');
+    });
+
+    it('should refuse a geometry it already has', () => {
+      // Render the field
+      const props = formikProps();
+      const onRejected = jest.fn();
+      const store = new GeometryStore(props, false, { onRejected });
+
+      // Add the geometry
+      store.addGeometry(SAO_PAULO_POINT);
+
+      // Check if the geometry is refused
+      expect(store.addGeometry(SAO_PAULO_POINT)).toBe(false);
+      expect(props.field.value).toEqual(SAO_PAULO_POINT);
+      expect(onRejected).toHaveBeenLastCalledWith({
+        reason: GEOMETRY_REJECTIONS.DUPLICATE,
+      });
+    });
+
+    it('should refuse a geometry it already has among others', () => {
+      // Render the field
+      const props = formikProps();
+      const store = new GeometryStore(props);
+
+      // Add the geometry
+      store.addGeometry(SAO_PAULO_POINT);
+      store.addGeometry(ZURICH_POINT);
+
+      // Check if the geometry is refused
+      expect(store.addGeometry(SAO_PAULO_POINT)).toBe(false);
+      expect(props.field.value.coordinates).toHaveLength(2);
+    });
+
+    it('should refuse a geometry that was drawn rather than asked for', () => {
+      // Render the field
+      const props = formikProps();
+      const store = new GeometryStore(props);
+
+      // Add the geometry
+      store.addLayer(marker());
+
+      // Check if the geometry is refused
+      expect(
+        store.addGeometry({ type: 'Point', coordinates: [6.14, 46.2] })
+      ).toBe(false);
+
+      expect(props.field.value.type).toBe('Point');
+    });
+
+    it('should refuse a merge the instance cannot store', () => {
+      // Render the field
+      const props = formikProps();
+      const onRejected = jest.fn();
+      const store = new GeometryStore(props, false, { onRejected });
+
+      // Add the geometry
+      store.addLayer(polygon());
+
+      // Check if the geometry is refused
+      expect(store.addGeometry(SAO_PAULO_POINT)).toBe(false);
+      expect(props.field.value.type).toBe('Polygon');
+
+      expect(onRejected).toHaveBeenLastCalledWith({
+        reason: GEOMETRY_REJECTIONS.UNSUPPORTED_TYPE,
+        type: 'GeometryCollection',
+        allowedTypes: ['Point', 'MultiPoint', 'Polygon'],
+      });
+    });
+
+    it('should refuse an empty geometry', () => {
+      // Render the field
+      const props = formikProps();
+      const store = new GeometryStore(props);
+
+      // Check if the geometry is refused
+      expect(store.addGeometry({})).toBe(false);
+      expect(props.form.setFieldValue).not.toHaveBeenCalled();
+    });
+
+    it('should refuse a geometry while there is nowhere to put it', () => {
+      // Render the field
+      expect(new GeometryStore().addGeometry(SAO_PAULO_POINT)).toBe(false);
+    });
+
+    it('should hand the stored geometry back as a layer', () => {
+      // Render the field
+      const props = formikProps();
+      const store = new GeometryStore(props);
+
+      // Get the layers
+      store.getLayers();
+      store.addGeometry(SAO_PAULO_POINT);
+
+      const layers = store.getLayers();
+
+      expect(layers).toHaveLength(1);
+      expect(layers[0].toGeoJSON().features[0].geometry).toEqual(
+        SAO_PAULO_POINT
+      );
     });
   });
 

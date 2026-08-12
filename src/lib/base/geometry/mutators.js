@@ -138,11 +138,6 @@ const isFeatureOrFeatureCollection = (obj) => {
 
 /**
  * Geometry mutator.
- *
- * @type {{
- *  generateGeoJSONGeometryObject: (function(Object): {}),
- *  generateGeoJSONFeatures: (function(Object): {geometry: Object, type: string, properties: {}})
- * }}
  */
 export const GeometryMutator = {
   generateGeoJSONGeometryObject,

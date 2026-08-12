@@ -19,6 +19,21 @@ import {
 import { GeoJSON as LeafletGeoJSON } from 'leaflet';
 
 /**
+ * Why a change was refused.
+ *
+ * The reason travels with the refusal so that whoever presents it can say what
+ * happened, rather than match on a sentence written somewhere else.
+ */
+export const GEOMETRY_REJECTIONS = {
+  /** The geometry is already among the ones stored. */
+  DUPLICATE: 'duplicate',
+  /** The field holds one geometry, and it already has one. */
+  UNIQUE_LAYER: 'unique-layer',
+  /** Together with what is stored it would be a type the instance refuses. */
+  UNSUPPORTED_TYPE: 'unsupported-type',
+};
+
+/**
  * Geometry Store class used to create a standard way to access and manipulate
  * the geometry data in the Formik Store.
  */
@@ -136,6 +151,7 @@ export class GeometryStore {
       )
     ) {
       this.onRejected({
+        reason: GEOMETRY_REJECTIONS.UNSUPPORTED_TYPE,
         type: geometryObject.type,
         allowedTypes: this.geometryTypes,
       });
@@ -230,6 +246,61 @@ export class GeometryStore {
     return this._storeGeometry(
       GeometryMutator.generateGeometryObjectsFromFeatures(geoJsonData)
     );
+  }
+
+  /**
+   * Add a geometry to the ones already stored.
+   *
+   * @param {Object} geometry GeoJSON Geometry object.
+   * @returns {Boolean} Whether the geometry was accepted and stored.
+   */
+  addGeometry(geometry) {
+    if (!this.isInitialized() || _isEmpty(geometry)) {
+      return false;
+    }
+
+    if (
+      GeometryValidator.containsGeometry(this.formikProps.field.value, geometry)
+    ) {
+      // Asked before the unique-layer check: both are true of a place added
+      // twice to a field that holds one, and this is the more useful answer
+      this.onRejected({ reason: GEOMETRY_REJECTIONS.DUPLICATE });
+      return false;
+    }
+
+    // Check if the field holds one geometry and
+    // it already has one
+    if (!this.isEmpty() && this.uniqueLayer) {
+      this.onRejected({ reason: GEOMETRY_REJECTIONS.UNIQUE_LAYER });
+
+      return false;
+    }
+
+    // Merge the geometry with the existing ones
+    let merged = geometry;
+
+    if (!this.isEmpty()) {
+      merged = GeometryMutator.generateGeometryObjectsFromFeatures({
+        type: 'FeatureCollection',
+        features: [
+          ...GeometryMutator.generateGeometryExploded(
+            this.formikProps.field.value
+          ),
+          GeometryMutator.generateGeoJSONFeature(geometry),
+        ],
+      });
+    }
+
+    if (!this._storeGeometry(merged)) {
+      return false;
+    }
+
+    // Drop the index and read back from the Formik storage the next time
+    // the layers are asked for
+    this.geometryIndex = {};
+    this.lastModificationKey = -1;
+
+    return true;
   }
 
   /**

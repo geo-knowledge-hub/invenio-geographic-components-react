@@ -8,6 +8,8 @@
 
 import React from 'react';
 
+import { SAO_PAULO, records } from '@tests/mock/vocabularies/geoidentifiers';
+
 import { LocationsFieldSerializer } from './LocationsFieldSerializer';
 
 const locationsField = new LocationsFieldSerializer({
@@ -64,7 +66,27 @@ describe('LocationsFieldSerializer tests', () => {
       );
       expect(serializedObject).toEqual(defaultSerializedObject);
     });
+
+    it('should keep the vocabulary metadata out of the record', () => {
+      // An InvenioRDM location identifier is `{ scheme, identifier }` and
+      // nothing else. The record schema answers every other key with
+      // "Unknown field". The `GeographicIdentifiersField` no longer puts anything
+      // else in the form, but a whole vocabulary record reaching here from
+      // somewhere older must still come out as a reference.
+      const [record] = records;
+
+      // Serialize the record
+      const serialized = locationsField.serialize({
+        metadata: { locations: { features: [{ identifiers: [record] }] } },
+      });
+
+      // Validate the serialized record
+      expect(serialized.metadata.locations.features[0].identifiers).toEqual([
+        { identifier: SAO_PAULO, scheme: 'geonames' },
+      ]);
+    });
   });
+
   describe('Deserialization tests', () => {
     it('should deserialize an Location object', () => {
       const deserializedObject = locationsField.deserialize(

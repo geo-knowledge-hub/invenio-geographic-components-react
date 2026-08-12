@@ -6,15 +6,17 @@
  * under the terms of the MIT License; see LICENSE file for more details.
  */
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import PropTypes from 'prop-types';
 
 import _get from 'lodash/get';
-import { Formik } from 'formik';
+import { Formik, getIn } from 'formik';
 
 import { Button, Modal, Grid, Form, Header } from 'semantic-ui-react';
 
 import { i18next } from '@translations/i18next';
+
+import { GeometryValidator } from '../../../../base';
 
 import {
   PlaceField,
@@ -59,6 +61,11 @@ export const LocationsModal = ({
     action: null,
     formState: null,
   });
+
+  // A place chosen in the identifiers field already knows where it is, so the
+  // geometry field is given a way to be handed that geometry instead of the
+  // depositor having to find the same spot again by hand
+  const geometryRef = useRef(null);
 
   /**
    * Messages
@@ -183,10 +190,22 @@ export const LocationsModal = ({
                 <GeographicIdentifiersField
                   fieldPath={identifiersPath}
                   multiple={true}
-                  clearable={true}
                   required={false}
+                  onAddGeometry={(geometry) =>
+                    geometryRef.current.addGeometry(geometry)
+                  }
+                  // Both fields are under this one form, so the geometry is
+                  // right here to be read: a place already on the map says so
+                  // on its own row, rather than being refused after the click.
+                  isGeometryOnMap={(geometry) =>
+                    GeometryValidator.containsGeometry(
+                      getIn(values, geometryPath, {}),
+                      geometry
+                    )
+                  }
                 />
                 <GeometryField
+                  ref={geometryRef}
                   fieldPath={geometryPath}
                   interactiveMapConfig={interactiveMapConfig}
                   uniqueLayer={uniqueLayer}
