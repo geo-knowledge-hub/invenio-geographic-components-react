@@ -1,0 +1,83 @@
+/*
+ * This file is part of Invenio-Geographic-Components.
+ * Copyright (C) 2022-2026 GEO Secretariat.
+ *
+ * Invenio-Geographic-Components is free software; you can redistribute it and/or
+ * modify it under the terms of the MIT License; see LICENSE file for more details.
+ */
+
+.ui.dropdown .menu > .item .geographic-identifier-suggestion.ui.header {
+  margin: 0;
+  font-size: 1em;
+}
+
+.ui.dropdown .menu > .item .geographic-identifier-suggestion .ui.label {
+  margin-left: 0.5em;
+  vertical-align: middle;
+}
+
+.ui.dropdown .menu > .item .geographic-identifier-suggestion .sub.header {
+  margin-top: 0.25em;
+  font-weight: normal;
+}
+
+/*
+ * The chosen places.
+ *
+ * The list is laid out here rather than with Semantic UI's `List`, whose rules
+ * for how an item divides its width leave the text in a column a few characters
+ * wide once the actions sit beside it. Everything below is therefore stated
+ * outright, including the width, so the row does not depend on what it is
+ * nested in.
+ */
+.geographic-identifier-cards {
+  box-sizing: border-box;
+  width: 100%;
+  margin: 0 0 1em;
+  padding: 0;
+  list-style: none;
+  /* The list scrolls rather than growing, so the map below stays in reach. */
+  max-height: 15em;
+  overflow-y: auto;
+  border: 1px solid rgba(34, 36, 38, 0.15);
+  border-radius: 0.28571429rem;
+}
+
+.geographic-identifier-card {
+  box-sizing: border-box;
+  width: 100%;
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  padding: 0.75em 1em;
+}
+
+.geographic-identifier-card + .geographic-identifier-card {
+  border-top: 1px solid rgba(34, 36, 38, 0.1);
+}
+
+.geographic-identifier-card-body {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.geographic-identifier-card-actions {
+  flex: 0 0 auto;
+  margin-left: 1em;
+}
+
+.geographic-identifier-card-name {
+  font-weight: 700;
+}
+
+.geographic-identifier-card-name .ui.label {
+  margin-left: 0.5em;
+  vertical-align: middle;
+}
+
+.geographic-identifier-card-place,
+.geographic-identifier-card-facts {
+  margin-top: 0.25em;
+  font-size: 0.92em;
+  color: rgba(0, 0, 0, 0.6);
+}

@@ -1,0 +1,558 @@
+{
+  "hits": {
+    "hits": [
+      {
+        "id": "geonames::3448439",
+        "created": "2026-08-11T16:42:48.566357+00:00",
+        "updated": "2026-08-11T16:42:48.569580+00:00",
+        "links": {
+          "self": "https://127.0.0.1/api/geoidentifiers/geonames%3A%3A3448439"
+        },
+        "revision_id": 1,
+        "scheme": "geonames",
+        "name": "São Paulo",
+        "locations": [
+          {
+            "geometry": {
+              "coordinates": [
+                -46.63611,
+                -23.5475
+              ],
+              "type": "Point"
+            }
+          }
+        ],
+        "extras": {
+          "ascii_name": "Sao Paulo",
+          "alternate_names": [
+            "SAO",
+            "Sampa",
+            "San Paolo",
+            "San Paul ed Brasil",
+            "San Paulas",
+            "San Paulo",
+            "San Paulu",
+            "San Paulu du Brasili",
+            "San Paulu dû Brasili",
+            "San Pauluw",
+            "San Pawlo",
+            "San Polo del Braxil",
+            "San Poulo",
+            "San Poło del Braxil",
+            "San Pàul ëd Brasil",
+            "San-Paulo",
+            "San-Paulu",
+            "San-Paŭlo",
+            "Sanpaulu",
+            "Sao Paolo",
+            "Sao Paulo",
+            "Sao Paulo capital",
+            "Saun Paulu",
+            "Sawo Palo",
+            "Sawo Pålo",
+            "São Paolo",
+            "São Paulo",
+            "São Paulo capital",
+            "Urbs Paulistana",
+            "cavo pavulo",
+            "sa'o pa'ulo",
+            "sa'o paulo",
+            "samu pa'ulu",
+            "sangpaollo",
+            "sangpaollu",
+            "sangpaullo",
+            "sangpaullu",
+            "sankt. paulos",
+            "sanpauro",
+            "savea pealea",
+            "savo palo",
+            "saw bawlw",
+            "saw palw",
+            "saw pawlw",
+            "saw pwlw",
+            "saywpaywlw",
+            "sea pea lu",
+            "sheng bao luo",
+            "Σάο Πάολο",
+            "Сан Пауло",
+            "Сан Паулу",
+            "Сан-Паулу",
+            "Сан-Паўлу",
+            "Сао Паоло",
+            "Сао Пауло",
+            "Սան Պաուլու",
+            "סאו פאולא",
+            "סאו פאולו",
+            "ساؤ پالو",
+            "ساؤ پولو",
+            "سائوپائولو",
+            "ساو باولو",
+            "ساو پاولو",
+            "ܣܐܘ ܦܐܘܠܘ",
+            "ސައޮ ޕައުލޯ",
+            "साओ पाउलो",
+            "সাঁউ পাউলু",
+            "সাও পাউলো",
+            "ਸਾਓ ਪਾਉਲੋ",
+            "சாவோ பாவுலோ",
+            "శఒ పౌలొ",
+            "ಸಾವೊ ಪಾಲೊ",
+            "സാവോ പോളോ",
+            "เซาเปาลู",
+            "ဆောပိုလိုမြို့",
+            "სან-პაულუ",
+            "ሳው ፓውሉ",
+            "サンパウロ",
+            "圣保罗",
+            "聖保羅",
+            "상파올로",
+            "상파올루",
+            "상파울로",
+            "상파울루"
+          ],
+          "country": {
+            "code": "BR",
+            "name": "Brazil",
+            "official_name": "Federative Republic of Brazil"
+          },
+          "admin": {
+            "level1": {
+              "code": "27",
+              "name": "São Paulo"
+            }
+          },
+          "feature": {
+            "class": "P",
+            "class_name": "city, village,...",
+            "code": "PPLA",
+            "name": "seat of a first-order administrative division"
+          },
+          "population": 12400232,
+          "dem": 769,
+          "timezone": "America/Sao_Paulo",
+          "modified": "2026-04-13"
+        }
+      },
+      {
+        "id": "geonames::2657896",
+        "created": "2026-08-11T16:44:23.238783+00:00",
+        "updated": "2026-08-11T16:44:23.242772+00:00",
+        "links": {
+          "self": "https://127.0.0.1/api/geoidentifiers/geonames%3A%3A2657896"
+        },
+        "revision_id": 1,
+        "scheme": "geonames",
+        "name": "Zürich",
+        "locations": [
+          {
+            "geometry": {
+              "coordinates": [
+                8.55,
+                47.36667
+              ],
+              "type": "Point"
+            }
+          }
+        ],
+        "extras": {
+          "ascii_name": "Zuerich",
+          "alternate_names": [
+            "Cirihe",
+            "Cirikh",
+            "Ciurichas",
+            "Cjurikh",
+            "Cjurikh khot",
+            "Cjurykh",
+            "Cuerih",
+            "Curych",
+            "Cürih",
+            "Cīrihe",
+            "Lungsod ng Zuerich",
+            "Lungsod ng Zürich",
+            "Su-la-sie",
+            "Suerix",
+            "Syurix",
+            "Sürix",
+            "Sŭ-là̤-sié",
+            "Tsuerix",
+            "Tsurique",
+            "Tsürix",
+            "Turicum",
+            "Turitg",
+            "ZRH",
+            "Zeurich",
+            "Zirich",
+            "Zirik",
+            "Zuerich",
+            "Zuerigh",
+            "Zuerih",
+            "Zuric",
+            "Zurich",
+            "Zuricu",
+            "Zurigh",
+            "Zurigo",
+            "Zuriko",
+            "Zurique",
+            "Zurych",
+            "Zurìcu",
+            "Zyriche",
+            "Zyrihu",
+            "Zúric",
+            "Zúrich",
+            "Zürich",
+            "Zürigh",
+            "Zürih",
+            "churihhi",
+            "chwilihi",
+            "curikku",
+            "jhyurika",
+            "jurikha",
+            "su li shi",
+            "su rik",
+            "suricc",
+            "tsiurikhi",
+            "tsyryk",
+            "zi'urikha",
+            "zwrykh",
+            "zyryk",
+            "zyurikha",
+            "zywrch",
+            "zywrh",
+            "zywrkh",
+            "Ζυρίχη",
+            "Цирих",
+            "Цюрих",
+            "Цюрих хот",
+            "Цюрых",
+            "Ցյուրիխ",
+            "ציריך",
+            "زوريخ",
+            "زوریخ",
+            "زيورخ",
+            "زیورخ",
+            "زیورچ",
+            "سيۇرىخ",
+            "څوریخ",
+            "ܙܝܘܪܚ",
+            "ܬܣܝܪܝܟ",
+            "ज़्यूरिख़",
+            "झ्युरिक",
+            "জুরিখ",
+            "ਜ਼ਿਊਰਿਖ",
+            "சூரிக்கு",
+            "സൂറിച്ച്",
+            "ซูริก",
+            "ဇူးရစ်ချ်မြို့",
+            "ციურიხი",
+            "ዙሪክ",
+            "チューリッヒ",
+            "苏黎世",
+            "蘇黎世",
+            "취리히"
+          ],
+          "country": {
+            "code": "CH",
+            "name": "Switzerland",
+            "official_name": "Swiss Confederation"
+          },
+          "admin": {
+            "level1": {
+              "code": "ZH",
+              "name": "Zurich"
+            },
+            "level2": {
+              "code": "112"
+            },
+            "level3": {
+              "code": "261"
+            }
+          },
+          "feature": {
+            "class": "P",
+            "class_name": "city, village,...",
+            "code": "PPLA",
+            "name": "seat of a first-order administrative division"
+          },
+          "population": 415367,
+          "dem": 429,
+          "timezone": "Europe/Zurich",
+          "modified": "2026-04-13"
+        }
+      },
+      {
+        "id": "geonames::2988507",
+        "created": "2026-08-11T16:50:20.510662+00:00",
+        "updated": "2026-08-11T16:50:20.513780+00:00",
+        "links": {
+          "self": "https://127.0.0.1/api/geoidentifiers/geonames%3A%3A2988507"
+        },
+        "revision_id": 1,
+        "scheme": "geonames",
+        "name": "Paris",
+        "locations": [
+          {
+            "geometry": {
+              "coordinates": [
+                2.3488,
+                48.85341
+              ],
+              "type": "Point"
+            }
+          }
+        ],
+        "extras": {
+          "ascii_name": "Paris",
+          "alternate_names": [
+            "Baariis",
+            "Bahliz",
+            "Baris",
+            "Bariz",
+            "Lungsod ng Paris",
+            "Lutece",
+            "Lutetia",
+            "Lutetia Parisorum",
+            "Lutèce",
+            "PAR",
+            "Pa-ri",
+            "Paarys",
+            "Palika",
+            "Paname",
+            "Pantruche",
+            "Paraeis",
+            "Paras",
+            "Pari",
+            "Paries",
+            "Parigge",
+            "Pariggi",
+            "Parighji",
+            "Parigi",
+            "Pariis",
+            "Pariisi",
+            "Pariizu",
+            "Pariižu",
+            "Parij",
+            "Parijs",
+            "Paris",
+            "Parisi",
+            "Parixe",
+            "Pariz",
+            "Parize",
+            "Parizh",
+            "Parizh osh",
+            "Parizh'",
+            "Parizo",
+            "Parizs",
+            "Pariž",
+            "Parys",
+            "Paryz",
+            "Paryzh",
+            "Paryzius",
+            "Paryż",
+            "Paryžius",
+            "Paräis",
+            "París",
+            "Paríž",
+            "Parîs",
+            "Parĩ",
+            "Parī",
+            "Parīze",
+            "Paříž",
+            "Páras",
+            "Párizs",
+            "Pʻariz",
+            "Ville-Lumiere",
+            "Ville-Lumière",
+            "ba li",
+            "barys",
+            "pairisa",
+            "pali",
+            "pari",
+            "paris",
+            "parys",
+            "paryzh",
+            "perisa",
+            "pryz",
+            "pyaris",
+            "pyarisa",
+            "pyrs",
+            "Παρίσι",
+            "Париж",
+            "Париж ош",
+            "Парижь",
+            "Париз",
+            "Парис",
+            "Парыж",
+            "Паріж",
+            "Բարիզ",
+            "Փարիզ",
+            "פאריז",
+            "פריז",
+            "باريس",
+            "پارىژ",
+            "پاريس",
+            "پاریس",
+            "پیرس",
+            "ܦܐܪܝܣ",
+            "पॅरिस",
+            "पेरिस",
+            "पैरिस",
+            "প্যারিস",
+            "ਪੈਰਿਸ",
+            "પૅરિસ",
+            "பாரிஸ்",
+            "పారిస్",
+            "ಪ್ಯಾರಿಸ್",
+            "പാരിസ്",
+            "ปารีส",
+            "ཕ་རི།",
+            "ပါရီမြို့",
+            "პარიზი",
+            "ፓሪስ",
+            "ប៉ារីស",
+            "パリ",
+            "巴黎",
+            "파리"
+          ],
+          "country": {
+            "code": "FR",
+            "name": "France",
+            "official_name": "French Republic"
+          },
+          "admin": {
+            "level1": {
+              "code": "11",
+              "name": "Île-de-France"
+            },
+            "level2": {
+              "code": "75"
+            },
+            "level3": {
+              "code": "751"
+            },
+            "level4": {
+              "code": "75056"
+            }
+          },
+          "feature": {
+            "class": "P",
+            "class_name": "city, village,...",
+            "code": "PPLC",
+            "name": "capital of a political entity"
+          },
+          "population": 2138551,
+          "dem": 42,
+          "timezone": "Europe/Paris",
+          "modified": "2026-02-23"
+        }
+      },
+      {
+        "id": "geonames::3832669",
+        "created": "2026-08-11T16:40:40.376638+00:00",
+        "updated": "2026-08-11T16:40:40.380079+00:00",
+        "links": {
+          "self": "https://127.0.0.1/api/geoidentifiers/geonames%3A%3A3832669"
+        },
+        "revision_id": 1,
+        "scheme": "geonames",
+        "name": "Villa Mugueta",
+        "locations": [
+          {
+            "geometry": {
+              "coordinates": [
+                -61.05515,
+                -33.31129
+              ],
+              "type": "Point"
+            }
+          }
+        ],
+        "extras": {
+          "ascii_name": "Villa Mugueta",
+          "alternate_names": [
+            "Mugueta",
+            "Villa Mugueta"
+          ],
+          "country": {
+            "code": "AR",
+            "name": "Argentina",
+            "official_name": "Argentine Republic"
+          },
+          "admin": {
+            "level1": {
+              "code": "21",
+              "name": "Santa Fe"
+            },
+            "level2": {
+              "code": "82119"
+            }
+          },
+          "feature": {
+            "class": "P",
+            "class_name": "city, village,...",
+            "code": "PPLL",
+            "name": "populated locality"
+          },
+          "population": 2789,
+          "elevation": 85,
+          "dem": 85,
+          "timezone": "America/Argentina/Cordoba",
+          "modified": "2018-06-04"
+        }
+      },
+      {
+        "id": "geonames::9957703",
+        "created": "2026-08-11T16:41:47.960098+00:00",
+        "updated": "2026-08-11T16:41:47.962910+00:00",
+        "links": {
+          "self": "https://127.0.0.1/api/geoidentifiers/geonames%3A%3A9957703"
+        },
+        "revision_id": 1,
+        "scheme": "geonames",
+        "name": "Springfield",
+        "locations": [
+          {
+            "geometry": {
+              "coordinates": [
+                152.91716,
+                -27.65365
+              ],
+              "type": "Point"
+            }
+          }
+        ],
+        "extras": {
+          "ascii_name": "Springfield",
+          "country": {
+            "code": "AU",
+            "name": "Australia"
+          },
+          "admin": {
+            "level1": {
+              "code": "04",
+              "name": "Queensland"
+            },
+            "level2": {
+              "code": "33960"
+            }
+          },
+          "feature": {
+            "class": "P",
+            "class_name": "city, village,...",
+            "code": "PPLX",
+            "name": "section of populated place"
+          },
+          "population": 6705,
+          "dem": 69,
+          "timezone": "Australia/Brisbane",
+          "modified": "2019-07-18"
+        }
+      }
+    ],
+    "total": 5
+  },
+  "sortBy": "bestmatch",
+  "page": 1,
+  "links": {
+    "self": "https://127.0.0.1/api/geoidentifiers?page=1&size=20&sort=bestmatch&suggest="
+  }
+}

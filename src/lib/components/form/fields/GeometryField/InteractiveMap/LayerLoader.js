@@ -11,7 +11,13 @@ import PropTypes from 'prop-types';
 
 import _last from 'lodash/last';
 
+import { featureGroup } from 'leaflet';
 import { useLeafletContext } from '@react-leaflet/core';
+
+/**
+ * How far the map is allowed to zoom when it frames what it was given.
+ */
+const FIT_MAX_ZOOM = 8;
 
 /**
  * Component to load multiple layers on a Leaflet Container (`Layer` or `Map` instance).
@@ -33,6 +39,13 @@ export const LayerLoader = ({ layers, renderFlag, enableMultipleLayers }) => {
       const container = context.map;
 
       layers.forEach((layer) => layer.addTo(container));
+
+      // Frame the map on the geometry
+      if (layers.length) {
+        container.fitBounds(featureGroup(layers).getBounds(), {
+          maxZoom: FIT_MAX_ZOOM,
+        });
+      }
 
       return () => {
         layers.forEach((layer) => container.removeLayer(layer));

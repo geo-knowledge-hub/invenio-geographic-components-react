@@ -6,7 +6,7 @@
  * under the terms of the MIT License; see LICENSE file for more details.
  */
 
-import React, { useState } from 'react';
+import React, { forwardRef, useImperativeHandle, useState } from 'react';
 import PropTypes from 'prop-types';
 
 import _isEmpty from 'lodash/isEmpty';
@@ -29,9 +29,32 @@ import { i18next } from '@translations/i18next';
 
 import { SUPPORTED_GEOMETRY_TYPES } from '../../../../base';
 
-import { GeometryStore } from './GeometryStore';
+import { GEOMETRY_REJECTIONS, GeometryStore } from './GeometryStore';
 import { ImportManager } from '../../../import';
 import { InteractiveMap } from './InteractiveMap';
+
+/**
+ * Say why a change was refused, in the terms the depositor was working in.
+ *
+ * @param {Object} rejection Refusal reported by the store.
+ * @returns {String} Sentence to present.
+ */
+const explainRejection = ({ reason, type, allowedTypes }) => {
+  if (reason === GEOMETRY_REJECTIONS.DUPLICATE) {
+    return i18next.t('This geometry is already on the map.');
+  }
+
+  if (reason === GEOMETRY_REJECTIONS.UNIQUE_LAYER) {
+    return i18next.t(
+      'This location holds one geometry. Remove the one on the map to add another.'
+    );
+  }
+
+  return i18next.t(
+    'Together with what is already there this would be a {{type}}, and this repository stores {{allowedTypes}}.',
+    { type, allowedTypes: (allowedTypes || []).join(', ') }
+  );
+};
 
 /**
  * Geometry field component.
@@ -54,26 +77,40 @@ import { InteractiveMap } from './InteractiveMap';
  * @param {Boolean} uniqueLayer Enable/Disable users to draw multiple geometries in the map.
  * @param {Array.<String>} geometryTypes Geometry types the instance accepts. Drawings that
  *                                       would produce anything else are refused.
+ * @param {React.Ref} ref Handle exposing `addGeometry(geometry)`, for geometries that
+ *                        come from somewhere other than the map — a geographic
+ *                        identifier's own coordinates, for instance. It returns whether
+ *                        the geometry was accepted.
  * @returns {JSX.Element}
  */
-export const GeometryField = ({
-  fieldPath,
-  label,
-  labelIcon,
-  menu,
-  menuOptions,
-  onLoadError,
-  onDataClean,
-  onDataLoad,
-  interactiveMapConfig,
-  uniqueLayer,
-  geometryTypes,
-}) => {
+export const GeometryField = forwardRef(function GeometryField(
+  {
+    fieldPath,
+    label,
+    labelIcon,
+    menu,
+    menuOptions,
+    onLoadError,
+    onDataClean,
+    onDataLoad,
+    interactiveMapConfig,
+    uniqueLayer,
+    geometryTypes,
+  },
+  ref
+) {
   // States
   const [interactiveMapInitialized, setInteractiveMapInitialized] =
     useState(false);
   const [activatedBreadcrumb, setActivatedBreadcrumb] = useState('menu');
   const [rejectedGeometry, setRejectedGeometry] = useState(null);
+
+  // A mounted map does not follow the store: `InteractiveMap` is memoized
+  // against re-rendering, and `LayerLoader` adds the layers once. Everything the
+  // map draws is read at mount, so a geometry that arrives later is shown by
+  // mounting it again. The geometry itself lives in the Formik storage, so
+  // nothing is lost by doing so.
+  const [mapRevision, setMapRevision] = useState(0);
 
   // Local store
   const geometryStore = new GeometryStore(null, uniqueLayer, {
@@ -89,6 +126,19 @@ export const GeometryField = ({
     changeBreadcrumb('visualization');
     setInteractiveMapInitialized(true);
   };
+
+  useImperativeHandle(ref, () => ({
+    addGeometry: (geometry) => {
+      if (!geometryStore.addGeometry(geometry)) {
+        return false;
+      }
+
+      enableEmptyInteractiveMap();
+      setMapRevision((revision) => revision + 1);
+
+      return true;
+    },
+  }));
 
   // Handlers - Callback proxies
   const onLoadErrorCallback = (formikProps) => (data) => {
@@ -202,28 +252,13 @@ export const GeometryField = ({
                   />
                 </div>
               )}
-              {rejectedGeometry && (
-                <Message
-                  warning
-                  icon={'warning sign'}
-                  onDismiss={() => setRejectedGeometry(null)}
-                  header={i18next.t('Geometry not added')}
-                  content={i18next.t(
-                    'Together with what is already there this would be a {{type}}, and this repository stores {{allowedTypes}}.',
-                    {
-                      type: rejectedGeometry.type,
-                      allowedTypes: rejectedGeometry.allowedTypes.join(', '),
-                    }
-                  )}
-                />
-              )}
-
               <Segment placeholder>
                 {!menu ||
                 (interactiveMapInitialized &&
                   activatedBreadcrumb === 'visualization') ? (
                   <>
                     <InteractiveMap
+                      key={mapRevision}
                       geometryStore={geometryStore}
                       {...interactiveMapConfig}
                     />
@@ -307,13 +342,27 @@ export const GeometryField = ({
                   </Grid>
                 )}
               </Segment>
+
+              {/*
+                If there are any rejected geometries, explain to user with a message.
+              */}
+              {rejectedGeometry && (
+                <Message
+                  warning
+                  size={'small'}
+                  icon={'warning sign'}
+                  onDismiss={() => setRejectedGeometry(null)}
+                  header={i18next.t('Geometry not added')}
+                  content={explainRejection(rejectedGeometry)}
+                />
+              )}
             </Segment>
           </>
         );
       }}
     </Field>
   );
-};
+});
 
 GeometryField.propTypes = {
   fieldName: PropTypes.string.isRequired,

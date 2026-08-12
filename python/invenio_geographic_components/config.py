@@ -27,6 +27,15 @@ GEOGRAPHIC_COMPONENTS_MAP_CONFIG = {
 Note: The parameters ``center`` and ``zoom`` are required by Leaflet.
 """
 
+GEOGRAPHIC_COMPONENTS_IDENTIFIERS_API_URL = "/api/geoidentifiers"
+"""API the landing page reads the geographic identifiers back from.
+
+A record stores a location identifier as ``{scheme, identifier}`` and nothing
+else, so the names of the places it points at are read from the vocabulary when
+the page is shown. The endpoint is the one ``invenio-geographic-identifiers``
+registers, and it is readable without a session.
+"""
+
 GEOGRAPHIC_COMPONENTS_TILE_HOSTS = [
     "https://server.arcgisonline.com",
     "https://*.tile.openstreetmap.org",

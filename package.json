@@ -1,6 +1,6 @@
 {
   "name": "@geo-knowledge-hub/invenio-geographic-components-react",
-  "version": "1.0.0",
+  "version": "1.2.0",
   "description": "React components to visualize and manipulate geographic data in InvenioRDM.",
   "private": true,
   "config": {
@@ -126,6 +126,7 @@
       "@translations/i18next": "<rootDir>/src/lib/i18next",
       "@tests/setup": "<rootDir>/src/setupTests",
       "@tests/mock/(.*)/(.*)": "<rootDir>/src/mocks/$1/$2",
+      "@tests/(.*)": "<rootDir>/src/tests/$1",
       "^tinymce(/.*)?$": "<rootDir>/src/mocks/tinymce",
       "^@tinymce/tinymce-react$": "<rootDir>/src/mocks/tinymce"
     },

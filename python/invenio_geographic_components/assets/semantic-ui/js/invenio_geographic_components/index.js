@@ -10,19 +10,22 @@ import _isNil from 'lodash/isNil';
 import _uniq from 'lodash/uniq';
 import _map from 'lodash/map';
 import _isEmpty from 'lodash/isEmpty';
-import { Dropdown, Menu, Modal, Message, Button, Segment, Grid, Breadcrumb, Divider, Header, Icon, Form, Ref, List, Item, Label } from 'semantic-ui-react';
-import { Field, getIn, Formik, FieldArray } from 'formik';
+import _isEqual from 'lodash/isEqual';
+import { Dropdown, Menu as Menu$1, Modal, Message, Button, Segment, Grid, Breadcrumb, Divider, Header, Icon, Table, Label, Form, Ref, List, Item } from 'semantic-ui-react';
+import { Field, getIn, useFormikContext, Formik, FieldArray } from 'formik';
 import { FieldLabel, TextField, GroupField, RemoteSelectField } from 'react-invenio-forms';
 import _has from 'lodash/has';
 import _last from 'lodash/last';
 import axios from 'axios';
-import _split from 'lodash/split';
+import _compact from 'lodash/compact';
+import _keyBy from 'lodash/keyBy';
+import _omit from 'lodash/omit';
 import _capitalize from 'lodash/capitalize';
 import { useDrag, useDrop, DndProvider } from 'react-dnd';
 import { HTML5Backend } from 'react-dnd-html5-backend';
 import _set from 'lodash/set';
 import _cloneDeep from 'lodash/cloneDeep';
-import _compact from 'lodash/compact';
+import _uniqBy from 'lodash/uniqBy';
 
 function _defineProperty(e, r, t) {
   return (r = _toPropertyKey(r)) in e ? Object.defineProperty(e, r, {
@@ -97,8 +100,93 @@ function _toPropertyKey(t) {
   return "symbol" == typeof i ? i : i + "";
 }
 
+var Description = "Description";
+var Identifiers = "Identifiers";
+var Details = "Details";
+var Close = "Close";
+var Name = "Name";
+var Scheme = "Scheme";
+var Identifier = "Identifier";
+var Country = "Country";
+var Population = "Population";
+var Elevation = "Elevation";
+var Timezone = "Timezone";
+var Coordinates = "Coordinates";
+var Menu = "Menu";
+var Visualization = "Visualization";
+var Reset = "Reset";
+var Use = "Use";
+var Geometry = "Geometry";
+var Edit = "Edit";
+var Remove = "Remove";
+var Added = "Added";
+var Cancel = "Cancel";
+var Save = "Save";
+var Place = "Place";
+var Disable = "Disable";
 var TRANSLATE_EL = {
-	
+	"Not able to parse the specified JSON file": "Not able to parse the specified JSON file",
+	"File cannot be loaded": "File cannot be loaded",
+	Description: Description,
+	"Suggest from": "Suggest from",
+	Identifiers: Identifiers,
+	"Select a geographic identifier": "Select a geographic identifier",
+	"Search geographical identifiers...": "Search geographical identifiers...",
+	"Add to map": "Add to map",
+	Details: Details,
+	"Remove {{name}}": "Remove {{name}}",
+	"Population {{population}}": "Population {{population}}",
+	"Also known as": "Also known as",
+	"Show fewer": "Show fewer",
+	"Show {{count}} more": "Show {{count}} more",
+	"Show {{count}} more_plural": "Show {{count}} more",
+	Close: Close,
+	"Administrative division {{level}}": "Administrative division {{level}}",
+	Name: Name,
+	"ASCII name": "ASCII name",
+	Scheme: Scheme,
+	Identifier: Identifier,
+	Country: Country,
+	"Official name": "Official name",
+	"Feature class": "Feature class",
+	"Feature code": "Feature code",
+	Population: Population,
+	Elevation: Elevation,
+	"Elevation (digital model)": "Elevation (digital model)",
+	Timezone: Timezone,
+	Coordinates: Coordinates,
+	"Last modified": "Last modified",
+	Menu: Menu,
+	Visualization: Visualization,
+	Reset: Reset,
+	"Geometry not added": "Geometry not added",
+	"Together with what is already there this would be a {{type}}, and this repository stores {{allowedTypes}}.": "Together with what is already there this would be a {{type}}, and this repository stores {{allowedTypes}}.",
+	Use: Use,
+	Geometry: Geometry,
+	"Interactive Map": "Interactive Map",
+	"Import data": "Import data",
+	"Add location": "Add location",
+	"Geographic Locations": "Geographic Locations",
+	"Edit location": "Edit location",
+	Edit: Edit,
+	Remove: Remove,
+	Added: Added,
+	"Save and add another": "Save and add another",
+	Cancel: Cancel,
+	Save: Save,
+	Place: Place,
+	"Import from": "Import from",
+	"You can specify only one file at a time": "You can specify only one file at a time",
+	"GeoJSON file": "GeoJSON file",
+	"Web Feature Service": "Web Feature Service",
+	"Continue without simplification": "Continue without simplification",
+	"Use the selected method": "Use the selected method",
+	"Simplification methods": "Simplification methods",
+	"Geometry simplification": "Geometry simplification",
+	"Simplification menu": "Simplification menu",
+	"Bounding box": "Bounding box",
+	"Convex Hull": "Convex Hull",
+	Disable: Disable
 };
 
 /*
@@ -15356,11 +15444,6 @@ const isFeatureOrFeatureCollection = obj => {
 
 /**
  * Geometry mutator.
- *
- * @type {{
- *  generateGeoJSONGeometryObject: (function(Object): {}),
- *  generateGeoJSONFeatures: (function(Object): {geometry: Object, type: string, properties: {}})
- * }}
  */
 const GeometryMutator = {
   generateGeoJSONGeometryObject,
@@ -18495,6 +18578,33 @@ const isGeometryTypeAllowed = (geometryObject, allowedTypes = SUPPORTED_GEOMETRY
 };
 
 /**
+ * Whether a geometry is already part of a stored one.
+ *
+ * A stored value is one geometry, so two of the same type are kept as a
+ * `Multi...` and the question "is this place on the map already?" cannot be
+ * asked of it directly. It is exploded back into the geometries it was built
+ * from, and the candidate is looked for among them.
+ *
+ * @param {Object} storedGeometry GeoJSON Geometry object holding what is stored.
+ * @param {Object} geometry GeoJSON Geometry object to look for.
+ * @returns {Boolean}
+ */
+const containsGeometry = (storedGeometry, geometry) => {
+  if (_isEmpty(storedGeometry) || _isEmpty(geometry)) {
+    return false;
+  }
+  return GeometryMutator.generateGeometryExploded(storedGeometry).some(feature => _isEqual(feature.geometry, geometry));
+};
+
+/*
+ * This file is part of GEO-Metadata-Previewer.
+ * Copyright (C) 2022 GEO Secretariat.
+ *
+ * GEO-Metadata-Previewer is free software; you can redistribute it and/or modify it
+ * under the terms of the MIT License; see LICENSE file for more details.
+ */
+
+/**
  * Validate the GeoJSON.
  *
  * @param {Object} geoJSONObject GeoJSON to be validated
@@ -18512,12 +18622,14 @@ const validateGeoJSON = (geoJSONObject, ...options) => {
  *
  * @type {{
  *  validateGeoJSON: (function(Object, ...[Object]): *|Array<Object>),
- *  isGeometryTypeAllowed: (function(Object, Array<String>): Boolean)
+ *  isGeometryTypeAllowed: (function(Object, Array<String>): Boolean),
+ *  containsGeometry: (function(Object, Object): Boolean)
  * }}
  */
 const GeometryValidator = {
   validateGeoJSON,
-  isGeometryTypeAllowed
+  isGeometryTypeAllowed,
+  containsGeometry
 };
 
 /*
@@ -37313,7 +37425,7 @@ const DisabledSimplifier = ({
     menuContext.data.setTransformedData(menuContext.data.rawData);
     menuContext.menu.setActiveItem(simplifierId);
   };
-  return /*#__PURE__*/React.createElement(Menu.Item, {
+  return /*#__PURE__*/React.createElement(Menu$1.Item, {
     name: simplifierId,
     content: simplifierName,
     active: menuContext.menu.activeItem === simplifierId,
@@ -37354,7 +37466,7 @@ const ConvexHullSimplifier = ({
     }
     menuContext.menu.setActiveItem(simplifierId);
   };
-  return /*#__PURE__*/React.createElement(Menu.Item, {
+  return /*#__PURE__*/React.createElement(Menu$1.Item, {
     name: simplifierId,
     content: simplifierName,
     active: menuContext.menu.activeItem === simplifierId,
@@ -37395,7 +37507,7 @@ const BoundingBoxSimplifier = ({
     }
     menuContext.menu.setActiveItem(simplifierId);
   };
-  return /*#__PURE__*/React.createElement(Menu.Item, {
+  return /*#__PURE__*/React.createElement(Menu$1.Item, {
     name: simplifierId,
     content: simplifierName,
     active: menuContext.menu.activeItem === simplifierId,
@@ -37467,7 +37579,7 @@ const SimplificationMenu = _ref => {
   }, /*#__PURE__*/React.createElement(Modal, _extends$1({
     open: modalState.isOpen,
     onClose: closeModal
-  }, modalConfig), /*#__PURE__*/React.createElement(Modal.Header, null, modalTitle), /*#__PURE__*/React.createElement(Modal.Content, null, /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement(Message, null, /*#__PURE__*/React.createElement(Message.Header, null, message.title), /*#__PURE__*/React.createElement("p", null, message.content)), /*#__PURE__*/React.createElement(Menu, null, /*#__PURE__*/React.createElement(Menu.Item, {
+  }, modalConfig), /*#__PURE__*/React.createElement(Modal.Header, null, modalTitle), /*#__PURE__*/React.createElement(Modal.Content, null, /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement(Message, null, /*#__PURE__*/React.createElement(Message.Header, null, message.title), /*#__PURE__*/React.createElement("p", null, message.content)), /*#__PURE__*/React.createElement(Menu$1, null, /*#__PURE__*/React.createElement(Menu$1.Item, {
     header: true
   }, i18next.t('Simplification methods')), /*#__PURE__*/React.createElement(DisabledSimplifier, null), /*#__PURE__*/React.createElement(ConvexHullSimplifier, null), /*#__PURE__*/React.createElement(BoundingBoxSimplifier, null)), /*#__PURE__*/React.createElement(MapContainer, mapContainerConfig, /*#__PURE__*/React.createElement(BaseMapLayers, mapLayersConfig), /*#__PURE__*/React.createElement(GeoJSONLayer, {
     key: menuDataHash,
@@ -37563,6 +37675,21 @@ ImportManager.propTypes = {
   simplificationMenuConfig: PropTypes.object
 };
 ImportManager.defaultProps = {};
+
+/**
+ * Why a change was refused.
+ *
+ * The reason travels with the refusal so that whoever presents it can say what
+ * happened, rather than match on a sentence written somewhere else.
+ */
+const GEOMETRY_REJECTIONS = {
+  /** The geometry is already among the ones stored. */
+  DUPLICATE: 'duplicate',
+  /** The field holds one geometry, and it already has one. */
+  UNIQUE_LAYER: 'unique-layer',
+  /** Together with what is stored it would be a type the instance refuses. */
+  UNSUPPORTED_TYPE: 'unsupported-type'
+};
 
 /**
  * Geometry Store class used to create a standard way to access and manipulate
@@ -37672,6 +37799,7 @@ class GeometryStore {
   _storeGeometry(geometryObject) {
     if (!GeometryValidator.isGeometryTypeAllowed(geometryObject, this.geometryTypes)) {
       this.onRejected({
+        reason: GEOMETRY_REJECTIONS.UNSUPPORTED_TYPE,
         type: geometryObject.type,
         allowedTypes: this.geometryTypes
       });
@@ -37749,6 +37877,53 @@ class GeometryStore {
    */
   loadGeoJSON(geoJsonData) {
     return this._storeGeometry(GeometryMutator.generateGeometryObjectsFromFeatures(geoJsonData));
+  }
+
+  /**
+   * Add a geometry to the ones already stored.
+   *
+   * @param {Object} geometry GeoJSON Geometry object.
+   * @returns {Boolean} Whether the geometry was accepted and stored.
+   */
+  addGeometry(geometry) {
+    if (!this.isInitialized() || _isEmpty(geometry)) {
+      return false;
+    }
+    if (GeometryValidator.containsGeometry(this.formikProps.field.value, geometry)) {
+      // Asked before the unique-layer check: both are true of a place added
+      // twice to a field that holds one, and this is the more useful answer
+      this.onRejected({
+        reason: GEOMETRY_REJECTIONS.DUPLICATE
+      });
+      return false;
+    }
+
+    // Check if the field holds one geometry and
+    // it already has one
+    if (!this.isEmpty() && this.uniqueLayer) {
+      this.onRejected({
+        reason: GEOMETRY_REJECTIONS.UNIQUE_LAYER
+      });
+      return false;
+    }
+
+    // Merge the geometry with the existing ones
+    let merged = geometry;
+    if (!this.isEmpty()) {
+      merged = GeometryMutator.generateGeometryObjectsFromFeatures({
+        type: 'FeatureCollection',
+        features: [...GeometryMutator.generateGeometryExploded(this.formikProps.field.value), GeometryMutator.generateGeoJSONFeature(geometry)]
+      });
+    }
+    if (!this._storeGeometry(merged)) {
+      return false;
+    }
+
+    // Drop the index and read back from the Formik storage the next time
+    // the layers are asked for
+    this.geometryIndex = {};
+    this.lastModificationKey = -1;
+    return true;
   }
 
   /**
@@ -37975,6 +38150,11 @@ class MapEventHandler {
  */
 
 /**
+ * How far the map is allowed to zoom when it frames what it was given.
+ */
+const FIT_MAX_ZOOM = 8;
+
+/**
  * Component to load multiple layers on a Leaflet Container (`Layer` or `Map` instance).
  * @constructor
  *
@@ -37997,6 +38177,13 @@ const LayerLoader = ({
     useEffect(() => {
       const container = context.map;
       layers.forEach(layer => layer.addTo(container));
+
+      // Frame the map on the geometry
+      if (layers.length) {
+        container.fitBounds(leafletSrc.exports.featureGroup(layers).getBounds(), {
+          maxZoom: FIT_MAX_ZOOM
+        });
+      }
       return () => {
         layers.forEach(layer => container.removeLayer(layer));
       };
@@ -38175,6 +38362,29 @@ InteractiveMap.defaultProps = {
 };
 
 /**
+ * Say why a change was refused, in the terms the depositor was working in.
+ *
+ * @param {Object} rejection Refusal reported by the store.
+ * @returns {String} Sentence to present.
+ */
+const explainRejection = ({
+  reason,
+  type,
+  allowedTypes
+}) => {
+  if (reason === GEOMETRY_REJECTIONS.DUPLICATE) {
+    return i18next.t('This geometry is already on the map.');
+  }
+  if (reason === GEOMETRY_REJECTIONS.UNIQUE_LAYER) {
+    return i18next.t('This location holds one geometry. Remove the one on the map to add another.');
+  }
+  return i18next.t('Together with what is already there this would be a {{type}}, and this repository stores {{allowedTypes}}.', {
+    type,
+    allowedTypes: (allowedTypes || []).join(', ')
+  });
+};
+
+/**
  * Geometry field component.
  * @constructor
  *
@@ -38195,9 +38405,13 @@ InteractiveMap.defaultProps = {
  * @param {Boolean} uniqueLayer Enable/Disable users to draw multiple geometries in the map.
  * @param {Array.<String>} geometryTypes Geometry types the instance accepts. Drawings that
  *                                       would produce anything else are refused.
+ * @param {React.Ref} ref Handle exposing `addGeometry(geometry)`, for geometries that
+ *                        come from somewhere other than the map — a geographic
+ *                        identifier's own coordinates, for instance. It returns whether
+ *                        the geometry was accepted.
  * @returns {JSX.Element}
  */
-const GeometryField = ({
+const GeometryField = /*#__PURE__*/forwardRef(function GeometryField({
   fieldPath,
   label,
   labelIcon,
@@ -38209,11 +38423,18 @@ const GeometryField = ({
   interactiveMapConfig,
   uniqueLayer,
   geometryTypes
-}) => {
+}, ref) {
   // States
   const [interactiveMapInitialized, setInteractiveMapInitialized] = useState(false);
   const [activatedBreadcrumb, setActivatedBreadcrumb] = useState('menu');
   const [rejectedGeometry, setRejectedGeometry] = useState(null);
+
+  // A mounted map does not follow the store: `InteractiveMap` is memoized
+  // against re-rendering, and `LayerLoader` adds the layers once. Everything the
+  // map draws is read at mount, so a geometry that arrives later is shown by
+  // mounting it again. The geometry itself lives in the Formik storage, so
+  // nothing is lost by doing so.
+  const [mapRevision, setMapRevision] = useState(0);
 
   // Local store
   const geometryStore = new GeometryStore(null, uniqueLayer, {
@@ -38227,6 +38448,16 @@ const GeometryField = ({
     changeBreadcrumb('visualization');
     setInteractiveMapInitialized(true);
   };
+  useImperativeHandle(ref, () => ({
+    addGeometry: geometry => {
+      if (!geometryStore.addGeometry(geometry)) {
+        return false;
+      }
+      enableEmptyInteractiveMap();
+      setMapRevision(revision => revision + 1);
+      return true;
+    }
+  }));
 
   // Handlers - Callback proxies
   const onLoadErrorCallback = formikProps => data => {
@@ -38310,18 +38541,10 @@ const GeometryField = ({
       htmlFor: fieldPath,
       icon: labelIcon,
       label: label
-    })), rejectedGeometry && /*#__PURE__*/React.createElement(Message, {
-      warning: true,
-      icon: 'warning sign',
-      onDismiss: () => setRejectedGeometry(null),
-      header: i18next.t('Geometry not added'),
-      content: i18next.t('Together with what is already there this would be a {{type}}, and this repository stores {{allowedTypes}}.', {
-        type: rejectedGeometry.type,
-        allowedTypes: rejectedGeometry.allowedTypes.join(', ')
-      })
-    }), /*#__PURE__*/React.createElement(Segment, {
+    })), /*#__PURE__*/React.createElement(Segment, {
       placeholder: true
     }, !menu || interactiveMapInitialized && activatedBreadcrumb === 'visualization' ? /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement(InteractiveMap, _extends$1({
+      key: mapRevision,
       geometryStore: geometryStore
     }, interactiveMapConfig))) : /*#__PURE__*/React.createElement(Grid, null, /*#__PURE__*/React.createElement(Grid.Row, {
       only: 'computer tablet'
@@ -38387,9 +38610,16 @@ const GeometryField = ({
           text: i18next.t('Use')
         }
       }
-    })))))))));
+    }))))))), rejectedGeometry && /*#__PURE__*/React.createElement(Message, {
+      warning: true,
+      size: 'small',
+      icon: 'warning sign',
+      onDismiss: () => setRejectedGeometry(null),
+      header: i18next.t('Geometry not added'),
+      content: explainRejection(rejectedGeometry)
+    })));
   });
-};
+});
 GeometryField.propTypes = {
   fieldName: PropTypes.string.isRequired,
   label: PropTypes.string,
@@ -38478,21 +38708,533 @@ DescriptionField.defaultProps = {
   editorConfig: {}
 };
 
+/*
+ * This file is part of Invenio-Geographic-Components.
+ * Copyright (C) 2022-2026 GEO Secretariat.
+ *
+ * Invenio-Geographic-Components is free software; you can redistribute it and/or
+ * modify it under the terms of the MIT License; see LICENSE file for more details.
+ */
+
 /**
- * Description field for Formik. This component allows users to select
- * a Geographic identifiers item from a specialized API.
+ * The administrative levels of a record.
+ */
+const ADMIN_LEVELS = ['level1', 'level2', 'level3', 'level4'];
+
+/**
+ * Format a number for reading.
+ *
+ * @param {Number} value Number to be formatted.
+ * @returns {String|null} Grouped number, or `null` when there is none.
+ */
+const formatNumber = value => {
+  return _isNil(value) ? null : Number(value).toLocaleString();
+};
+
+/**
+ * Format a geometry as the coordinates a reader expects.
+ *
+ * GeoJSON orders a position longitude first. People read latitude first, so the
+ * pair is swapped. Only a `Point` has a single position to show.
+ *
+ * @param {Object} geometry GeoJSON Geometry object.
+ * @returns {String|null} `latitude, longitude`, or `null` for any other type.
+ */
+const formatCoordinates = geometry => {
+  if (_get(geometry, 'type') !== 'Point') {
+    return null;
+  }
+
+  // Get the coordinates
+  const [longitude, latitude] = _get(geometry, 'coordinates', []);
+
+  // Check if the coordinates are nil
+  const isNil = _isNil(latitude) || _isNil(longitude);
+
+  // Format the coordinates
+  const result = isNil ? null : `${latitude}, ${longitude}`;
+
+  // Return the result
+  return result;
+};
+
+/**
+ * Get the geometry a record locates itself with.
+ *
+ * @param {Object} record Geographic Identifiers record.
+ * @returns {Object|null} GeoJSON Geometry object, or `null` when the record has none.
+ */
+const geometryOf = record => {
+  return _get(record, 'locations[0].geometry') || null;
+};
+
+/**
+ * Get the names a place is also known by.
+ *
+ * @param {Object} record Geographic Identifiers record.
+ * @returns {Array.<String>} Alternate names, empty when the record has none.
+ */
+const alternateNamesOf = record => {
+  return _get(record, 'extras.alternate_names', []);
+};
+
+/**
+ * Summarize a record into the few values that tell two places apart.
+ *
+ * @param {Object} record Geographic Identifiers record.
+ * @returns {Object} Summary, with `null` for whatever the record does not have.
+ */
+const summarize = record => {
+  const geometry = geometryOf(record);
+  return {
+    id: _get(record, 'id', null),
+    name: _get(record, 'name', null),
+    scheme: _get(record, 'scheme', null),
+    country: _get(record, 'extras.country.name', null),
+    division: _get(record, 'extras.admin.level1.name', null),
+    feature: _get(record, 'extras.feature.name', null),
+    population: formatNumber(_get(record, 'extras.population')),
+    coordinates: formatCoordinates(geometry),
+    geometryType: _get(geometry, 'type', null)
+  };
+};
+
+/**
+ * The place a record sits in, as one line.
+ *
+ * @param {Object} record Geographic Identifiers record.
+ * @returns {String} Country, division and feature, dropping what is missing.
+ */
+const describe = record => {
+  const {
+    country,
+    division,
+    feature
+  } = summarize(record);
+  return _compact([country, division, feature]).join(' · ');
+};
+
+/**
+ * Everything a record holds, as labelled rows.
+ *
+ * @param {Object} record Geographic Identifiers record.
+ * @returns {Array.<Object>} `{ label, value }` rows, without the empty ones.
+ */
+const detailsOf = record => {
+  // Get metadata from the record
+  const extras = _get(record, 'extras', {});
+  const asciiName = _get(extras, 'ascii_name');
+  const country = _get(extras, 'country', {});
+  const feature = _get(extras, 'feature', {});
+
+  // Get the divisions
+  const divisions = ADMIN_LEVELS.map(level => {
+    const division = _get(extras, `admin.${level}`);
+    if (!division) {
+      return null;
+    }
+    const {
+      name,
+      code
+    } = division;
+    return {
+      label: i18next.t('Administrative division {{level}}', {
+        level: level.replace('level', '')
+      }),
+      value: name ? `${name} (${code})` : code
+    };
+  });
+  const rows = [{
+    label: i18next.t('Name'),
+    value: _get(record, 'name')
+  }, {
+    label: i18next.t('ASCII name'),
+    value: asciiName === _get(record, 'name') ? null : asciiName
+  }, {
+    label: i18next.t('Scheme'),
+    value: _get(record, 'scheme')
+  }, {
+    label: i18next.t('Identifier'),
+    value: _get(record, 'id')
+  }, {
+    label: i18next.t('Country'),
+    value: country.name && `${country.name} (${country.code})`
+  }, {
+    label: i18next.t('Official name'),
+    value: country.official_name
+  }, ...divisions, {
+    label: i18next.t('Feature class'),
+    value: feature.class_name && `${feature.class_name} (${feature.class})`
+  }, {
+    label: i18next.t('Feature code'),
+    value: feature.name && `${feature.name} (${feature.code})`
+  }, {
+    label: i18next.t('Population'),
+    value: formatNumber(_get(extras, 'population'))
+  }, {
+    label: i18next.t('Elevation'),
+    value: formatNumber(_get(extras, 'elevation'))
+  }, {
+    label: i18next.t('Elevation (digital model)'),
+    value: formatNumber(_get(extras, 'dem'))
+  }, {
+    label: i18next.t('Timezone'),
+    value: _get(extras, 'timezone')
+  }, {
+    label: i18next.t('Coordinates'),
+    value: formatCoordinates(geometryOf(record))
+  }, {
+    label: i18next.t('Last modified'),
+    value: _get(extras, 'modified')
+  }];
+  return rows.filter(row => row && row.value);
+};
+
+/*
+ * This file is part of Invenio-Geographic-Components.
+ * Copyright (C) 2022-2026 GEO Secretariat.
+ *
+ * Invenio-Geographic-Components is free software; you can redistribute it and/or
+ * modify it under the terms of the MIT License; see LICENSE file for more details.
+ */
+
+/**
+ * How many alternate names are shown before the rest are folded away.
+ */
+const ALTERNATE_NAMES_SHOWN = 12;
+
+/**
+ * The names a place is also known by.
+ *
+ * @constructor
+ *
+ * @param {Array.<String>} names Alternate names.
+ * @returns {JSX.Element}
+ */
+const AlternateNames = ({
+  names
+}) => {
+  // State - Whether the alternate names are expanded
+  const [expanded, setExpanded] = useState(false);
+
+  // Calculate the number of hidden alternate names
+  const hidden = names.length - ALTERNATE_NAMES_SHOWN;
+
+  // Render!
+  return /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement(Header, {
+    as: 'h5'
+  }, i18next.t('Also known as')), /*#__PURE__*/React.createElement(Label.Group, {
+    size: 'small'
+  }, (expanded ? names : names.slice(0, ALTERNATE_NAMES_SHOWN)).map(name => /*#__PURE__*/React.createElement(Label, {
+    key: name
+  }, name))), hidden > 0 && /*#__PURE__*/React.createElement(Button, {
+    basic: true,
+    size: 'tiny',
+    type: 'button',
+    onClick: () => setExpanded(!expanded),
+    content: expanded ? i18next.t('Show fewer') : i18next.t('Show {{count}} more', {
+      count: hidden
+    })
+  }));
+};
+AlternateNames.propTypes = {
+  names: PropTypes.arrayOf(PropTypes.string).isRequired
+};
+
+/**
+ * Everything the vocabulary knows about a place.
+ *
+ * The record is shown as it was suggested, so opening this costs no request: a
+ * suggestion already carries the whole thing, and the identifiers the form
+ * starts with are read from the API in full.
+ *
+ * @constructor
+ *
+ * @param {Object} record Geographic Identifiers record.
+ * @param {React.ReactNode} trigger Component used to open the modal.
+ * @returns {JSX.Element}
+ */
+const IdentifierMetadataModal = ({
+  record,
+  trigger
+}) => {
+  // State - Whether the modal is open
+  const [open, setOpen] = useState(false);
+
+  // Get the details and alternate names
+  const details = detailsOf(record);
+  const alternateNames = alternateNamesOf(record);
+
+  // Render!
+  return /*#__PURE__*/React.createElement(Modal, {
+    centered: false,
+    closeIcon: true,
+    onClose: () => setOpen(false),
+    onOpen: () => setOpen(true),
+    open: open,
+    size: 'small',
+    trigger: trigger
+  }, /*#__PURE__*/React.createElement(Modal.Header, null, /*#__PURE__*/React.createElement(Header, {
+    as: 'h3',
+    content: record.name,
+    subheader: describe(record)
+  })), /*#__PURE__*/React.createElement(Modal.Content, null, /*#__PURE__*/React.createElement(Table, {
+    basic: 'very',
+    compact: true,
+    definition: true
+  }, /*#__PURE__*/React.createElement(Table.Body, null, details.map(({
+    label,
+    value
+  }) => /*#__PURE__*/React.createElement(Table.Row, {
+    key: label
+  }, /*#__PURE__*/React.createElement(Table.Cell, {
+    width: 5
+  }, label), /*#__PURE__*/React.createElement(Table.Cell, null, value))))), alternateNames.length > 0 && /*#__PURE__*/React.createElement(AlternateNames, {
+    names: alternateNames
+  })), /*#__PURE__*/React.createElement(Modal.Actions, null, /*#__PURE__*/React.createElement(Button, {
+    type: 'button',
+    onClick: () => setOpen(false),
+    content: i18next.t('Close')
+  })));
+};
+IdentifierMetadataModal.propTypes = {
+  record: PropTypes.object.isRequired,
+  trigger: PropTypes.node.isRequired
+};
+
+/*
+ * This file is part of Invenio-Geographic-Components.
+ * Copyright (C) 2022-2026 GEO Secretariat.
+ *
+ * Invenio-Geographic-Components is free software; you can redistribute it and/or
+ * modify it under the terms of the MIT License; see LICENSE file for more details.
+ */
+
+/**
+ * One chosen identifier.
+ *
+ * The search box forgets a place the moment it is chosen, which is where the
+ * doubt starts: was that the Springfield in Illinois or the one in Queensland?
+ * So each choice keeps its own row, showing what it is, with everything that can
+ * be done with it in one place.
+ *
+ * The row is laid out here rather than with `List`, whose own rules for how an
+ * item divides its width leave the text in a column a few characters wide.
+ * @constructor
+ *
+ * @param {Object} record Geographic Identifiers record.
+ * @param {Function} onRemove Function called to drop the identifier from the selection.
+ * @param {Function} onAddGeometry Function called with the record geometry to put it on
+ *                                 the map. Omitted when there is no map to add it to.
+ * @param {Function} isGeometryOnMap Function answering whether the record geometry is
+ *                                   already on the map.
+ * @returns {JSX.Element}
+ */
+const IdentifierCard = ({
+  record,
+  onRemove,
+  onAddGeometry,
+  isGeometryOnMap
+}) => {
+  const {
+    name,
+    scheme,
+    population,
+    coordinates
+  } = summarize(record);
+  const description = describe(record);
+  const geometry = geometryOf(record);
+
+  // Side-effect: check if the geometry is on the map
+  const onMap = Boolean(geometry && isGeometryOnMap && isGeometryOnMap(geometry));
+
+  // Side-effect: compact the facts
+  const facts = _compact([population && i18next.t('Population {{population}}', {
+    population
+  }), coordinates]).join(' · ');
+
+  // Render the card
+  return /*#__PURE__*/React.createElement("li", {
+    className: 'geographic-identifier-card'
+  }, /*#__PURE__*/React.createElement("div", {
+    className: 'geographic-identifier-card-body'
+  }, /*#__PURE__*/React.createElement("div", {
+    className: 'geographic-identifier-card-name'
+  }, name, scheme && /*#__PURE__*/React.createElement(Label, {
+    size: 'mini'
+  }, _capitalize(scheme))), description && /*#__PURE__*/React.createElement("div", {
+    className: 'geographic-identifier-card-place'
+  }, description), facts && /*#__PURE__*/React.createElement("div", {
+    className: 'geographic-identifier-card-facts'
+  }, facts)), /*#__PURE__*/React.createElement("div", {
+    className: 'geographic-identifier-card-actions'
+  }, /*#__PURE__*/React.createElement(Button.Group, {
+    basic: true,
+    size: 'mini'
+  }, /*#__PURE__*/React.createElement(IdentifierMetadataModal, {
+    record: record,
+    trigger: /*#__PURE__*/React.createElement(Button, {
+      type: 'button',
+      icon: 'info circle',
+      content: i18next.t('Details')
+    })
+  }), geometry && onAddGeometry && (onMap ? /*#__PURE__*/React.createElement(Button, {
+    type: 'button',
+    disabled: true,
+    icon: 'check',
+    content: i18next.t('On map')
+  }) : /*#__PURE__*/React.createElement(Button, {
+    type: 'button',
+    icon: 'map marker alternate',
+    content: i18next.t('Add to map'),
+    onClick: () => onAddGeometry(geometry)
+  })), /*#__PURE__*/React.createElement(Button, {
+    type: 'button',
+    icon: 'trash alternate outline',
+    onClick: () => onRemove(record),
+    "aria-label": i18next.t('Remove {{name}}', {
+      name
+    })
+  }))));
+};
+IdentifierCard.propTypes = {
+  record: PropTypes.object.isRequired,
+  onRemove: PropTypes.func.isRequired,
+  onAddGeometry: PropTypes.func,
+  isGeometryOnMap: PropTypes.func
+};
+
+/*
+ * This file is part of Invenio-Geographic-Components.
+ * Copyright (C) 2022-2026 GEO Secretariat.
+ *
+ * Invenio-Geographic-Components is free software; you can redistribute it and/or
+ * modify it under the terms of the MIT License; see LICENSE file for more details.
+ */
+
+/**
+ * Identifiers suggestion item.
+ *
+ * @constructor
+ *
+ * @param {Object} record Geographic Identifiers record.
+ * @returns {JSX.Element}
+ */
+const IdentifierSuggestion = ({
+  record
+}) => {
+  const {
+    name,
+    population
+  } = summarize(record);
+  const description = describe(record);
+  return /*#__PURE__*/React.createElement(Header, {
+    as: 'h5',
+    className: 'geographic-identifier-suggestion'
+  }, name, population && /*#__PURE__*/React.createElement(Label, {
+    size: 'mini'
+  }, i18next.t('Population {{population}}', {
+    population
+  })), description && /*#__PURE__*/React.createElement(Header.Subheader, null, description));
+};
+IdentifierSuggestion.propTypes = {
+  record: PropTypes.object.isRequired
+};
+
+/**
+ * Value of the scheme selector that searches every scheme.
+ */
+const ALL_SCHEMES = 'all';
+
+/**
+ * Keys the dropdown adds to an option, which the record
+ * behind it has no usefor.
+ */
+const OPTION_KEYS = ['text', 'value', 'key', 'content'];
+
+/**
+ * Turn a vocabulary record into the reference an InvenioRDM location uses.
+ *
+ * A location identifier is `{ scheme, identifier }` and nothing else. The
+ * record schema refuses every other key, so that is all the form is allowed to
+ * hold. Everything the vocabulary knows about the place is kept beside the
+ * form, where it can be shown without ever requesting the record.
+ *
+ * @param {Object} record Geographic Identifiers record.
+ * @returns {Object} Stored identifier.
+ */
+const toStoredIdentifier = record => ({
+  scheme: record.scheme,
+  identifier: record.id
+});
+
+/**
+ * Read the vocabulary record behind a stored identifier.
+ *
+ * @param {Object} stored Stored identifier.
+ * @param {String} suggestionAPIUrl API the vocabulary is served from.
+ * @returns {Promise<Object>} The record, or an error object.
+ */
+const readIdentifier = async (stored, suggestionAPIUrl) => {
+  const id = stored.identifier || stored.id;
+  try {
+    const response = await axios.get(`${suggestionAPIUrl}/${encodeURIComponent(id)}`);
+    return response.data;
+  } catch (error) {
+    // The vocabulary may no longer hold the entry, or may be unreachable
+    return {
+      id: id,
+      name: id,
+      scheme: stored.scheme
+    };
+  }
+};
+
+/**
+ * Turn a record into what the dropdown needs, keeping the record intact.
+ *
+ * @param {Array.<Object>} records Geographic Identifiers records.
+ * @returns {Array.<Object>} Dropdown options.
+ */
+const serializeIdentifiers = records => records.map(record => {
+  const {
+    name,
+    country
+  } = summarize(record);
+  return _objectSpread2(_objectSpread2({}, record), {}, {
+    // Semantic UI matches on `text` and would write it into a selection
+    // label, so it stays a plain string. `content` is what the row renders.
+    text: _compact([name, country]).join(', '),
+    value: record.id,
+    key: record.id,
+    content: /*#__PURE__*/React.createElement(IdentifierSuggestion, {
+      record: record
+    })
+  });
+});
+
+/**
+ * Field for choosing places from a Geographic Identifiers vocabulary.
+ *
  * @constructor
  *
  * @param {String} fieldPath Path where the field data will be stored in the Formik data.
- * @param {String} limitOptions Vocabularies that can be used to search for Geographic identifiers.
+ * @param {Array.<Object>} limitOptions Vocabularies that can be used to search for
+ *                                      Geographic identifiers.
  * @param {String} label Field Label.
  * @param {String} labelIcon Field icon.
- * @param {Boolean} clearable  Flag to set if the user can clear the selected options.
  * @param {Boolean} multiple Flag to set if multiple values are supported.
  * @param {Boolean} required Flag to set if the field is required in the form.
- * @param {String} placeholder Field placeholder
+ * @param {String} placeholder Field placeholder.
  * @param {String} noQueryMessage Text to be presented to users when the field is empty.
- * @param {String} suggestionAPIUrl API URL from where the Geographic identifiers will be extracted.
+ * @param {String} suggestionAPIUrl API URL from where the Geographic identifiers will
+ *                                  be extracted.
+ * @param {Function} onAddGeometry Function called with a GeoJSON Geometry when the user
+ *                                 asks for a place to be put on the map. Without it,
+ *                                 the offer is not made.
+ * @param {Function} isGeometryOnMap Function answering whether a geometry is already on
+ *                                   the map, so a place that is there says so instead of
+ *                                   offering to be added again.
  * @returns {JSX.Element}
  */
 const GeographicIdentifiersField = ({
@@ -38500,71 +39242,112 @@ const GeographicIdentifiersField = ({
   limitOptions,
   label,
   labelIcon,
-  clearable,
   multiple,
   required,
   placeholder,
   noQueryMessage,
-  suggestionAPIUrl
+  suggestionAPIUrl,
+  onAddGeometry,
+  isGeometryOnMap
 }) => {
-  // States
+  const {
+    values,
+    setFieldValue
+  } = useFormikContext();
   const [initialValuesLoaded, setInitialValuesLoaded] = useState(false);
-  const [fieldState, setFieldState] = useState({
-    limitTo: limitOptions[0].value
-  });
+  const [limitTo, setLimitTo] = useState(limitOptions[0].value);
 
-  // Auxiliary functions
-  const prepareSuggest = searchQuery => {
-    const limitTo = fieldState.limitTo;
-    const prefix = limitTo === 'all' ? '' : `${limitTo}::`;
-    return `${prefix}${searchQuery}`;
+  // The vocabulary records behind what the form holds, kept by identifier. This
+  // is what the suggestions, the cards and the metadata modal read
+  const [records, setRecords] = useState({});
+
+  // Get identifiers
+  const selected = getIn(values, fieldPath, []);
+
+  // Get record for an identifier
+  const recordFor = stored => records[stored.identifier] || {
+    id: stored.identifier,
+    scheme: stored.scheme,
+    name: stored.identifier
   };
-  const serializeIdentifiers = identifiers => identifiers.map(identifier => {
-    const scheme = _split(identifier.id, '::', 1).at(0); // Pattern from GeoIdentifiers
-    const schemeText = scheme ? `(${_capitalize(scheme)})` : '';
-    return _objectSpread2(_objectSpread2({
-      text: `${schemeText} ${identifier.name}`,
-      value: identifier.name,
-      key: identifier.name
-    }, identifier.id ? {
-      id: identifier.id
-    } : {}), {}, {
-      name: identifier.name,
-      scheme: scheme
-    });
-  });
 
-  // Function to transform the Initial Values in a format valid for the Component.
-  // By now, we are using this "basic" approach, where we request the API many times.
-  // This is temporary and in the future can be revised.
-  const transformInitialValues = (initialValues, setFieldValue) => {
-    if (initialValues.length !== 0 && !initialValuesLoaded) {
-      Promise.all(initialValues.map(async identifier => {
-        const identifierValue = _get(identifier, 'identifier');
-        if (identifierValue) {
-          // getting data from the identifier api
-          const identifierApi = `${suggestionAPIUrl}/${identifierValue}`;
-          const result = await axios.get(identifierApi);
+  // Save records
+  const rememberRecords = found => setRecords(known => _objectSpread2(_objectSpread2({}, known), _keyBy(found.map(record => _omit(record, OPTION_KEYS)), 'id')));
 
-          // extracting the values
-          if (result.status === 200) {
-            return result.data;
-          }
-        }
-        return identifier;
-      })).then(res => {
-        // Saving the transformed values
-        setFieldValue(serializeIdentifiers(res));
+  // Load metadata of reference identifiers
+  useEffect(() => {
+    // Get values
+    const stored = getIn(values, fieldPath, []);
 
-        // Enable the component
-        setInitialValuesLoaded(true);
-      });
-    } else {
-      // Enable the component
+    // If no identifiers, there is nothing to load
+    if (stored.length === 0) {
       setInitialValuesLoaded(true);
+      return undefined;
+    }
+
+    // Abort if the component is unmounted
+    let abandoned = false;
+
+    // Load metadata of identifiers
+    Promise.all(
+    // Read identifier
+    stored.map(identifier => {
+      return readIdentifier(identifier, suggestionAPIUrl);
+    })).then(found => {
+      // Abort if the component is unmounted
+      if (abandoned) {
+        return;
+      }
+      rememberRecords(found);
+      setInitialValuesLoaded(true);
+    });
+    return () => {
+      abandoned = true;
+    };
+  }, []);
+
+  /**
+   * Scope the query to the chosen scheme, the way the vocabulary expects.
+   */
+  const prepareSuggest = searchQuery => limitTo === ALL_SCHEMES ? searchQuery : `${limitTo}:${searchQuery}`;
+
+  /**
+   * Suggest the places that are not on the list already.
+   */
+  const suggestUnlisted = records => serializeIdentifiers(records.filter(({
+    id
+  }) => !selected.some(({
+    identifier
+  }) => identifier === id)));
+
+  /**
+   * Add what was picked in the search box to the list.
+   */
+  const addIdentifiers = picked => {
+    // Save records
+    rememberRecords(picked);
+
+    // Get added identifiers
+    const added = picked.filter(({
+      id
+    }) => !selected.some(stored => stored.identifier === id)).map(toStoredIdentifier);
+
+    // If there are added identifiers, add them to the form
+    if (added.length) {
+      setFieldValue(fieldPath, [...selected, ...added]);
     }
   };
-  return /*#__PURE__*/React.createElement(GroupField, {
+
+  /**
+   * Remove an identifier from the list.
+   */
+  const removeIdentifier = record => {
+    // Remove identifier from the form
+    setFieldValue(fieldPath, selected.filter(({
+      identifier
+    }) => identifier !== record.id));
+  };
+  return /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement(GroupField, {
     className: 'main-group-field',
     style: {
       marginBottom: '1em'
@@ -38588,50 +39371,46 @@ const GeographicIdentifiersField = ({
   }, i18next.t('Suggest from')), /*#__PURE__*/React.createElement(Form.Dropdown, {
     defaultValue: limitOptions[0].value,
     fluid: true,
-    onChange: (event, data) => {
-      setFieldState({
-        limitTo: data.value
-      });
-    },
+    onChange: (event, data) => setLimitTo(data.value),
     options: limitOptions,
     selection: true,
     width: 8
-  }))), /*#__PURE__*/React.createElement(Field, {
-    name: fieldPath
-  }, ({
-    form: {
-      values,
-      setFieldValue
-    }
-  }) => {
-    // Looking for initial values
-    transformInitialValues(getIn(values, fieldPath, []), value => {
-      setFieldValue(fieldPath, value);
-    });
-    return /*#__PURE__*/React.createElement(React.Fragment, null, initialValuesLoaded ? /*#__PURE__*/React.createElement(RemoteSelectField, {
-      clearable: clearable,
-      fieldPath: fieldPath,
-      initialSuggestions: getIn(values, fieldPath, []),
-      multiple: multiple,
-      noQueryMessage: noQueryMessage,
-      placeholder: placeholder,
-      preSearchChange: prepareSuggest,
-      required: required,
-      serializeSuggestions: serializeIdentifiers,
-      suggestionAPIUrl: suggestionAPIUrl,
-      onValueChange: ({
-        formikProps
-      }, selectedSuggestions) => {
-        formikProps.form.setFieldValue(fieldPath, selectedSuggestions);
-      },
-      value: getIn(values, fieldPath, []).map(val => val.name),
-      label: /*#__PURE__*/React.createElement("label", {
-        className: "mobile-hidden"
-      }, "\xA0") /** For alignment purposes */,
-      allowAdditions: false,
-      width: 11
-    }) : null);
-  }));
+  }))), initialValuesLoaded && /*#__PURE__*/React.createElement(RemoteSelectField
+  // Picking a place moves it to the list, which leaves the box empty
+  // and ready for the next one. Semantic UI has no way to be told
+  // that, so the box is built again.
+  , {
+    key: selected.map(({
+      identifier
+    }) => identifier).join('|'),
+    allowAdditions: false,
+    fieldPath: fieldPath,
+    multiple: multiple,
+    noQueryMessage: noQueryMessage,
+    onValueChange: (_, picked) => addIdentifiers(picked),
+    placeholder: placeholder,
+    preSearchChange: prepareSuggest,
+    required: required,
+    search: options => options,
+    serializeSuggestions: suggestUnlisted,
+    suggestionAPIUrl: suggestionAPIUrl,
+    value: multiple ? [] : '',
+    label: /*#__PURE__*/React.createElement("label", {
+      className: 'mobile-hidden'
+    }, "\xA0"),
+    width: 11
+  })), selected.length > 0 &&
+  /*#__PURE__*/
+  // List scrolls rather than growing
+  React.createElement("ul", {
+    className: 'geographic-identifier-cards'
+  }, selected.map(stored => /*#__PURE__*/React.createElement(IdentifierCard, {
+    key: stored.identifier,
+    record: recordFor(stored),
+    onRemove: removeIdentifier,
+    onAddGeometry: onAddGeometry,
+    isGeometryOnMap: isGeometryOnMap
+  }))));
 };
 GeographicIdentifiersField.propTypes = {
   fieldPath: PropTypes.string.isRequired,
@@ -38643,15 +39422,11 @@ GeographicIdentifiersField.propTypes = {
   labelIcon: PropTypes.string,
   required: PropTypes.bool,
   multiple: PropTypes.bool,
-  clearable: PropTypes.bool,
   placeholder: PropTypes.string,
   noQueryMessage: PropTypes.string,
-  initialOptions: PropTypes.arrayOf(PropTypes.shape({
-    key: PropTypes.string,
-    value: PropTypes.string,
-    text: PropTypes.string
-  })),
-  suggestionAPIUrl: PropTypes.string.isRequired
+  suggestionAPIUrl: PropTypes.string.isRequired,
+  onAddGeometry: PropTypes.func,
+  isGeometryOnMap: PropTypes.func
 };
 GeographicIdentifiersField.defaultProps = {
   fieldPath: 'identifiers',
@@ -38660,12 +39435,11 @@ GeographicIdentifiersField.defaultProps = {
     value: 'geonames' // Available on: Invenio Geographic Identifiers.
   }, {
     text: 'All',
-    value: 'all'
+    value: ALL_SCHEMES
   }],
   label: i18next.t('Identifiers'),
   labelIcon: 'id badge',
   multiple: true,
-  clearable: true,
   placeholder: i18next.t('Select a geographic identifier'),
   noQueryMessage: i18next.t('Search geographical identifiers...'),
   suggestionAPIUrl: '/api/geoidentifiers'
@@ -38754,6 +39528,11 @@ const LocationsModal = ({
     action: null,
     formState: null
   });
+
+  // A place chosen in the identifiers field already knows where it is, so the
+  // geometry field is given a way to be handed that geometry instead of the
+  // depositor having to find the same spot again by hand
+  const geometryRef = useRef(null);
 
   /**
    * Messages
@@ -38870,9 +39649,15 @@ const LocationsModal = ({
     }), /*#__PURE__*/React.createElement(GeographicIdentifiersField, {
       fieldPath: identifiersPath,
       multiple: true,
-      clearable: true,
-      required: false
+      required: false,
+      onAddGeometry: geometry => geometryRef.current.addGeometry(geometry)
+      // Both fields are under this one form, so the geometry is
+      // right here to be read: a place already on the map says so
+      // on its own row, rather than being refused after the click.
+      ,
+      isGeometryOnMap: geometry => GeometryValidator.containsGeometry(getIn(values, geometryPath, {}), geometry)
     }), /*#__PURE__*/React.createElement(GeometryField, {
+      ref: geometryRef,
       fieldPath: geometryPath,
       interactiveMapConfig: interactiveMapConfig,
       uniqueLayer: uniqueLayer,
@@ -39328,12 +40113,191 @@ class LocationsFieldSerializer {
 }
 
 /*
- * This file is part of GEO-Metadata-Previewer.
- * Copyright (C) 2022 GEO Secretariat.
+ * This file is part of Invenio-Geographic-Components.
+ * Copyright (C) 2022-2026 GEO Secretariat.
  *
- * GEO-Metadata-Previewer is free software; you can redistribute it and/or modify it
- * under the terms of the MIT License; see LICENSE file for more details.
+ * Invenio-Geographic-Components is free software; you can redistribute it and/or
+ * modify it under the terms of the MIT License; see LICENSE file for more details.
  */
+
+/**
+ * The places a record's locations point at.
+ *
+ * A record names its places by identifier, which is the right thing to store and
+ * the wrong thing to read: `geonames::3448439` tells nobody that the record is
+ * about São Paulo. Each one is listed here by name, next to the map it belongs
+ * on. The name brings the place up on the map, and the whole record is a click
+ * further on.
+ * @constructor
+ *
+ * @param {Array.<Object>} identifiers Location identifiers, as the record stores them.
+ * @param {Object} records Vocabulary records by identifier.
+ * @param {Function} onSelect Function called with an identifier when its place is chosen.
+ * @returns {JSX.Element|null}
+ */
+const IdentifierPlaces = ({
+  identifiers,
+  records,
+  onSelect
+}) => {
+  if (!identifiers.length) {
+    return null;
+  }
+  return /*#__PURE__*/React.createElement("div", {
+    className: 'geographic-identifier-places'
+  }, /*#__PURE__*/React.createElement(List, {
+    relaxed: true,
+    divided: true
+  }, identifiers.map(({
+    scheme,
+    identifier
+  }) => {
+    // A place the vocabulary no longer holds is still part of the record,
+    // so it is listed as what the record stores rather than left out.
+    const record = records[identifier] || {
+      id: identifier,
+      scheme,
+      name: identifier
+    };
+    const {
+      name
+    } = summarize(record);
+    const description = describe(record);
+    return /*#__PURE__*/React.createElement(List.Item, {
+      key: identifier
+    }, /*#__PURE__*/React.createElement(List.Content, {
+      floated: 'right'
+    }, /*#__PURE__*/React.createElement(IdentifierMetadataModal, {
+      record: record,
+      trigger: /*#__PURE__*/React.createElement(Button, {
+        basic: true,
+        compact: true,
+        size: 'mini',
+        type: 'button',
+        icon: 'info circle',
+        "aria-label": i18next.t('Details about {{name}}', {
+          name
+        })
+      })
+    })), /*#__PURE__*/React.createElement(List.Content, {
+      as: 'a',
+      role: 'button',
+      tabIndex: 0,
+      onClick: () => onSelect(identifier),
+      onKeyDown: event => ['Enter', ' '].includes(event.key) && onSelect(identifier),
+      className: 'geographic-identifier-place'
+    }, /*#__PURE__*/React.createElement(List.Header, null, name), description && /*#__PURE__*/React.createElement(List.Description, null, description)));
+  })));
+};
+IdentifierPlaces.propTypes = {
+  identifiers: PropTypes.arrayOf(PropTypes.shape({
+    scheme: PropTypes.string,
+    identifier: PropTypes.string.isRequired
+  })).isRequired,
+  records: PropTypes.object,
+  onSelect: PropTypes.func.isRequired
+};
+IdentifierPlaces.defaultProps = {
+  records: {}
+};
+
+/*
+ * This file is part of Invenio-Geographic-Components.
+ * Copyright (C) 2022-2026 GEO Secretariat.
+ *
+ * Invenio-Geographic-Components is free software; you can redistribute it and/or
+ * modify it under the terms of the MIT License; see LICENSE file for more details.
+ */
+
+/**
+ * Read the vocabulary records behind a record's location identifiers.
+ *
+ * @param {Array.<Object>} identifiers Location identifiers, as the record stores them.
+ * @param {String} apiUrl API the vocabulary is served from.
+ * @returns {Object} The records that could be read, by identifier.
+ */
+const useIdentifierRecords = (identifiers, apiUrl) => {
+  // State - The records
+  const [records, setRecords] = useState({});
+
+  // The identifiers come from a `data-` attribute parsed once, so the list is
+  // settled by the time this runs. It is joined to give the effect something
+  // stable to compare
+  const ids = identifiers.map(({
+    identifier
+  }) => identifier);
+  const key = ids.join('|');
+  useEffect(() => {
+    if (!ids.length) {
+      return undefined;
+    }
+
+    // Flag to track if the request has been abandoned
+    let abandoned = false;
+
+    // Get the query
+    const query = ids.map(id => `"${id}"`).join(' OR ');
+
+    // Get the records
+    axios.get(apiUrl, {
+      params: {
+        q: `id:(${query})`,
+        size: ids.length
+      }
+    }).then(({
+      data
+    }) => {
+      // If the request has not been abandoned, set the records
+      if (!abandoned) {
+        setRecords(_keyBy(data.hits.hits, 'id'));
+      }
+    })
+    // The places are an addition to the map, not the map itself. If the
+    // vocabulary cannot be reached the list shows the identifiers as they are
+    // stored, and everything else on the page is unaffected.
+    .catch(() => {});
+    return () => {
+      abandoned = true;
+    };
+  }, [key, apiUrl]);
+  return records;
+};
+
+/**
+ * How close the map goes when a reader asks for one place.
+ */
+const PLACE_ZOOM = 8;
+
+/**
+ * The geometry a feature can be drawn from.
+ *
+ * A location may carry a place and no geometry at all, and InvenioRDM
+ * serializes the geometry types it cannot represent with null coordinates.
+ * Leaflet reads their length and throws, taking the whole map down with it.
+ * Neither is drawable, so neither is passed on.
+ *
+ * @param {Object} feature Location feature.
+ * @returns {Object|null} GeoJSON Geometry object, or `null`.
+ */
+const drawableGeometry = feature => {
+  const geometry = _get(feature, 'geometry');
+  if (_isNil(geometry) || _isEmpty(_get(geometry, 'coordinates'))) {
+    return null;
+  }
+  return geometry;
+};
+
+/**
+ * The geometries a stored one was built from.
+ *
+ * @param {Object} geometry GeoJSON Geometry object.
+ * @returns {Array.<Object>} The parts, or the geometry itself when it is of a
+ *                           type the mutator does not take apart.
+ */
+const explode = geometry => {
+  const parts = GeometryMutator.generateGeometryExploded(geometry);
+  return parts ? parts.map(feature => feature.geometry) : [geometry];
+};
 
 /**
  * Geographic metadata locations viewer component to visualize in an interactive map the
@@ -39342,73 +40306,153 @@ class LocationsFieldSerializer {
  *
  * @param {Array} featuresData The Locations Features objects to be visualized in the interactive map.
  * @param {Object} mapConfig Configuration object for the `BaseMapLayers`.
+ * @param {String} identifiersApiUrl API the Geographic Identifiers vocabulary is served
+ *                                   from. Without it the places are not read back.
  * @returns {JSX.Element}
  */
 const GeographicMetadataLocationViewer = ({
   featuresData,
-  mapConfig
+  mapConfig,
+  identifiersApiUrl
 }) => {
-  const generateFeatureCollection = featuresData => {
-    // extracting the geometry from the features
-    const featuresGeometries = _compact(featuresData.map(feature => {
-      const geometry = _get(feature, 'geometry');
-      const place = _get(feature, 'place');
-      const description = _get(feature, 'description');
+  // State - The map instance
+  const [map, setMap] = useState(null);
 
-      // A location may carry a place and no geometry at all, and InvenioRDM
-      // serializes the geometry types it cannot represent with null
-      // coordinates.
-      // Leaflet reads their length and throws, taking the whole
-      // map down with it. Neither is drawable, so neither is passed on.
-      if (_isNil(geometry) || _isEmpty(_get(geometry, 'coordinates'))) {
-        return null;
-      }
-      return {
-        type: 'Feature',
-        properties: {
-          place,
-          description
-        },
-        geometry
-      };
-    }));
-    if (!_isNil(featuresGeometries) && !_isEmpty(featuresGeometries)) {
-      return {
-        type: 'FeatureCollection',
-        features: featuresGeometries
-      };
-    }
-    return null;
+  // The layer a place was drawn as, so choosing it in the list can bring up what
+  // the map already knows about it.
+  const placeLayers = useRef({});
+
+  // Get the unique identifiers
+  const identifiers = _uniqBy(featuresData.flatMap(feature => _get(feature, 'identifiers', [])), 'identifier');
+
+  // Get the records
+  const records = useIdentifierRecords(identifiersApiUrl ? identifiers : [], identifiersApiUrl);
+
+  /**
+   * The place a geometry stands for, when the record stored it from one.
+   *
+   * `Add to map` writes a place own point into the record, so the two are
+   * routinely the same shape. Where they are, one is drawn and the list points
+   * at it, rather than a second marker being stacked on the first.
+   */
+  const placeAt = geometry => {
+    return _get(identifiers.find(({
+      identifier
+    }) => containsGeometry(geometry, geometryOf(records[identifier]))), 'identifier');
   };
 
-  // generating the feature collection
-  const featureCollection = generateFeatureCollection(featuresData);
-  return /*#__PURE__*/React.createElement(MapContainer, mapConfig.mapContainer, /*#__PURE__*/React.createElement(BaseMapLayers, mapConfig), featureCollection ? /*#__PURE__*/React.createElement(GeoJSONLayer, {
-    geoJsonData: featureCollection,
+  // Get the record features
+  const recordFeatures = featuresData.flatMap(feature => {
+    const geometry = drawableGeometry(feature);
+    if (!geometry) {
+      return [];
+    }
+
+    // Two places added to one location are stored as a single `MultiPoint`,
+    // which is one shape to Leaflet and two places to a reader. It is taken
+    // apart so each part can stand for the place it came from. The map draws
+    // the same thing either way.
+    return explode(geometry).map(part => ({
+      type: 'Feature',
+      properties: {
+        identifier: placeAt(part),
+        place: _get(feature, 'place'),
+        description: _get(feature, 'description')
+      },
+      geometry: part
+    }));
+  });
+
+  // Get the drawn identifiers
+  const drawn = _compact(recordFeatures.map(({
+    properties
+  }) => properties.identifier));
+
+  // Get the place features
+  const placeFeatures = _compact(identifiers.map(({
+    identifier
+  }) => {
+    const geometry = geometryOf(records[identifier]);
+    if (!geometry || drawn.includes(identifier)) {
+      return null;
+    }
+    return {
+      type: 'Feature',
+      properties: {
+        identifier,
+        place: records[identifier].name,
+        description: describe(records[identifier])
+      },
+      geometry
+    };
+  }));
+
+  // Get the features
+  const features = [...recordFeatures, ...placeFeatures];
+
+  // Select a place
+  const selectPlace = identifier => {
+    const geometry = geometryOf(records[identifier]);
+    if (!map || !geometry) {
+      return;
+    }
+
+    // Framed rather than centred on a coordinate pair, so a place the scheme
+    // describes with something other than a point is framed too.
+    map.flyToBounds(leafletSrc.exports.geoJSON(geometry).getBounds(), {
+      maxZoom: PLACE_ZOOM
+    });
+
+    // Get the layer
+    const layer = placeLayers.current[identifier];
+
+    // Open the popup
+    if (layer) {
+      layer.openPopup();
+    }
+  };
+  return /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement(MapContainer, _extends$1({}, mapConfig.mapContainer, {
+    whenCreated: setMap
+  }), /*#__PURE__*/React.createElement(BaseMapLayers, mapConfig), features.length > 0 && /*#__PURE__*/React.createElement(GeoJSONLayer, {
+    key: `places-${placeFeatures.length}`,
+    geoJsonData: {
+      type: 'FeatureCollection',
+      features
+    },
     fitBoundsOptions: mapConfig.fitBoundsOptions,
     options: {
       onEachFeature: (feature, layer) => {
+        const identifier = _get(feature, 'properties.identifier');
+        if (identifier) {
+          placeLayers.current[identifier] = layer;
+        }
         const placeText = _get(feature, 'properties.place', '');
         const descriptionText = _get(feature, 'properties.description', '');
         if (placeText || descriptionText) {
           layer.bindPopup(`
-              <h4>${placeText}</h4>
-              <p>${descriptionText}</p>
-            `);
+                    <h4>${placeText}</h4>
+                    <p>${descriptionText}</p>
+                  `);
         } else {
-          layer.bindPopup("This geometry doesn't have any extra information");
+          layer.bindPopup(i18next.t("This geometry doesn't have any extra information"));
         }
       }
     }
-  }) : null);
+  })), /*#__PURE__*/React.createElement(IdentifierPlaces, {
+    identifiers: identifiers,
+    records: records,
+    onSelect: selectPlace
+  }));
 };
 GeographicMetadataLocationViewer.propTypes = {
   featuresData: PropTypes.array,
-  mapConfig: PropTypes.object
+  mapConfig: PropTypes.object,
+  identifiersApiUrl: PropTypes.string
 };
 GeographicMetadataLocationViewer.defaultProps = {
   featuresData: [],
-  mapConfig: {}
+  mapConfig: {},
+  identifiersApiUrl: '/api/geoidentifiers'
 };
 
-export { BaseMapLayers, DescriptionField, DrawEventAssigner, DrawEventTypes, FullscreenControl, GeoJSONLayer, GeocodingControl, GeographicIdentifiersField, GeographicMetadataLocationViewer, GeometryEditorControl, GeometryField, GeometryLoader, GeometryLoaderOperator, GeometryMutator, GeometryOperator, GeometryValidator, ImportManager, LocationsField, LocationsFieldItem, LocationsFieldSerializer, LocationsModal, MouseCoordinateControl, PlaceField, SUPPORTED_GEOMETRY_TYPES, SimplificationMenu, TileLayerControl, isPropertyDefined, useDrawEvents };
+export { BaseMapLayers, DescriptionField, DrawEventAssigner, DrawEventTypes, FullscreenControl, GeoJSONLayer, GeocodingControl, GeographicIdentifiersField, GeographicMetadataLocationViewer, GeometryEditorControl, GeometryField, GeometryLoader, GeometryLoaderOperator, GeometryMutator, GeometryOperator, GeometryValidator, IdentifierCard, IdentifierMetadataModal, IdentifierPlaces, IdentifierSuggestion, ImportManager, LocationsField, LocationsFieldItem, LocationsFieldSerializer, LocationsModal, MouseCoordinateControl, PlaceField, SUPPORTED_GEOMETRY_TYPES, SimplificationMenu, TileLayerControl, isPropertyDefined, useDrawEvents, useIdentifierRecords };

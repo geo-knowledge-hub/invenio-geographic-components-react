@@ -10,6 +10,8 @@ import React from 'react';
 
 import { Global } from '@emotion/react';
 
+import geoidentifiersSuggest from '@tests/mock/vocabularies/geoidentifiers-suggest.json';
+
 import { GeographicMetadataLocationViewer as GeographicMetadataLocationViewerComponent } from './GeographicMetadataLocationViewer';
 
 export default {
@@ -87,3 +89,34 @@ export const Basic = Template.bind({});
 Basic.args = {
   featuresData: featureData,
 };
+
+/**
+ * Mock API
+ */
+const mockApiConfig = [
+  {
+    url: '/api/geoidentifiers?q=&size=',
+    method: 'GET',
+    status: 200,
+    response: () => geoidentifiersSuggest,
+  },
+];
+
+/**
+ * As a published record actually looks: the places are references, and the
+ * second location names one without drawing anything at all.
+ */
+export const WithIdentifiers = Template.bind({});
+WithIdentifiers.args = {
+  featuresData: [
+    {
+      place: 'Place title',
+      geometry: featureData[0].geometry,
+      identifiers: [{ scheme: 'geonames', identifier: 'geonames::3448439' }],
+    },
+    {
+      identifiers: [{ scheme: 'geonames', identifier: 'geonames::2657896' }],
+    },
+  ],
+};
+WithIdentifiers.parameters = { mockData: mockApiConfig };

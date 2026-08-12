@@ -7,18 +7,20 @@
 #}
 
 {%- set serialization = record_ui if record_ui is defined else record %}
-{%- set features = (features if features is defined
-                    else serialization["ui"].get("locations", {}).get("features", []))
-                   | selectattr("geometry") | selectattr("geometry.coordinates") | list %}
+{%- set features = features if features is defined
+                   else serialization["ui"].get("locations", {}).get("features", []) %}
+{%- set drawable = features | selectattr("geometry") | selectattr("geometry.coordinates") | list %}
+{%- set named = features | selectattr("identifiers") | list %}
 
-{%- if features %}
+{%- if drawable or named %}
   <div class="sidebar-container">
     <h2 class="ui medium top attached header mt-0">{{ _("Geographic locations") }}</h2>
     <div class="ui segment bottom attached rdm-sidebar p-0">
       <div class="invenio-locations-map"
            data-invenio-locations-map
            data-features='{{ features | tojson }}'
-           data-map-config='{{ config.GEOGRAPHIC_COMPONENTS_MAP_CONFIG | tojson }}'></div>
+           data-map-config='{{ config.GEOGRAPHIC_COMPONENTS_MAP_CONFIG | tojson }}'
+           data-identifiers-api-url='{{ config.GEOGRAPHIC_COMPONENTS_IDENTIFIERS_API_URL }}'></div>
     </div>
   </div>
 

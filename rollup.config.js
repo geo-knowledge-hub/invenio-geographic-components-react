@@ -114,6 +114,36 @@ const disableEslint = () => ({
   }),
 });
 
+/**
+ * Fails the build if the viewer bundle carries code meant for Node.
+ *
+ * The viewer is loaded by a `<script>` tag, where `require` and `process` do not
+ * exist, so a stray reference to either is not a warning but a page that stops
+ * at the first line it reaches. This is the case of the `@mapbox/geojsonhint`: 
+ * it embeds a JSON parser that keeps its command line entry point, and it is reachable from
+ * `base/geometry/validators`, so importing the `base` barrel here is enough to
+ * break the record landing page. Caught at the build rather than on the page.
+ */
+const assertBrowserSafe = () => ({
+  name: 'assert-browser-safe',
+  renderChunk: (code) => {
+    // Check if the code contains a reference to Node.js only functions
+    const nodeOnly = /require\.main|process\.argv/.exec(code);
+
+    // If the code contains a reference to Node.js only 
+    // functions, throw an error
+    if (nodeOnly) {
+      throw new Error(
+        `The viewer bundle contains \`${nodeOnly[0]}\`, which a browser has no ` +
+          'definition for. Something reachable from `src/viewer` pulls in a ' +
+          'module written for Node — import the leaf module rather than a barrel.'
+      );
+    }
+
+    return null;
+  },
+});
+
 const basePlugins = (cssFile) => [
   stubNodeBuiltins(),
   alias({
@@ -175,6 +205,7 @@ const viewer = {
   plugins: [
     ...basePlugins(path.join(STATIC_DIR, 'locations-viewer.css')),
     terser(),
+    assertBrowserSafe(),
   ],
 };
 
