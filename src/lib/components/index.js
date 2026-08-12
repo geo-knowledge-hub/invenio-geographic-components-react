@@ -10,3 +10,5 @@ export * from './geometry';
 export * from './import';
 export * from './layers';
 export * from './form';
+
+export { IdentifierMetadataModal } from './geoidentifiers';

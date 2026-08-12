@@ -15,6 +15,7 @@ import { SemanticToastContainer, toast } from 'react-semantic-toasts';
 
 import { Button, Icon } from 'semantic-ui-react';
 
+import geonamesData from '@tests/mock/vocabularies/geoidentifiers-suggest.json';
 import { LocationsModal as LocationsModalComponent } from './LocationsModal';
 
 export default {
