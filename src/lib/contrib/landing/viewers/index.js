@@ -7,3 +7,5 @@
  */
 
 export { GeographicMetadataLocationViewer } from './GeographicMetadataLocationViewer';
+export { IdentifierPlaces } from './IdentifierPlaces';
+export { useIdentifierRecords } from './useIdentifierRecords';

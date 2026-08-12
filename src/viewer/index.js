@@ -45,6 +45,7 @@ export const mount = (element) => {
     <GeographicMetadataLocationViewer
       featuresData={features}
       mapConfig={parse(element.dataset.mapConfig, {})}
+      identifiersApiUrl={element.dataset.identifiersApiUrl}
     />,
     element
   );
