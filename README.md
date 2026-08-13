@@ -54,7 +54,7 @@ invenio-cli install
 invenio-cli assets build
 ```
 
-The map options, the deposit form field and the notes for InvenioRDM v13 are covered in the [documentation](https://gkhub.earthobservations.org/doc/development/extensions/geographic-components/).
+The map options, the deposit form field, where that field sits in the form and the notes for InvenioRDM v13 are covered in the [documentation](https://gkhub.earthobservations.org/doc/development/extensions/geographic-components/).
 
 ## Development
 

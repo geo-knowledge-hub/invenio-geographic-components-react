@@ -13,7 +13,7 @@ import _isEmpty from 'lodash/isEmpty';
 import _isEqual from 'lodash/isEqual';
 import { Dropdown, Menu as Menu$1, Modal, Message, Button, Segment, Grid, Breadcrumb, Divider, Header, Icon, Table, Label, Form, Ref, List, Item } from 'semantic-ui-react';
 import { Field, getIn, useFormikContext, Formik, FieldArray } from 'formik';
-import { FieldLabel, TextField, GroupField, RemoteSelectField } from 'react-invenio-forms';
+import { FieldLabel, TextField, GroupField, RemoteSelectField, AccordionField } from 'react-invenio-forms';
 import _has from 'lodash/has';
 import _last from 'lodash/last';
 import axios from 'axios';
@@ -14998,9 +14998,9 @@ function useMap() {
   return useLeafletContext().map;
 }
 
-const _excluded$6 = ["children"];
+const _excluded$7 = ["children"];
 const useLayersControlElement = createElementHook(function createLayersControl(_ref, ctx) {
-  let options = _objectWithoutProperties(_ref, _excluded$6);
+  let options = _objectWithoutProperties(_ref, _excluded$7);
   const instance = new leafletSrc.exports.Control.Layers(undefined, undefined, options);
   return {
     instance,
@@ -15070,7 +15070,7 @@ LayersControl.Overlay = createControlledLayer(function addOverlay(layersControl,
   layersControl.addOverlay(layer, name);
 });
 
-const _excluded$5 = ["children", "className", "id", "placeholder", "style", "whenCreated"];
+const _excluded$6 = ["children", "className", "id", "placeholder", "style", "whenCreated"];
 function _extends() {
   _extends = Object.assign || function (target) {
     for (var i = 1; i < arguments.length; i++) {
@@ -15112,7 +15112,7 @@ function MapContainer(_ref) {
       style,
       whenCreated
     } = _ref,
-    options = _objectWithoutProperties(_ref, _excluded$5);
+    options = _objectWithoutProperties(_ref, _excluded$6);
   const mapRef = useRef(null);
   const map = useMapElement(mapRef, options);
   const createdRef = useRef(false);
@@ -15139,12 +15139,12 @@ function MapContainer(_ref) {
   }), contents);
 }
 
-const _excluded$4 = ["url"];
+const _excluded$5 = ["url"];
 const TileLayer = createTileLayerComponent(function createTileLayer(_ref, context) {
   let {
       url
     } = _ref,
-    options = _objectWithoutProperties(_ref, _excluded$4);
+    options = _objectWithoutProperties(_ref, _excluded$5);
   return {
     instance: new leafletSrc.exports.TileLayer(url, withPane(options, context)),
     context
@@ -21285,7 +21285,7 @@ L$1.Control.mouseCoordinate = function (options) {
  */
 const MouseCoordinateControl = createControlComponent(props => L$1.Control.mouseCoordinate(props));
 
-const _excluded$3 = ["useTileLayers", "useGeocoding", "useFullscreen", "useMouseCoordinate"];
+const _excluded$4 = ["useTileLayers", "useGeocoding", "useFullscreen", "useMouseCoordinate"];
 
 /**
  * Basic set of layers.
@@ -21318,7 +21318,7 @@ const BaseMapLayers = _ref => {
       useFullscreen,
       useMouseCoordinate
     } = _ref,
-    layersConfig = _objectWithoutProperties(_ref, _excluded$3);
+    layersConfig = _objectWithoutProperties(_ref, _excluded$4);
   const baseLayersDefinition = [{
     enable: useTileLayers,
     render: key => /*#__PURE__*/React.createElement(TileLayerControl, _extends$1({
@@ -37521,7 +37521,7 @@ BoundingBoxSimplifier.defaultProps = {
   simplifierName: i18next.t('Bounding box')
 };
 
-const _excluded$2 = ["message", "data", "dataChangeCallback", "modalState", "modalTitle", "mapContainerConfig", "mapLayersConfig"];
+const _excluded$3 = ["message", "data", "dataChangeCallback", "modalState", "modalTitle", "mapContainerConfig", "mapLayersConfig"];
 
 /**
  * Simplification menu component.
@@ -37551,7 +37551,7 @@ const SimplificationMenu = _ref => {
       mapContainerConfig,
       mapLayersConfig
     } = _ref,
-    modalConfig = _objectWithoutProperties(_ref, _excluded$2);
+    modalConfig = _objectWithoutProperties(_ref, _excluded$3);
   const [menuData, setMenuData] = useState(data);
   const [activeItem, setActiveItem] = useState(null);
   const closeModal = () => {
@@ -39490,7 +39490,7 @@ PlaceField.defaultProps = {
   labelIcon: 'street view'
 };
 
-const _excluded$1 = ["values", "resetForm"];
+const _excluded$2 = ["values", "resetForm"];
 
 /**
  * Locations modal.
@@ -39616,7 +39616,7 @@ const LocationsModal = ({
         values,
         resetForm
       } = _ref,
-      form = _objectWithoutProperties(_ref, _excluded$1);
+      form = _objectWithoutProperties(_ref, _excluded$2);
     const placePath = 'place';
     const geometryPath = 'geometry';
     const descriptionPath = 'description';
@@ -39902,7 +39902,7 @@ LocationsFieldItem.defaultProps = {
   initialLocation: {}
 };
 
-const _excluded = ["fieldPath"];
+const _excluded$1 = ["fieldPath"];
 
 /**
  * Description Formik field.
@@ -40026,7 +40026,7 @@ const LocationsField = _ref => {
   let {
       fieldPath
     } = _ref,
-    locationsConfig = _objectWithoutProperties(_ref, _excluded);
+    locationsConfig = _objectWithoutProperties(_ref, _excluded$1);
   return /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement(FieldArray, {
     name: fieldPath,
     component: formikProps => /*#__PURE__*/React.createElement(LocationsFieldForm, _extends$1({}, formikProps, locationsConfig))
@@ -40111,6 +40111,60 @@ class LocationsFieldSerializer {
     return serialized;
   }
 }
+
+const _excluded = ["fieldPath", "label", "id", "active", "includesPaths", "severityChecks"];
+
+/**
+ * Deposit form section holding the locations field.
+ * 
+ * @constructor
+ *
+ * @param {String} fieldPath Path where the locations are stored in the Formik data.
+ * @param {String} label Section title.
+ * @param {String} id DOM id of the section, used by the form error summary to link to it.
+ * @param {Boolean} active Flag to set if the section starts open.
+ * @param {Array.<String>} includesPaths Formik paths whose errors this section reports.
+ *                                       Defaults to the path the field writes to.
+ * @param {Object} severityChecks Labels for the error counts, as the instance defines them.
+ * @param {Object} locationsConfig Remaining properties, passed to the `LocationsField`.
+ * @returns {JSX.Element}
+ */
+const LocationsAccordion = _ref => {
+  let {
+      fieldPath,
+      label,
+      id,
+      active,
+      includesPaths,
+      severityChecks
+    } = _ref,
+    locationsConfig = _objectWithoutProperties(_ref, _excluded);
+  return /*#__PURE__*/React.createElement(AccordionField, {
+    id: id,
+    label: label,
+    active: active,
+    severityChecks: severityChecks,
+    includesPaths: includesPaths || [fieldPath]
+  }, /*#__PURE__*/React.createElement(LocationsField, _extends$1({
+    fieldPath: fieldPath
+  }, locationsConfig)));
+};
+LocationsAccordion.propTypes = {
+  fieldPath: PropTypes.string,
+  label: PropTypes.string,
+  id: PropTypes.string,
+  active: PropTypes.bool,
+  includesPaths: PropTypes.arrayOf(PropTypes.string),
+  severityChecks: PropTypes.object
+};
+LocationsAccordion.defaultProps = {
+  fieldPath: 'metadata.locations.features',
+  label: i18next.t('Geographic Locations'),
+  id: 'locations-section',
+  active: true,
+  includesPaths: null,
+  severityChecks: null
+};
 
 /*
  * This file is part of Invenio-Geographic-Components.
@@ -40455,4 +40509,4 @@ GeographicMetadataLocationViewer.defaultProps = {
   identifiersApiUrl: '/api/geoidentifiers'
 };
 
-export { BaseMapLayers, DescriptionField, DrawEventAssigner, DrawEventTypes, FullscreenControl, GeoJSONLayer, GeocodingControl, GeographicIdentifiersField, GeographicMetadataLocationViewer, GeometryEditorControl, GeometryField, GeometryLoader, GeometryLoaderOperator, GeometryMutator, GeometryOperator, GeometryValidator, IdentifierCard, IdentifierMetadataModal, IdentifierPlaces, IdentifierSuggestion, ImportManager, LocationsField, LocationsFieldItem, LocationsFieldSerializer, LocationsModal, MouseCoordinateControl, PlaceField, SUPPORTED_GEOMETRY_TYPES, SimplificationMenu, TileLayerControl, isPropertyDefined, useDrawEvents, useIdentifierRecords };
+export { BaseMapLayers, DescriptionField, DrawEventAssigner, DrawEventTypes, FullscreenControl, GeoJSONLayer, GeocodingControl, GeographicIdentifiersField, GeographicMetadataLocationViewer, GeometryEditorControl, GeometryField, GeometryLoader, GeometryLoaderOperator, GeometryMutator, GeometryOperator, GeometryValidator, IdentifierCard, IdentifierMetadataModal, IdentifierPlaces, IdentifierSuggestion, ImportManager, LocationsAccordion, LocationsField, LocationsFieldItem, LocationsFieldSerializer, LocationsModal, MouseCoordinateControl, PlaceField, SUPPORTED_GEOMETRY_TYPES, SimplificationMenu, TileLayerControl, isPropertyDefined, useDrawEvents, useIdentifierRecords };

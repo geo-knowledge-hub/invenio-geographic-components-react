@@ -7,3 +7,4 @@
  */
 
 export * from './fields';
+export * from './sections';
