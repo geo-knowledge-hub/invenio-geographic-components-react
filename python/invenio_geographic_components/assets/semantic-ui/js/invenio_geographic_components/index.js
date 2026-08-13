@@ -40116,16 +40116,7 @@ const _excluded = ["fieldPath", "label", "id", "active", "includesPaths", "sever
 
 /**
  * Deposit form section holding the locations field.
- *
- * The deposit form groups its fields into accordion sections, and a field that
- * sits inside someone else's section reads as a detail of that section. Where a
- * record is on the Earth is not a detail of its contributors, so the field is
- * given a section of its own.
- *
- * InvenioRDM has no hook for adding a section - the sections are written out in
- * `RDMDepositForm`, and `depositFormSectionsConfig` is a fixed object. An
- * instance therefore registers this component on one of the deposit form's
- * overridable ids, and it renders as a sibling of the sections the form ships.
+ * 
  * @constructor
  *
  * @param {String} fieldPath Path where the locations are stored in the Formik data.
@@ -40167,8 +40158,6 @@ LocationsAccordion.propTypes = {
   severityChecks: PropTypes.object
 };
 LocationsAccordion.defaultProps = {
-  // The record stores its locations under `features`, which is where the field
-  // writes and so where the errors this section reports arrive.
   fieldPath: 'metadata.locations.features',
   label: i18next.t('Geographic Locations'),
   id: 'locations-section',
