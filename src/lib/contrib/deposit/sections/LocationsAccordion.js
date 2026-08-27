@@ -13,6 +13,7 @@ import { AccordionField } from 'react-invenio-forms';
 
 import { i18next } from '@translations/i18next';
 
+import { WATERMARK_POSITIONS } from '../../../components/layers';
 import { LocationsField } from '../../../components/form/fields/LocationsField';
 
 /**
@@ -57,6 +58,7 @@ LocationsAccordion.propTypes = {
   active: PropTypes.bool,
   includesPaths: PropTypes.arrayOf(PropTypes.string),
   severityChecks: PropTypes.object,
+  watermarkPosition: PropTypes.oneOf(WATERMARK_POSITIONS),
 };
 
 LocationsAccordion.defaultProps = {

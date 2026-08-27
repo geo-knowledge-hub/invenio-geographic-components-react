@@ -20,9 +20,11 @@ import { MapContainer } from 'react-leaflet';
 
 import { i18next } from '@translations/i18next';
 
+import { withWatermarkPosition } from '../../../base/config';
 import { GeometryMutator } from '../../../base/geometry/mutators';
 import { containsGeometry } from '../../../base/geometry/predicates';
 import { BaseMapLayers } from '../../../components/layers/base/BaseMapLayers';
+import { WATERMARK_POSITIONS } from '../../../components/layers/control/WatermarkControl';
 import { GeoJSONLayer } from '../../../components/layers/base/GeoJSONLayer';
 import { describe, geometryOf } from '../../../components/geoidentifiers';
 
@@ -75,6 +77,9 @@ const explode = (geometry) => {
  *
  * @param {Array} featuresData The Locations Features objects to be visualized in the interactive map.
  * @param {Object} mapConfig Configuration object for the `BaseMapLayers`.
+ * @param {String|null} watermarkPosition Corner the Leaflet watermark is put in. `null`
+ *                                        takes it away, and leaving it out keeps whatever
+ *                                        the map configuration says.
  * @param {String} identifiersApiUrl API the Geographic Identifiers vocabulary is served
  *                                   from. Without it the places are not read back.
  * @returns {JSX.Element}
@@ -82,8 +87,13 @@ const explode = (geometry) => {
 export const GeographicMetadataLocationViewer = ({
   featuresData,
   mapConfig,
+  watermarkPosition,
   identifiersApiUrl,
 }) => {
+  // The property is a shortcut for the key of the same name, so everything
+  // below this point reads one object
+  const config = withWatermarkPosition(mapConfig, watermarkPosition);
+
   // State - The map instance
   const [map, setMap] = useState(null);
 
@@ -194,14 +204,14 @@ export const GeographicMetadataLocationViewer = ({
 
   return (
     <>
-      <MapContainer {...mapConfig.mapContainer} whenCreated={setMap}>
-        <BaseMapLayers {...mapConfig} />
+      <MapContainer {...config.mapContainer} whenCreated={setMap}>
+        <BaseMapLayers {...config} />
 
         {features.length > 0 && (
           <GeoJSONLayer
             key={`places-${placeFeatures.length}`}
             geoJsonData={{ type: 'FeatureCollection', features }}
-            fitBoundsOptions={mapConfig.fitBoundsOptions}
+            fitBoundsOptions={config.fitBoundsOptions}
             options={{
               onEachFeature: (feature, layer) => {
                 const identifier = _get(feature, 'properties.identifier');
@@ -247,6 +257,7 @@ export const GeographicMetadataLocationViewer = ({
 GeographicMetadataLocationViewer.propTypes = {
   featuresData: PropTypes.array,
   mapConfig: PropTypes.object,
+  watermarkPosition: PropTypes.oneOf(WATERMARK_POSITIONS),
   identifiersApiUrl: PropTypes.string,
 };
 

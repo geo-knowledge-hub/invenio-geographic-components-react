@@ -85,3 +85,30 @@ WithError.args = {
 WithError.parameters = {
   mockData: mockApiConfig,
 };
+
+/**
+ * The section with the Leaflet watermark moved out of the way. Open a location
+ * and draw one to see the map
+ */
+export const WithWatermarkMoved = Template.bind({});
+WithWatermarkMoved.args = {
+  ...Basic.args,
+  watermarkPosition: 'topright',
+};
+
+WithWatermarkMoved.parameters = {
+  mockData: mockApiConfig,
+};
+
+/**
+ * The section with no watermark at all
+ */
+export const WithoutWatermark = Template.bind({});
+WithoutWatermark.args = {
+  ...Basic.args,
+  watermarkPosition: null,
+};
+
+WithoutWatermark.parameters = {
+  mockData: mockApiConfig,
+};

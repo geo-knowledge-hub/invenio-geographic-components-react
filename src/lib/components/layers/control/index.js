@@ -8,6 +8,7 @@
 
 export { FullscreenControl } from './FullscreenControl';
 export { MouseCoordinateControl } from './MouseCoordinateControl';
+export { WatermarkControl, WATERMARK_POSITIONS } from './WatermarkControl';
 
 export { GeocodingControl } from './GeocodingControl';
 export { TileLayerControl } from './TileLayerControl';

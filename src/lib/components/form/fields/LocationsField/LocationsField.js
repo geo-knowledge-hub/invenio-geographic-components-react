@@ -17,6 +17,9 @@ import { HTML5Backend } from 'react-dnd-html5-backend';
 
 import { Button, Form, Label, List, Icon } from 'semantic-ui-react';
 
+import { withWatermarkPosition } from '../../../../base';
+import { WATERMARK_POSITIONS } from '../../../layers';
+
 import { LocationsModal } from './LocationsModal';
 
 import { i18next } from '@translations/i18next';
@@ -153,19 +156,43 @@ export const LocationsFieldForm = ({
  * @constructor
  *
  * @param {String} fieldPath Path where the field data will be stored in the Formik data.
+ * @param {String|null} watermarkPosition Corner the Leaflet watermark is put in on the
+ *                                        map. `null` takes it away, and leaving it out
+ *                                        keeps whatever the map configuration says.
  * @param {Object} locationsConfig Configuration object for the `LocationsFieldForm` component.
  * @returns {JSX.Element}
  */
-export const LocationsField = ({ fieldPath, ...locationsConfig }) => (
-  <>
-    <FieldArray
-      name={fieldPath}
-      component={(formikProps) => (
-        <LocationsFieldForm {...formikProps} {...locationsConfig} />
-      )}
-    />
-  </>
-);
+export const LocationsField = ({
+  fieldPath,
+  watermarkPosition,
+  ...locationsConfig
+}) => {
+  // The map is few components below this one, and everything in between hands
+  // the configuration along untouched. So the shortcut is folded into that
+  // configuration once, here, and read as a single object further down.
+  const interactiveMapConfig = {
+    ...locationsConfig.interactiveMapConfig,
+    mapConfig: withWatermarkPosition(
+      locationsConfig.interactiveMapConfig?.mapConfig,
+      watermarkPosition
+    ),
+  };
+
+  return (
+    <>
+      <FieldArray
+        name={fieldPath}
+        component={(formikProps) => (
+          <LocationsFieldForm
+            {...formikProps}
+            {...locationsConfig}
+            interactiveMapConfig={interactiveMapConfig}
+          />
+        )}
+      />
+    </>
+  );
+};
 
 LocationsField.propTypes = {
   fieldPath: PropTypes.string.isRequired,
@@ -178,6 +205,7 @@ LocationsField.propTypes = {
     editLabel: PropTypes.string.isRequired,
   }).isRequired,
   interactiveMapConfig: PropTypes.object,
+  watermarkPosition: PropTypes.oneOf(WATERMARK_POSITIONS),
   uniqueLayer: PropTypes.bool,
   geometryTypes: PropTypes.arrayOf(PropTypes.string),
 };

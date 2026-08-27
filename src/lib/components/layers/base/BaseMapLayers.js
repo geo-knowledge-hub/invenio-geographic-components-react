@@ -17,6 +17,10 @@ import { TileLayerControl } from '../control/TileLayerControl';
 import { GeocodingControl } from '../control/GeocodingControl';
 import { FullscreenControl } from '../control/FullscreenControl';
 import { MouseCoordinateControl } from '../control/MouseCoordinateControl';
+import {
+  WatermarkControl,
+  WATERMARK_POSITIONS,
+} from '../control/WatermarkControl';
 
 /**
  * Basic set of layers.
@@ -28,12 +32,16 @@ import { MouseCoordinateControl } from '../control/MouseCoordinateControl';
  * - Tile Layer Control;
  * - Geocoding Control;
  * - Fullscreen Control;
- * - Mouse Coordinate Control.
+ * - Mouse Coordinate Control;
+ * - Watermark Control.
  *
  * @param {Boolean} useTileLayers Flag to enable/disable the `Tile Layer Control`;
  * @param {Boolean} useGeocoding Flag to enable/disable the `Geocoding Control`;
  * @param {Boolean} useFullscreen Flag to enable/disable the `Fullscreen Control`;
  * @param {Boolean} useMouseCoordinate Flag to enable/disble the `Mouse Coordinate Control`;
+ * @param {String|null} watermarkPosition Corner the Leaflet watermark is put in. `null`
+ *                                        takes it away, and leaving it out keeps whatever
+ *                                        the map was built with;
  * @param {Object} layersConfig Configuration object for the following layers:
  *                              - TileLayerControl (`tileLayersConfig`);
  *                              - GeocodingControl (`geocodingConfig`);
@@ -47,6 +55,7 @@ export const BaseMapLayers = ({
   useGeocoding,
   useFullscreen,
   useMouseCoordinate,
+  watermarkPosition,
   ...layersConfig
 }) => {
   const baseLayersDefinition = [
@@ -86,6 +95,12 @@ export const BaseMapLayers = ({
           return layerDefinition.render(index);
         }
       })}
+
+      {/*
+        Always rendered: the map builds the watermark on its own, so taking it
+        away is work too, and a flag that stops rendering would never do it
+      */}
+      <WatermarkControl position={watermarkPosition} />
     </>
   );
 };
@@ -95,6 +110,7 @@ BaseMapLayers.propTypes = {
   useGeocoding: PropTypes.bool,
   useFullscreen: PropTypes.bool,
   useMouseCoordinate: PropTypes.bool,
+  watermarkPosition: PropTypes.oneOf(WATERMARK_POSITIONS),
   tileLayersConfig: PropTypes.object,
   geocodingConfig: PropTypes.object,
   fullscreenConfig: PropTypes.object,

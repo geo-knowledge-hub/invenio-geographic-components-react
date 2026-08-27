@@ -120,3 +120,21 @@ WithIdentifiers.args = {
   ],
 };
 WithIdentifiers.parameters = { mockData: mockApiConfig };
+
+/**
+ * With the Leaflet watermark on a non-standard position
+ */
+export const WithWatermarkMoved = Template.bind({});
+WithWatermarkMoved.args = {
+  featuresData: featureData,
+  watermarkPosition: 'topright',
+};
+
+/**
+ * With no watermark at all
+ */
+export const WithoutWatermark = Template.bind({});
+WithoutWatermark.args = {
+  featuresData: featureData,
+  mapConfig: { watermarkPosition: null },
+};
