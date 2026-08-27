@@ -8,6 +8,9 @@
 
 """Tests for geographic components views."""
 
+import json
+import re
+
 
 #
 # Constant - Sidebar template path
@@ -15,6 +18,14 @@
 SIDE_BAR_TEMPLATE = (
     "semantic-ui/invenio_geographic_components"
     "/records/details/side_bar/locations_map.html"
+)
+
+
+#
+# Constant - Deposit map configuration template path
+#
+DEPOSIT_MAP_CONFIG_TEMPLATE = (
+    "semantic-ui/invenio_geographic_components/records/deposit/map_config.html"
 )
 
 
@@ -28,6 +39,12 @@ def _render(app, features):
 
     with app.test_request_context():
         return app.jinja_env.get_template(SIDE_BAR_TEMPLATE).render(features=features)
+
+
+def _render_deposit_map_config(app):
+    """Render the template carrying the map configuration to the deposit form."""
+    with app.test_request_context():
+        return app.jinja_env.get_template(DEPOSIT_MAP_CONFIG_TEMPLATE).render()
 
 
 #
@@ -109,3 +126,23 @@ def test_prebuilt_assets_are_served(app):
 
     for path in assets:
         assert app.test_client().get(path).status_code == 200
+
+
+def test_deposit_map_config_template_is_available(app):
+    """Test deposit map configuration template availability."""
+    with app.app_context():
+        assert app.jinja_env.get_template(DEPOSIT_MAP_CONFIG_TEMPLATE)
+
+
+def test_deposit_map_config_carries_the_watermark_position(app):
+    """Test that a watermark position set by the instance reaches the form."""
+    app.config["GEOGRAPHIC_COMPONENTS_MAP_CONFIG"] = {"watermarkPosition": "topleft"}
+
+    assert '"watermarkPosition": "topleft"' in _render_deposit_map_config(app)
+
+
+def test_deposit_map_config_carries_a_hidden_watermark(app):
+    """Test that a watermark the instance takes away reaches the form as null."""
+    app.config["GEOGRAPHIC_COMPONENTS_MAP_CONFIG"] = {"watermarkPosition": None}
+
+    assert '"watermarkPosition": null' in _render_deposit_map_config(app)
