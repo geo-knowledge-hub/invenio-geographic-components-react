@@ -6,6 +6,7 @@
  * under the terms of the MIT License; see LICENSE file for more details.
  */
 
+export * from './config';
 export * from './event';
 export * from './geometry';
 export * from './loader';

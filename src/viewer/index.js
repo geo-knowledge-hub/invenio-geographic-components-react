@@ -11,23 +11,8 @@ import ReactDOM from 'react-dom';
 
 import './viewer.css';
 
+import { parse } from '../lib/base/config';
 import { GeographicMetadataLocationViewer } from '../lib/contrib/landing/viewers';
-
-/**
- * Parse a JSON string
- *
- * @param {string} value - The JSON string to parse
- * @param {any} fallback - The fallback value if the JSON string is invalid
- *
- * @returns {any} The parsed value
- */
-const parse = (value, fallback) => {
-  try {
-    return JSON.parse(value);
-  } catch (error) {
-    return fallback;
-  }
-};
 
 /**
  * Render the map into a single container element
