@@ -65,6 +65,36 @@ describe('GeographicMetadataLocationViewer tests', () => {
     });
   });
 
+  describe('Watermark tests', () => {
+    const watermarkCorner = (container) => {
+      const badge = container.querySelector('.leaflet-control-attribution');
+
+      return badge ? badge.parentElement.className : null;
+    };
+
+    it('should read the position from the map configuration', () => {
+      const { container } = render(
+        <GeographicMetadataLocationViewer
+          featuresData={[]}
+          mapConfig={{ watermarkPosition: 'topleft' }}
+        />
+      );
+
+      expect(watermarkCorner(container)).toBe('leaflet-top leaflet-left');
+    });
+
+    it('should take the watermark away when the configuration says null', () => {
+      const { container } = render(
+        <GeographicMetadataLocationViewer
+          featuresData={[]}
+          mapConfig={{ watermarkPosition: null }}
+        />
+      );
+
+      expect(watermarkCorner(container)).toBeNull();
+    });
+  });
+
   describe('The places a record points at', () => {
     it('should name a place the record only references', async () => {
       // Render the viewer
