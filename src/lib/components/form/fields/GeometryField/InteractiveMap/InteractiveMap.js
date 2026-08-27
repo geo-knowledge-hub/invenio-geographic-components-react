@@ -19,6 +19,17 @@ import { BaseMapLayers } from '../../../../layers';
 import './InteractiveMap.css';
 
 /**
+ * Default map configuration
+ *
+ * @type Object
+ */
+const DEFAULT_MAP_CONTAINER = {
+  center: [30, -50],
+  zoom: 1,
+  zoomControl: true,
+};
+
+/**
  * Interactive Map Base component.
  * @constructor
  *
@@ -28,7 +39,10 @@ import './InteractiveMap.css';
 const InteractiveMapComponent = ({ geometryStore, mapConfig }) => {
   return (
     // `className` comes first so that `mapContainer` can override it.
-    <MapContainer className="invenio-geometry-map" {...mapConfig.mapContainer}>
+    <MapContainer
+      className="invenio-geometry-map"
+      {...{ ...DEFAULT_MAP_CONTAINER, ...mapConfig.mapContainer }}
+    >
       <BaseMapLayers {...mapConfig} />
       <GeometryEditor geometryStore={geometryStore} {...mapConfig} />
     </MapContainer>
@@ -57,7 +71,7 @@ export const InteractiveMap = React.memo(InteractiveMapComponent, (props) => {
 InteractiveMap.propTypes = {
   geometryStore: PropTypes.object.isRequired,
   mapConfig: PropTypes.shape({
-    mapContainer: PropTypes.object.isRequired,
+    mapContainer: PropTypes.object,
     tileLayersConfig: PropTypes.object,
     geocodingConfig: PropTypes.object,
     fullscreenConfig: PropTypes.object,
@@ -67,11 +81,5 @@ InteractiveMap.propTypes = {
 };
 
 InteractiveMap.defaultProps = {
-  mapConfig: {
-    mapContainer: {
-      center: [30, -50],
-      zoom: 1,
-      zoomControl: true,
-    },
-  },
+  mapConfig: {},
 };
