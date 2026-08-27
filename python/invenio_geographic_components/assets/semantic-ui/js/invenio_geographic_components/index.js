@@ -235,6 +235,73 @@ const i18next = i18n.createInstance();
 i18next.use(LanguageDetector).init(options);
 
 /*
+ * This file is part of Invenio-Geographic-Components.
+ * Copyright (C) 2022-2026 GEO Secretariat.
+ *
+ * Invenio-Geographic-Components is free software; you can redistribute it and/or
+ * modify it under the terms of the MIT License; see LICENSE file for more details.
+ */
+
+/**
+ * Read a JSON string.
+ *
+ * @param {String} value The JSON string to parse.
+ * @param {*} fallback The value to use when the string cannot be read.
+ * @returns {*} The parsed value, or the fallback.
+ */
+const parse = (value, fallback) => {
+  try {
+    return JSON.parse(value);
+  } catch (error) {
+    return fallback;
+  }
+};
+
+/**
+ * Element the instance renders its map configuration into.
+ *
+ * @type String
+ */
+const MAP_CONFIG_ELEMENT_ID = 'invenio-geographic-components-map-config';
+
+/**
+ * Read the map configuration the instance rendered into the page.
+ *
+ * The landing page map is given its configuration through a data attribute, but
+ * the deposit form is mounted from an override the instance writes itself, with
+ * no template of its own to carry one. This reads the same configuration from a
+ * script tag, so that a single `GEOGRAPHIC_COMPONENTS_MAP_CONFIG` can drive both
+ * maps.
+ *
+ * An instance that has not installed the template gets an empty object, and the
+ * components fall back to their own defaults.
+ *
+ * @param {String} elementId Element holding the configuration.
+ * @returns {Object} The configuration, or an empty object.
+ */
+const readMapConfig = (elementId = MAP_CONFIG_ELEMENT_ID) => {
+  var _document$getElementB;
+  return parse((_document$getElementB = document.getElementById(elementId)) === null || _document$getElementB === void 0 ? void 0 : _document$getElementB.textContent, {});
+};
+
+/**
+ * Put a watermark position into a map configuration.
+ *
+ * Components take the position as a property of their own, next to the map
+ * configuration they pass along. This folds the one into the other, so that
+ * everything below reads a single object.
+ *
+ * @param {Object} mapConfig Map configuration.
+ * @param {String|null|undefined} watermarkPosition Corner the watermark is put
+ *                                                  in. Left out, the map
+ *                                                  configuration is untouched.
+ * @returns {Object} The map configuration.
+ */
+const withWatermarkPosition = (mapConfig = {}, watermarkPosition) => watermarkPosition === undefined ? mapConfig : _objectSpread2(_objectSpread2({}, mapConfig), {}, {
+  watermarkPosition
+});
+
+/*
  * This file is part of GEO-Metadata-Previewer.
  * Copyright (C) 2022 GEO Secretariat.
  *
@@ -21285,7 +21352,65 @@ L$1.Control.mouseCoordinate = function (options) {
  */
 const MouseCoordinateControl = createControlComponent(props => L$1.Control.mouseCoordinate(props));
 
-const _excluded$4 = ["useTileLayers", "useGeocoding", "useFullscreen", "useMouseCoordinate"];
+/*
+ * This file is part of Invenio-Geographic-Components.
+ * Copyright (C) 2022-2026 GEO Secretariat.
+ *
+ * Invenio-Geographic-Components is free software; you can redistribute it and/or
+ * modify it under the terms of the MIT License; see LICENSE file for more details.
+ */
+
+/**
+ * Corners a Leaflet control can be put in.
+ *
+ * @type Array.<String>
+ */
+const WATERMARK_POSITIONS = ['topleft', 'topright', 'bottomleft', 'bottomright'];
+
+/**
+ * @constructor
+ * Watermark control.
+ *
+ * @param {String|null} position Corner the watermark is put in. `null` takes it
+ *                               away, and leaving it out keeps whatever the map
+ *                               was built with.
+ * @returns {null} Nothing is rendered: the badge is a Leaflet control.
+ */
+const WatermarkControl = ({
+  position
+}) => {
+  const map = useMap();
+  useEffect(() => {
+    // Left out means the caller has no opinion, so the map keeps what it was
+    // built with
+    if (position === undefined) {
+      return undefined;
+    }
+
+    // Moving the badge where it stands is not enough: a control taken off the
+    // map keeps the corner it is given and never goes back up. So it is always
+    // taken away and put up again
+    if (map.attributionControl) {
+      map.removeControl(map.attributionControl);
+    }
+    if (position === null) {
+      return undefined;
+    }
+
+    // A new badge reads the attributions of the layers already on the map, and
+    // follows the ones added afterwards, so nothing is lost by replacing it
+    const control = L$1.control.attribution({
+      position
+    }).addTo(map);
+    return () => map.removeControl(control);
+  }, [map, position]);
+  return null;
+};
+WatermarkControl.propTypes = {
+  position: PropTypes.oneOf(WATERMARK_POSITIONS)
+};
+
+const _excluded$4 = ["useTileLayers", "useGeocoding", "useFullscreen", "useMouseCoordinate", "watermarkPosition"];
 
 /**
  * Basic set of layers.
@@ -21297,12 +21422,16 @@ const _excluded$4 = ["useTileLayers", "useGeocoding", "useFullscreen", "useMouse
  * - Tile Layer Control;
  * - Geocoding Control;
  * - Fullscreen Control;
- * - Mouse Coordinate Control.
+ * - Mouse Coordinate Control;
+ * - Watermark Control.
  *
  * @param {Boolean} useTileLayers Flag to enable/disable the `Tile Layer Control`;
  * @param {Boolean} useGeocoding Flag to enable/disable the `Geocoding Control`;
  * @param {Boolean} useFullscreen Flag to enable/disable the `Fullscreen Control`;
  * @param {Boolean} useMouseCoordinate Flag to enable/disble the `Mouse Coordinate Control`;
+ * @param {String|null} watermarkPosition Corner the Leaflet watermark is put in. `null`
+ *                                        takes it away, and leaving it out keeps whatever
+ *                                        the map was built with;
  * @param {Object} layersConfig Configuration object for the following layers:
  *                              - TileLayerControl (`tileLayersConfig`);
  *                              - GeocodingControl (`geocodingConfig`);
@@ -21316,7 +21445,8 @@ const BaseMapLayers = _ref => {
       useTileLayers,
       useGeocoding,
       useFullscreen,
-      useMouseCoordinate
+      useMouseCoordinate,
+      watermarkPosition
     } = _ref,
     layersConfig = _objectWithoutProperties(_ref, _excluded$4);
   const baseLayersDefinition = [{
@@ -21344,6 +21474,8 @@ const BaseMapLayers = _ref => {
     if (layerDefinition.enable) {
       return layerDefinition.render(index);
     }
+  }), /*#__PURE__*/React.createElement(WatermarkControl, {
+    position: watermarkPosition
   }));
 };
 BaseMapLayers.propTypes = {
@@ -21351,6 +21483,7 @@ BaseMapLayers.propTypes = {
   useGeocoding: PropTypes.bool,
   useFullscreen: PropTypes.bool,
   useMouseCoordinate: PropTypes.bool,
+  watermarkPosition: PropTypes.oneOf(WATERMARK_POSITIONS),
   tileLayersConfig: PropTypes.object,
   geocodingConfig: PropTypes.object,
   fullscreenConfig: PropTypes.object,
@@ -38301,6 +38434,17 @@ GeometryEditor.defaultProps = {
 };
 
 /**
+ * Default map configuration
+ *
+ * @type Object
+ */
+const DEFAULT_MAP_CONTAINER = {
+  center: [30, -50],
+  zoom: 1,
+  zoomControl: true
+};
+
+/**
  * Interactive Map Base component.
  * @constructor
  *
@@ -38316,7 +38460,7 @@ const InteractiveMapComponent = ({
     // `className` comes first so that `mapContainer` can override it.
     React.createElement(MapContainer, _extends$1({
       className: "invenio-geometry-map"
-    }, mapConfig.mapContainer), /*#__PURE__*/React.createElement(BaseMapLayers, mapConfig), /*#__PURE__*/React.createElement(GeometryEditor, _extends$1({
+    }, _objectSpread2(_objectSpread2({}, DEFAULT_MAP_CONTAINER), mapConfig.mapContainer)), /*#__PURE__*/React.createElement(BaseMapLayers, mapConfig), /*#__PURE__*/React.createElement(GeometryEditor, _extends$1({
       geometryStore: geometryStore
     }, mapConfig)))
   );
@@ -38343,7 +38487,7 @@ const InteractiveMap = /*#__PURE__*/React.memo(InteractiveMapComponent, props =>
 InteractiveMap.propTypes = {
   geometryStore: PropTypes.object.isRequired,
   mapConfig: PropTypes.shape({
-    mapContainer: PropTypes.object.isRequired,
+    mapContainer: PropTypes.object,
     tileLayersConfig: PropTypes.object,
     geocodingConfig: PropTypes.object,
     fullscreenConfig: PropTypes.object,
@@ -38352,13 +38496,7 @@ InteractiveMap.propTypes = {
   })
 };
 InteractiveMap.defaultProps = {
-  mapConfig: {
-    mapContainer: {
-      center: [30, -50],
-      zoom: 1,
-      zoomControl: true
-    }
-  }
+  mapConfig: {}
 };
 
 /**
@@ -39902,7 +40040,7 @@ LocationsFieldItem.defaultProps = {
   initialLocation: {}
 };
 
-const _excluded$1 = ["fieldPath"];
+const _excluded$1 = ["fieldPath", "watermarkPosition"];
 
 /**
  * Description Formik field.
@@ -40019,17 +40157,30 @@ const LocationsFieldForm = ({
  * @constructor
  *
  * @param {String} fieldPath Path where the field data will be stored in the Formik data.
+ * @param {String|null} watermarkPosition Corner the Leaflet watermark is put in on the
+ *                                        map. `null` takes it away, and leaving it out
+ *                                        keeps whatever the map configuration says.
  * @param {Object} locationsConfig Configuration object for the `LocationsFieldForm` component.
  * @returns {JSX.Element}
  */
 const LocationsField = _ref => {
+  var _locationsConfig$inte;
   let {
-      fieldPath
+      fieldPath,
+      watermarkPosition
     } = _ref,
     locationsConfig = _objectWithoutProperties(_ref, _excluded$1);
+  // The map is few components below this one, and everything in between hands
+  // the configuration along untouched. So the shortcut is folded into that
+  // configuration once, here, and read as a single object further down.
+  const interactiveMapConfig = _objectSpread2(_objectSpread2({}, locationsConfig.interactiveMapConfig), {}, {
+    mapConfig: withWatermarkPosition((_locationsConfig$inte = locationsConfig.interactiveMapConfig) === null || _locationsConfig$inte === void 0 ? void 0 : _locationsConfig$inte.mapConfig, watermarkPosition)
+  });
   return /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement(FieldArray, {
     name: fieldPath,
-    component: formikProps => /*#__PURE__*/React.createElement(LocationsFieldForm, _extends$1({}, formikProps, locationsConfig))
+    component: formikProps => /*#__PURE__*/React.createElement(LocationsFieldForm, _extends$1({}, formikProps, locationsConfig, {
+      interactiveMapConfig: interactiveMapConfig
+    }))
   }));
 };
 LocationsField.propTypes = {
@@ -40043,6 +40194,7 @@ LocationsField.propTypes = {
     editLabel: PropTypes.string.isRequired
   }).isRequired,
   interactiveMapConfig: PropTypes.object,
+  watermarkPosition: PropTypes.oneOf(WATERMARK_POSITIONS),
   uniqueLayer: PropTypes.bool,
   geometryTypes: PropTypes.arrayOf(PropTypes.string)
 };
@@ -40155,7 +40307,8 @@ LocationsAccordion.propTypes = {
   id: PropTypes.string,
   active: PropTypes.bool,
   includesPaths: PropTypes.arrayOf(PropTypes.string),
-  severityChecks: PropTypes.object
+  severityChecks: PropTypes.object,
+  watermarkPosition: PropTypes.oneOf(WATERMARK_POSITIONS)
 };
 LocationsAccordion.defaultProps = {
   fieldPath: 'metadata.locations.features',
@@ -40360,6 +40513,9 @@ const explode = geometry => {
  *
  * @param {Array} featuresData The Locations Features objects to be visualized in the interactive map.
  * @param {Object} mapConfig Configuration object for the `BaseMapLayers`.
+ * @param {String|null} watermarkPosition Corner the Leaflet watermark is put in. `null`
+ *                                        takes it away, and leaving it out keeps whatever
+ *                                        the map configuration says.
  * @param {String} identifiersApiUrl API the Geographic Identifiers vocabulary is served
  *                                   from. Without it the places are not read back.
  * @returns {JSX.Element}
@@ -40367,8 +40523,13 @@ const explode = geometry => {
 const GeographicMetadataLocationViewer = ({
   featuresData,
   mapConfig,
+  watermarkPosition,
   identifiersApiUrl
 }) => {
+  // The property is a shortcut for the key of the same name, so everything
+  // below this point reads one object
+  const config = withWatermarkPosition(mapConfig, watermarkPosition);
+
   // State - The map instance
   const [map, setMap] = useState(null);
 
@@ -40465,15 +40626,15 @@ const GeographicMetadataLocationViewer = ({
       layer.openPopup();
     }
   };
-  return /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement(MapContainer, _extends$1({}, mapConfig.mapContainer, {
+  return /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement(MapContainer, _extends$1({}, config.mapContainer, {
     whenCreated: setMap
-  }), /*#__PURE__*/React.createElement(BaseMapLayers, mapConfig), features.length > 0 && /*#__PURE__*/React.createElement(GeoJSONLayer, {
+  }), /*#__PURE__*/React.createElement(BaseMapLayers, config), features.length > 0 && /*#__PURE__*/React.createElement(GeoJSONLayer, {
     key: `places-${placeFeatures.length}`,
     geoJsonData: {
       type: 'FeatureCollection',
       features
     },
-    fitBoundsOptions: mapConfig.fitBoundsOptions,
+    fitBoundsOptions: config.fitBoundsOptions,
     options: {
       onEachFeature: (feature, layer) => {
         const identifier = _get(feature, 'properties.identifier');
@@ -40501,6 +40662,7 @@ const GeographicMetadataLocationViewer = ({
 GeographicMetadataLocationViewer.propTypes = {
   featuresData: PropTypes.array,
   mapConfig: PropTypes.object,
+  watermarkPosition: PropTypes.oneOf(WATERMARK_POSITIONS),
   identifiersApiUrl: PropTypes.string
 };
 GeographicMetadataLocationViewer.defaultProps = {
@@ -40509,4 +40671,4 @@ GeographicMetadataLocationViewer.defaultProps = {
   identifiersApiUrl: '/api/geoidentifiers'
 };
 
-export { BaseMapLayers, DescriptionField, DrawEventAssigner, DrawEventTypes, FullscreenControl, GeoJSONLayer, GeocodingControl, GeographicIdentifiersField, GeographicMetadataLocationViewer, GeometryEditorControl, GeometryField, GeometryLoader, GeometryLoaderOperator, GeometryMutator, GeometryOperator, GeometryValidator, IdentifierCard, IdentifierMetadataModal, IdentifierPlaces, IdentifierSuggestion, ImportManager, LocationsAccordion, LocationsField, LocationsFieldItem, LocationsFieldSerializer, LocationsModal, MouseCoordinateControl, PlaceField, SUPPORTED_GEOMETRY_TYPES, SimplificationMenu, TileLayerControl, isPropertyDefined, useDrawEvents, useIdentifierRecords };
+export { BaseMapLayers, DescriptionField, DrawEventAssigner, DrawEventTypes, FullscreenControl, GeoJSONLayer, GeocodingControl, GeographicIdentifiersField, GeographicMetadataLocationViewer, GeometryEditorControl, GeometryField, GeometryLoader, GeometryLoaderOperator, GeometryMutator, GeometryOperator, GeometryValidator, IdentifierCard, IdentifierMetadataModal, IdentifierPlaces, IdentifierSuggestion, ImportManager, LocationsAccordion, LocationsField, LocationsFieldItem, LocationsFieldSerializer, LocationsModal, MAP_CONFIG_ELEMENT_ID, MouseCoordinateControl, PlaceField, SUPPORTED_GEOMETRY_TYPES, SimplificationMenu, TileLayerControl, WATERMARK_POSITIONS, WatermarkControl, isPropertyDefined, parse, readMapConfig, useDrawEvents, useIdentifierRecords, withWatermarkPosition };
