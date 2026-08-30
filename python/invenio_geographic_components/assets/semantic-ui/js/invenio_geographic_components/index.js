@@ -257,32 +257,13 @@ const parse = (value, fallback) => {
   }
 };
 
-/**
- * Element the instance renders its map configuration into.
+/*
+ * This file is part of Invenio-Geographic-Components.
+ * Copyright (C) 2022-2026 GEO Secretariat.
  *
- * @type String
+ * Invenio-Geographic-Components is free software; you can redistribute it and/or
+ * modify it under the terms of the MIT License; see LICENSE file for more details.
  */
-const MAP_CONFIG_ELEMENT_ID = 'invenio-geographic-components-map-config';
-
-/**
- * Read the map configuration the instance rendered into the page.
- *
- * The landing page map is given its configuration through a data attribute, but
- * the deposit form is mounted from an override the instance writes itself, with
- * no template of its own to carry one. This reads the same configuration from a
- * script tag, so that a single `GEOGRAPHIC_COMPONENTS_MAP_CONFIG` can drive both
- * maps.
- *
- * An instance that has not installed the template gets an empty object, and the
- * components fall back to their own defaults.
- *
- * @param {String} elementId Element holding the configuration.
- * @returns {Object} The configuration, or an empty object.
- */
-const readMapConfig = (elementId = MAP_CONFIG_ELEMENT_ID) => {
-  var _document$getElementB;
-  return parse((_document$getElementB = document.getElementById(elementId)) === null || _document$getElementB === void 0 ? void 0 : _document$getElementB.textContent, {});
-};
 
 /**
  * Put a watermark position into a map configuration.
@@ -300,6 +281,43 @@ const readMapConfig = (elementId = MAP_CONFIG_ELEMENT_ID) => {
 const withWatermarkPosition = (mapConfig = {}, watermarkPosition) => watermarkPosition === undefined ? mapConfig : _objectSpread2(_objectSpread2({}, mapConfig), {}, {
   watermarkPosition
 });
+
+/*
+ * This file is part of Invenio-Geographic-Components.
+ * Copyright (C) 2022-2026 GEO Secretariat.
+ *
+ * Invenio-Geographic-Components is free software; you can redistribute it and/or
+ * modify it under the terms of the MIT License; see LICENSE file for more details.
+ */
+
+/**
+ * Element the instance renders its deposit form configuration into.
+ *
+ * @type String
+ */
+const DEPOSIT_CONFIG_ELEMENT_ID = 'invenio-geographic-components-deposit-config';
+
+/**
+ * Read the configuration the instance rendered into the deposit page.
+ *
+ * The landing page is given its configuration through data attributes, but the
+ * deposit form is mounted from an override the instance writes itself, with no
+ * template of its own to carry one. This reads the same configuration from a
+ * script tag, so that a single `invenio.cfg` drives both pages.
+ *
+ * The object holds `mapConfig`, from `GEOGRAPHIC_COMPONENTS_MAP_CONFIG`, and
+ * `identifiersApiUrl`, from `GEOGRAPHIC_COMPONENTS_IDENTIFIERS_API_URL`.
+ *
+ * An instance that has not installed the template gets an empty object, and the
+ * components fall back to their own defaults.
+ *
+ * @param {String} elementId Element holding the configuration.
+ * @returns {Object} The configuration, or an empty object.
+ */
+const readDepositConfig = (elementId = DEPOSIT_CONFIG_ELEMENT_ID) => {
+  var _document$getElementB;
+  return parse((_document$getElementB = document.getElementById(elementId)) === null || _document$getElementB === void 0 ? void 0 : _document$getElementB.textContent, {});
+};
 
 /*
  * This file is part of GEO-Metadata-Previewer.
@@ -39642,6 +39660,10 @@ const _excluded$2 = ["values", "resetForm"];
  * @param {Object} initialLocation Initial values for the location. This option can be used to fill the fields
  *                                 in the edition mode.
  * @param {Object} interactiveMapConfig Configuration object for the `InteractiveMap`.
+ * @param {Object} identifiersConfig Configuration object for the `GeographicIdentifiersField`,
+ *                                   holding the API the vocabulary is served from
+ *                                   (`suggestionAPIUrl`), the vocabularies offered
+ *                                   (`limitOptions`) and the labels around them.
  * @param {Boolean} uniqueLayer Enable/Disable users to draw multiple geometries in the map.
  * @param {Array.<String>} geometryTypes Geometry types the instance accepts.
  * @returns {JSX.Element}
@@ -39658,6 +39680,7 @@ const LocationsModal = ({
   editLabel,
   initialLocation,
   interactiveMapConfig,
+  identifiersConfig,
   uniqueLayer,
   geometryTypes
 }) => {
@@ -39784,7 +39807,12 @@ const LocationsModal = ({
     }), /*#__PURE__*/React.createElement(DescriptionField, {
       fieldPath: descriptionPath,
       required: false
-    }), /*#__PURE__*/React.createElement(GeographicIdentifiersField, {
+    }), /*#__PURE__*/React.createElement(GeographicIdentifiersField
+    // What the instance configures comes first, so that the
+    // wiring below stays this component's to decide: the field
+    // writes where the modal keeps it, and reaches the map
+    // through the reference the modal holds
+    , _extends$1({}, identifiersConfig, {
       fieldPath: identifiersPath,
       multiple: true,
       required: false,
@@ -39794,7 +39822,7 @@ const LocationsModal = ({
       // on its own row, rather than being refused after the click.
       ,
       isGeometryOnMap: geometry => GeometryValidator.containsGeometry(getIn(values, geometryPath, {}), geometry)
-    }), /*#__PURE__*/React.createElement(GeometryField, {
+    })), /*#__PURE__*/React.createElement(GeometryField, {
       ref: geometryRef,
       fieldPath: geometryPath,
       interactiveMapConfig: interactiveMapConfig,
@@ -39847,12 +39875,14 @@ LocationsModal.propTypes = {
     identifiers: PropTypes.array
   }),
   interactiveMapConfig: PropTypes.object,
+  identifiersConfig: PropTypes.object,
   uniqueLayer: PropTypes.bool,
   geometryTypes: PropTypes.arrayOf(PropTypes.string)
 };
 LocationsModal.defaultProps = {
   addLabel: i18next.t('Add location'),
-  editLabel: i18next.t('Edit location')
+  editLabel: i18next.t('Edit location'),
+  identifiersConfig: {}
 };
 
 /*
@@ -39918,6 +39948,7 @@ const LocationItem = ({
  * @param {String} editLabel Label used in the button for editing an existing location.
  * @param {Object} initialLocation Location values.
  * @param {Object} interactiveMapConfig Configurations for the InteractiveMap object.
+ * @param {Object} identifiersConfig Configurations for the GeographicIdentifiersField object.
  * @param {Boolean} uniqueLayer Enable/Disable users to draw multiple geometries in the map.
  * @param {Array.<String>} geometryTypes Geometry types the instance accepts.
  *
@@ -39935,6 +39966,7 @@ const LocationsFieldItem = ({
   editLabel,
   initialLocation,
   interactiveMapConfig,
+  identifiersConfig,
   uniqueLayer,
   geometryTypes
 }) => {
@@ -39994,6 +40026,7 @@ const LocationsFieldItem = ({
     editLabel: editLabel,
     initialLocation: initialLocation,
     interactiveMapConfig: interactiveMapConfig,
+    identifiersConfig: identifiersConfig,
     uniqueLayer: uniqueLayer,
     geometryTypes: geometryTypes,
     trigger: /*#__PURE__*/React.createElement(Button, {
@@ -40031,6 +40064,7 @@ LocationsFieldItem.propTypes = {
   editLabel: PropTypes.string,
   initialLocation: PropTypes.object,
   interactiveMapConfig: PropTypes.object,
+  identifiersConfig: PropTypes.object,
   uniqueLayer: PropTypes.bool,
   geometryTypes: PropTypes.arrayOf(PropTypes.string)
 };
@@ -40061,6 +40095,7 @@ const _excluded$1 = ["fieldPath", "watermarkPosition"];
  * @param {String} labelIcon Field icon.
  * @param {Bool} required Flag to set if the field is required in the form.
  * @param {Object} interactiveMapConfig Configurations for the InteractiveMap object.
+ * @param {Object} identifiersConfig Configurations for the GeographicIdentifiersField object.
  * @param {Boolean} uniqueLayer Enable/Disable users to draw multiple geometries in the map.
  * @param {Array.<String>} geometryTypes Geometry types the instance accepts. Drawings that
  *                                       would produce anything else are refused.
@@ -40087,6 +40122,7 @@ const LocationsFieldForm = ({
   labelIcon,
   required,
   interactiveMapConfig,
+  identifiersConfig,
   uniqueLayer,
   geometryTypes
 }) => {
@@ -40126,6 +40162,7 @@ const LocationsFieldForm = ({
       addLabel: modalConfig.addLabel,
       editLabel: modalConfig.editLabel,
       interactiveMapConfig,
+      identifiersConfig,
       uniqueLayer,
       geometryTypes
     }));
@@ -40144,6 +40181,7 @@ const LocationsFieldForm = ({
       name: 'add'
     }), locationAddButtonLabel),
     interactiveMapConfig: interactiveMapConfig,
+    identifiersConfig: identifiersConfig,
     uniqueLayer: uniqueLayer,
     geometryTypes: geometryTypes
   }), locationsError && typeof locationsError === 'string' && /*#__PURE__*/React.createElement(Label, {
@@ -40194,6 +40232,7 @@ LocationsField.propTypes = {
     editLabel: PropTypes.string.isRequired
   }).isRequired,
   interactiveMapConfig: PropTypes.object,
+  identifiersConfig: PropTypes.object,
   watermarkPosition: PropTypes.oneOf(WATERMARK_POSITIONS),
   uniqueLayer: PropTypes.bool,
   geometryTypes: PropTypes.arrayOf(PropTypes.string)
@@ -40207,7 +40246,8 @@ LocationsField.defaultProps = {
     addLabel: i18next.t('Add location'),
     editLabel: i18next.t('Edit location')
   },
-  interactiveMapConfig: {}
+  interactiveMapConfig: {},
+  identifiersConfig: {}
 };
 
 /**
@@ -40268,7 +40308,7 @@ const _excluded = ["fieldPath", "label", "id", "active", "includesPaths", "sever
 
 /**
  * Deposit form section holding the locations field.
- * 
+ *
  * @constructor
  *
  * @param {String} fieldPath Path where the locations are stored in the Formik data.
@@ -40308,7 +40348,8 @@ LocationsAccordion.propTypes = {
   active: PropTypes.bool,
   includesPaths: PropTypes.arrayOf(PropTypes.string),
   severityChecks: PropTypes.object,
-  watermarkPosition: PropTypes.oneOf(WATERMARK_POSITIONS)
+  watermarkPosition: PropTypes.oneOf(WATERMARK_POSITIONS),
+  identifiersConfig: PropTypes.object
 };
 LocationsAccordion.defaultProps = {
   fieldPath: 'metadata.locations.features',
@@ -40671,4 +40712,4 @@ GeographicMetadataLocationViewer.defaultProps = {
   identifiersApiUrl: '/api/geoidentifiers'
 };
 
-export { BaseMapLayers, DescriptionField, DrawEventAssigner, DrawEventTypes, FullscreenControl, GeoJSONLayer, GeocodingControl, GeographicIdentifiersField, GeographicMetadataLocationViewer, GeometryEditorControl, GeometryField, GeometryLoader, GeometryLoaderOperator, GeometryMutator, GeometryOperator, GeometryValidator, IdentifierCard, IdentifierMetadataModal, IdentifierPlaces, IdentifierSuggestion, ImportManager, LocationsAccordion, LocationsField, LocationsFieldItem, LocationsFieldSerializer, LocationsModal, MAP_CONFIG_ELEMENT_ID, MouseCoordinateControl, PlaceField, SUPPORTED_GEOMETRY_TYPES, SimplificationMenu, TileLayerControl, WATERMARK_POSITIONS, WatermarkControl, isPropertyDefined, parse, readMapConfig, useDrawEvents, useIdentifierRecords, withWatermarkPosition };
+export { BaseMapLayers, DEPOSIT_CONFIG_ELEMENT_ID, DescriptionField, DrawEventAssigner, DrawEventTypes, FullscreenControl, GeoJSONLayer, GeocodingControl, GeographicIdentifiersField, GeographicMetadataLocationViewer, GeometryEditorControl, GeometryField, GeometryLoader, GeometryLoaderOperator, GeometryMutator, GeometryOperator, GeometryValidator, IdentifierCard, IdentifierMetadataModal, IdentifierPlaces, IdentifierSuggestion, ImportManager, LocationsAccordion, LocationsField, LocationsFieldItem, LocationsFieldSerializer, LocationsModal, MouseCoordinateControl, PlaceField, SUPPORTED_GEOMETRY_TYPES, SimplificationMenu, TileLayerControl, WATERMARK_POSITIONS, WatermarkControl, isPropertyDefined, parse, readDepositConfig, useDrawEvents, useIdentifierRecords, withWatermarkPosition };

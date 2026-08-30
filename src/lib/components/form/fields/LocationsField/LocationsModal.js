@@ -37,6 +37,10 @@ import {
  * @param {Object} initialLocation Initial values for the location. This option can be used to fill the fields
  *                                 in the edition mode.
  * @param {Object} interactiveMapConfig Configuration object for the `InteractiveMap`.
+ * @param {Object} identifiersConfig Configuration object for the `GeographicIdentifiersField`,
+ *                                   holding the API the vocabulary is served from
+ *                                   (`suggestionAPIUrl`), the vocabularies offered
+ *                                   (`limitOptions`) and the labels around them.
  * @param {Boolean} uniqueLayer Enable/Disable users to draw multiple geometries in the map.
  * @param {Array.<String>} geometryTypes Geometry types the instance accepts.
  * @returns {JSX.Element}
@@ -53,6 +57,7 @@ export const LocationsModal = ({
   editLabel,
   initialLocation,
   interactiveMapConfig,
+  identifiersConfig,
   uniqueLayer,
   geometryTypes,
 }) => {
@@ -188,6 +193,11 @@ export const LocationsModal = ({
                   required={false}
                 />
                 <GeographicIdentifiersField
+                  // What the instance configures comes first, so that the
+                  // wiring below stays this component's to decide: the field
+                  // writes where the modal keeps it, and reaches the map
+                  // through the reference the modal holds
+                  {...identifiersConfig}
                   fieldPath={identifiersPath}
                   multiple={true}
                   required={false}
@@ -271,6 +281,7 @@ LocationsModal.propTypes = {
     identifiers: PropTypes.array,
   }),
   interactiveMapConfig: PropTypes.object,
+  identifiersConfig: PropTypes.object,
   uniqueLayer: PropTypes.bool,
   geometryTypes: PropTypes.arrayOf(PropTypes.string),
 };
@@ -278,4 +289,5 @@ LocationsModal.propTypes = {
 LocationsModal.defaultProps = {
   addLabel: i18next.t('Add location'),
   editLabel: i18next.t('Edit location'),
+  identifiersConfig: {},
 };

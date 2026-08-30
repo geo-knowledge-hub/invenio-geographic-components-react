@@ -28,7 +28,7 @@ Note: The parameters ``center`` and ``zoom`` are required by Leaflet.
 """
 
 GEOGRAPHIC_COMPONENTS_IDENTIFIERS_API_URL = "/api/geoidentifiers"
-"""API the landing page reads the geographic identifiers back from.
+"""API the geographic identifiers are read from.
 
 A record stores a location identifier as ``{scheme, identifier}`` and nothing
 else, so the names of the places it points at are read from the vocabulary when
