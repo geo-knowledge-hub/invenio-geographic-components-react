@@ -73,6 +73,37 @@ describe('LocationField tests', () => {
     });
   });
 
+  describe('Identifiers configuration', () => {
+    it('should read the vocabulary from the API the instance configured', async () => {
+      // Open the modal, as an instance serving the vocabulary elsewhere does
+      openModal({ identifiersConfig: { suggestionAPIUrl: '/api/places' } });
+
+      // Type to get suggestions
+      await suggest('Sao Paul');
+
+      // The search is made against the configured API, not the default one
+      expect(axios.get).toHaveBeenCalledWith(
+        '/api/places',
+        expect.objectContaining({
+          params: expect.objectContaining({ suggest: 'geonames:Sao Paul' }),
+        })
+      );
+    });
+
+    it('should offer the vocabularies the instance configured', () => {
+      openModal({
+        identifiersConfig: {
+          limitOptions: [{ text: 'Places', value: 'places' }],
+        },
+      });
+
+      // The selector shows the chosen vocabulary and offers it in the menu, so
+      // the name is on the page more than once
+      expect(screen.getAllByText('Places').length).toBeGreaterThan(0);
+      expect(screen.queryByText('GeoNames')).toBe(null);
+    });
+  });
+
   describe('A place on the map', () => {
     it('should say a place is on the map once it has been added', async () => {
       // Open the modal

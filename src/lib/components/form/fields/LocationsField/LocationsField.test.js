@@ -8,8 +8,15 @@
 
 import React from 'react';
 
+import axios from 'axios';
+
+import { suggestions } from '@tests/mock/vocabularies/geoidentifiers';
+import { suggest } from '@tests/identifiers-field';
+
 import { LocationsField } from './LocationsField';
 import { fireEvent, renderWithFormikProvider, screen } from '@tests/setup';
+
+jest.mock('axios');
 
 /**
  * Open the map operation function
@@ -91,6 +98,40 @@ describe('LocationsField tests', () => {
       openTheMap();
 
       expect(watermarkCorner()).toBe('leaflet-bottom leaflet-right');
+    });
+  });
+
+  describe('Identifiers tests', () => {
+    beforeEach(() => {
+      axios.get.mockResolvedValue({ data: suggestions });
+    });
+
+    afterEach(() => {
+      jest.clearAllMocks();
+    });
+
+    it('should hand the vocabulary API down to the identifiers field', async () => {
+      // The field is three components below this one, and every one of them
+      // used to stop the configuration on its way down
+      renderWithFormikProvider(
+        <LocationsField
+          identifiersConfig={{ suggestionAPIUrl: '/api/places' }}
+        />
+      );
+
+      // Open the modal, as a depositor adding a location does
+      fireEvent.click(screen.getByText('Add location'));
+
+      // Type to get suggestions
+      await suggest('Sao Paul');
+
+      // The search is made against the configured API, not the default one
+      expect(axios.get).toHaveBeenCalledWith(
+        '/api/places',
+        expect.objectContaining({
+          params: expect.objectContaining({ suggest: 'geonames:Sao Paul' }),
+        })
+      );
     });
   });
 });

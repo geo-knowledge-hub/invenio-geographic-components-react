@@ -18,7 +18,7 @@ import { LocationsField } from '../../../components/form/fields/LocationsField';
 
 /**
  * Deposit form section holding the locations field.
- * 
+ *
  * @constructor
  *
  * @param {String} fieldPath Path where the locations are stored in the Formik data.
@@ -59,6 +59,7 @@ LocationsAccordion.propTypes = {
   includesPaths: PropTypes.arrayOf(PropTypes.string),
   severityChecks: PropTypes.object,
   watermarkPosition: PropTypes.oneOf(WATERMARK_POSITIONS),
+  identifiersConfig: PropTypes.object,
 };
 
 LocationsAccordion.defaultProps = {

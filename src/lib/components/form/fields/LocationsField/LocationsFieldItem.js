@@ -89,6 +89,7 @@ const LocationItem = ({ location }) => {
  * @param {String} editLabel Label used in the button for editing an existing location.
  * @param {Object} initialLocation Location values.
  * @param {Object} interactiveMapConfig Configurations for the InteractiveMap object.
+ * @param {Object} identifiersConfig Configurations for the GeographicIdentifiersField object.
  * @param {Boolean} uniqueLayer Enable/Disable users to draw multiple geometries in the map.
  * @param {Array.<String>} geometryTypes Geometry types the instance accepts.
  *
@@ -106,6 +107,7 @@ export const LocationsFieldItem = ({
   editLabel,
   initialLocation,
   interactiveMapConfig,
+  identifiersConfig,
   uniqueLayer,
   geometryTypes,
 }) => {
@@ -164,6 +166,7 @@ export const LocationsFieldItem = ({
             editLabel={editLabel}
             initialLocation={initialLocation}
             interactiveMapConfig={interactiveMapConfig}
+            identifiersConfig={identifiersConfig}
             uniqueLayer={uniqueLayer}
             geometryTypes={geometryTypes}
             trigger={
@@ -207,6 +210,7 @@ LocationsFieldItem.propTypes = {
   editLabel: PropTypes.string,
   initialLocation: PropTypes.object,
   interactiveMapConfig: PropTypes.object,
+  identifiersConfig: PropTypes.object,
   uniqueLayer: PropTypes.bool,
   geometryTypes: PropTypes.arrayOf(PropTypes.string),
 };

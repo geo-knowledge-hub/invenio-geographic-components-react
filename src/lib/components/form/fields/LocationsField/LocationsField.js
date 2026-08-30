@@ -44,6 +44,7 @@ import { LocationsFieldItem } from './LocationsFieldItem';
  * @param {String} labelIcon Field icon.
  * @param {Bool} required Flag to set if the field is required in the form.
  * @param {Object} interactiveMapConfig Configurations for the InteractiveMap object.
+ * @param {Object} identifiersConfig Configurations for the GeographicIdentifiersField object.
  * @param {Boolean} uniqueLayer Enable/Disable users to draw multiple geometries in the map.
  * @param {Array.<String>} geometryTypes Geometry types the instance accepts. Drawings that
  *                                       would produce anything else are refused.
@@ -65,6 +66,7 @@ export const LocationsFieldForm = ({
   labelIcon,
   required,
   interactiveMapConfig,
+  identifiersConfig,
   uniqueLayer,
   geometryTypes,
 }) => {
@@ -115,6 +117,7 @@ export const LocationsFieldForm = ({
                     addLabel: modalConfig.addLabel,
                     editLabel: modalConfig.editLabel,
                     interactiveMapConfig,
+                    identifiersConfig,
                     uniqueLayer,
                     geometryTypes,
                   }}
@@ -137,6 +140,7 @@ export const LocationsFieldForm = ({
               </Button>
             }
             interactiveMapConfig={interactiveMapConfig}
+            identifiersConfig={identifiersConfig}
             uniqueLayer={uniqueLayer}
             geometryTypes={geometryTypes}
           />
@@ -205,6 +209,7 @@ LocationsField.propTypes = {
     editLabel: PropTypes.string.isRequired,
   }).isRequired,
   interactiveMapConfig: PropTypes.object,
+  identifiersConfig: PropTypes.object,
   watermarkPosition: PropTypes.oneOf(WATERMARK_POSITIONS),
   uniqueLayer: PropTypes.bool,
   geometryTypes: PropTypes.arrayOf(PropTypes.string),
@@ -220,4 +225,5 @@ LocationsField.defaultProps = {
     editLabel: i18next.t('Edit location'),
   },
   interactiveMapConfig: {},
+  identifiersConfig: {},
 };
