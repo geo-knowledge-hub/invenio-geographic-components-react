@@ -22,10 +22,10 @@ SIDE_BAR_TEMPLATE = (
 
 
 #
-# Constant - Deposit map configuration template path
+# Constant - Deposit configuration template path
 #
-DEPOSIT_MAP_CONFIG_TEMPLATE = (
-    "semantic-ui/invenio_geographic_components/records/deposit/map_config.html"
+DEPOSIT_CONFIG_TEMPLATE = (
+    "semantic-ui/invenio_geographic_components/records/deposit/deposit_config.html"
 )
 
 
@@ -41,10 +41,16 @@ def _render(app, features):
         return app.jinja_env.get_template(SIDE_BAR_TEMPLATE).render(features=features)
 
 
-def _render_deposit_map_config(app):
-    """Render the template carrying the map configuration to the deposit form."""
+def _render_deposit_config(app):
+    """Read back the configuration the deposit form template carries.
+
+    The template writes a JSON document into a script tag, so the assertions are
+    made on what the form will read, rather than on how it is spelled.
+    """
     with app.test_request_context():
-        return app.jinja_env.get_template(DEPOSIT_MAP_CONFIG_TEMPLATE).render()
+        rendered = app.jinja_env.get_template(DEPOSIT_CONFIG_TEMPLATE).render()
+
+    return json.loads(re.search(r"<script[^>]*>(.*?)</script>", rendered, re.S).group(1))
 
 
 #
@@ -128,21 +134,44 @@ def test_prebuilt_assets_are_served(app):
         assert app.test_client().get(path).status_code == 200
 
 
-def test_deposit_map_config_template_is_available(app):
-    """Test deposit map configuration template availability."""
+def test_deposit_config_template_is_available(app):
+    """Test deposit configuration template availability."""
     with app.app_context():
-        assert app.jinja_env.get_template(DEPOSIT_MAP_CONFIG_TEMPLATE)
+        assert app.jinja_env.get_template(DEPOSIT_CONFIG_TEMPLATE)
 
 
-def test_deposit_map_config_carries_the_watermark_position(app):
+def test_deposit_config_carries_the_defaults(app):
+    """Test that the form is given both configurations the instance registered."""
+    config = _render_deposit_config(app)
+
+    assert config["mapConfig"]["useTileLayers"] is True
+    assert config["identifiersApiUrl"] == "/api/geoidentifiers"
+
+
+def test_deposit_config_carries_the_watermark_position(app):
     """Test that a watermark position set by the instance reaches the form."""
     app.config["GEOGRAPHIC_COMPONENTS_MAP_CONFIG"] = {"watermarkPosition": "topleft"}
 
-    assert '"watermarkPosition": "topleft"' in _render_deposit_map_config(app)
+    assert _render_deposit_config(app)["mapConfig"] == {"watermarkPosition": "topleft"}
 
 
-def test_deposit_map_config_carries_a_hidden_watermark(app):
+def test_deposit_config_carries_a_hidden_watermark(app):
     """Test that a watermark the instance takes away reaches the form as null."""
     app.config["GEOGRAPHIC_COMPONENTS_MAP_CONFIG"] = {"watermarkPosition": None}
 
-    assert '"watermarkPosition": null' in _render_deposit_map_config(app)
+    assert _render_deposit_config(app)["mapConfig"]["watermarkPosition"] is None
+
+
+def test_deposit_config_carries_the_identifiers_api(app):
+    """Test that a vocabulary served elsewhere reaches the form."""
+    app.config["GEOGRAPHIC_COMPONENTS_IDENTIFIERS_API_URL"] = "/api/places"
+
+    assert _render_deposit_config(app)["identifiersApiUrl"] == "/api/places"
+
+
+def test_deposit_config_cannot_be_broken_out_of(app):
+    """Test that a configured value cannot close the script tag it is written in."""
+    app.config["GEOGRAPHIC_COMPONENTS_IDENTIFIERS_API_URL"] = "</script><script>x"
+
+    # The value is read back whole, which is only possible if the tag held
+    assert _render_deposit_config(app)["identifiersApiUrl"] == "</script><script>x"
