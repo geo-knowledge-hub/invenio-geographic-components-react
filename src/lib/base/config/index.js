@@ -7,8 +7,5 @@
  */
 
 export { parse } from './json';
-export {
-  readMapConfig,
-  withWatermarkPosition,
-  MAP_CONFIG_ELEMENT_ID,
-} from './mapConfig';
+export { withWatermarkPosition } from './mapConfig';
+export { readDepositConfig, DEPOSIT_CONFIG_ELEMENT_ID } from './depositConfig';

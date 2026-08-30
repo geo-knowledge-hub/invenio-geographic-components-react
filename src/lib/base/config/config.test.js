@@ -8,9 +8,9 @@
 
 import {
   parse,
-  readMapConfig,
+  readDepositConfig,
   withWatermarkPosition,
-  MAP_CONFIG_ELEMENT_ID,
+  DEPOSIT_CONFIG_ELEMENT_ID,
 } from './index';
 
 describe('Configuration tests', () => {
@@ -25,7 +25,7 @@ describe('Configuration tests', () => {
     });
   });
 
-  describe('readMapConfig tests', () => {
+  describe('readDepositConfig tests', () => {
     afterEach(() => {
       document.body.innerHTML = '';
     });
@@ -34,26 +34,32 @@ describe('Configuration tests', () => {
       const element = document.createElement('script');
 
       element.type = 'application/json';
-      element.id = MAP_CONFIG_ELEMENT_ID;
+      element.id = DEPOSIT_CONFIG_ELEMENT_ID;
       element.textContent = content;
 
       document.body.appendChild(element);
     };
 
     it('should read the configuration the instance rendered', () => {
-      plant('{"watermarkPosition": "topleft"}');
+      plant(
+        '{"mapConfig": {"watermarkPosition": "topleft"},' +
+          ' "identifiersApiUrl": "/api/places"}'
+      );
 
-      expect(readMapConfig()).toEqual({ watermarkPosition: 'topleft' });
+      expect(readDepositConfig()).toEqual({
+        mapConfig: { watermarkPosition: 'topleft' },
+        identifiersApiUrl: '/api/places',
+      });
     });
 
     it('should give an empty configuration when the template is not installed', () => {
-      expect(readMapConfig()).toEqual({});
+      expect(readDepositConfig()).toEqual({});
     });
 
     it('should give an empty configuration when the page is half rendered', () => {
-      plant('{"watermarkPosition":');
+      plant('{"mapConfig":');
 
-      expect(readMapConfig()).toEqual({});
+      expect(readDepositConfig()).toEqual({});
     });
   });
 
